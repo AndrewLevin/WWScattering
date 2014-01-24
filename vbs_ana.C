@@ -431,7 +431,7 @@ void vbs_ana
 
     if(lType == 0) passMass = passMass && (TMath::Abs(bgdEvent.dilep_.M()-91.1876) > 15 || bgdEvent.type_ != SmurfTree::mm);
     int newId=int(bgdEvent.jet1McId_);
-    int wzId=newId%10;
+    //int wzId=newId%10;
     //int tauId=int((newId%100-newId%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
@@ -927,7 +927,7 @@ void vbs_ana
 
     if(lType == 0) passMass = passMass && (TMath::Abs(systEvent.dilep_.M()-91.1876) > 15 || systEvent.type_ != SmurfTree::mm);
     int newId=int(systEvent.jet1McId_);
-    int wzId=newId%10;
+    //int wzId=newId%10;
     //int tauId=int((newId%100-newId%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
@@ -1144,7 +1144,7 @@ void vbs_ana
 
     if(lType == 0) passMass = passMass && (TMath::Abs(dataEvent.dilep_.M()-91.1876) > 15 || dataEvent.type_ != SmurfTree::mm);
     int newId=int(dataEvent.jet1McId_);
-    int wzId=newId%10;
+    //int wzId=newId%10;
     //int tauId=int((newId%100-newId%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
@@ -1629,7 +1629,7 @@ void vbs_ana
   newcardShape << Form("process WWewk WWqcd WZ WS VVV Wjets\n");
   newcardShape << Form("process 0 1 2 3 4 5\n");
   newcardShape << Form("rate %6.3f  %6.3f  %6.3f  %6.3f  %6.3f  %6.3f\n",NFinal[0],NFinal[1],NFinal[2],NFinal[3],NFinal[4],TMath::Max(NFinal[5],0.0));
-  newcardShape << Form("lumi_%4s                               lnN %5.3f %5.3f %5.3f %5.3f %5.3f   -  \n",lumiE,lumiE,lumiE,lumiE,lumiE,lumiE);		      
+  newcardShape << Form("lumi_%4s                               lnN %5.3f %5.3f %5.3f %5.3f %5.3f   -  \n",lumiE,lumiE,lumiE,lumiE,lumiE);		      
   newcardShape << Form("%s                                   shape 1.000 1.000 1.000 1.000 1.000   -  \n",effName);
   newcardShape << Form("%s                                   shape 1.000 1.000 1.000 1.000 1.000   -  \n",momName);
   newcardShape << Form("CMS_scale_met                        shape 1.000 1.000 1.000 1.000 1.000   -  \n");
