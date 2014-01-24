@@ -35,7 +35,7 @@ enum selTypeSyst {JESUP=0, JESDOWN, LEPP, LEPM, MET, EFFP, EFFM};
 TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS", "LEPM-OS", "MET-OS", "EFFP-OS", "EFFM-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
-bool run_over_data = false;
+bool run_over_data = true;
 
 void vbs_ana
 (
@@ -431,7 +431,7 @@ void vbs_ana
 
     if(lType == 0) passMass = passMass && (TMath::Abs(bgdEvent.dilep_.M()-91.1876) > 15 || bgdEvent.type_ != SmurfTree::mm);
     int newId=int(bgdEvent.jet1McId_);
-    //int wzId=newId%10;
+    //double wzId=bgdEvent.jet1McId_%10;
     //int tauId=int((newId%100-newId%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
@@ -927,7 +927,7 @@ void vbs_ana
 
     if(lType == 0) passMass = passMass && (TMath::Abs(systEvent.dilep_.M()-91.1876) > 15 || systEvent.type_ != SmurfTree::mm);
     int newId=int(systEvent.jet1McId_);
-    //int wzId=newId%10;
+    //double wzId=systEvent.jet1McId_%10;
     //int tauId=int((newId%100-newId%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
@@ -1144,7 +1144,7 @@ void vbs_ana
 
     if(lType == 0) passMass = passMass && (TMath::Abs(dataEvent.dilep_.M()-91.1876) > 15 || dataEvent.type_ != SmurfTree::mm);
     int newId=int(dataEvent.jet1McId_);
-    //int wzId=newId%10;
+    //double wzId=dataEvent.jet1McId_%10;
     //int tauId=int((newId%100-newId%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
