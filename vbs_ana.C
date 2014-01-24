@@ -1,10 +1,10 @@
-#include "/home/ceballos/releases/CMSSW_5_2_8/src/Smurf/Core/SmurfTree.h"
-#include "/home/ceballos/releases/CMSSW_5_2_8/src/Smurf/Analysis/HWWlvlv/factors.h"
-#include "/home/ceballos/releases/CMSSW_5_2_8/src/Smurf/Core/LeptonScaleLookup.h"
-#include "/home/ceballos/releases/CMSSW_5_2_8/src/Ana/nt_scripts/trilepton.h"
-#include "/home/ceballos/releases/CMSSW_5_2_8/src/Smurf/Analysis/HWWlvlv/OtherBkgScaleFactors_8TeV.h"
-#include "/home/ceballos/releases/CMSSW_5_2_8/src/Ana/nt_scripts/makeSystematicEffects.h"
-#include "/home/ceballos/releases/CMSSW_5_2_8/src/Ana/nt_scripts/LeptonEfficiencyZH.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Core/SmurfTree.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Analysis/HWWlvlv/factors.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Core/LeptonScaleLookup.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Ana/nt_scripts/trilepton.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Analysis/HWWlvlv/OtherBkgScaleFactors_8TeV.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Ana/nt_scripts/makeSystematicEffects.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Ana/nt_scripts/LeptonEfficiencyZH.h"
 #include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -40,7 +40,7 @@ bool run_over_data = false;
 void vbs_ana
 (
  int thePlot = 37,
- TString bgdInputFile    = "/data/smurf/data/Run2012_Summer12_SmurfV9_53X/mitf-alljets/backgroundA_skim8.root",
+ TString bgdInputFile    = "/data/smurf/data/Run2012_Summer12_SmurfV9_53X/mitf-alljets/backgroundA_skim8_ls0ls1.root",
  TString dataInputFile   = "/data/smurf/data/Run2012_Summer12_SmurfV9_53X/mitf-alljets/data_skim8.root",
  TString systInputFile   = "/data/smurf/data/Run2012_Summer12_SmurfV9_53X/mitf-alljets/hww_syst_skim8.root",
  int period = 3,
@@ -404,6 +404,11 @@ void vbs_ana
     if(signSel == 2 && bgdEvent.lq1_+bgdEvent.lq2_ ==  2) passNsignSel = false;
 
     if(lType == 0) passMass = passMass && (TMath::Abs(bgdEvent.dilep_.M()-91.1876) > 15 || bgdEvent.type_ != SmurfTree::mm);
+    int newId=int(bgdEvent.jet1McId_);
+    int wzId=newId%10;
+    //int tauId=int((newId%100-newId%10)/10);
+    int qDisAgree=int((newId%1000-newId%100)/100);
+    int hasZCand=int(newId/1000);
 
     // 0      1      2       3     4   5      6        7           8  9            10            11     12  13    14
     // lep1pt,lep2pt,dilmass,dilpt,met,metPhi,trackMet,trackMetPhi,mt,dPhiDiLepMET,dPhiMETTrkMET,pTFrac,mtZ,mlljj,mjj;
@@ -482,11 +487,11 @@ void vbs_ana
     if(passNsignSel && passLSel && bgdEvent.jet2_.Pt() > ptJetMin && TMath::Min(outputVarMET[4] /bgdEvent.met_*bgdEvent.pmet_,outputVarMET[6] /bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVarMET[0]  > 20.0 && outputVarMET[1]  > 20.0 && passBtagVeto && pass3rLVeto && outputVarMET[2]  > 50.0 && passVBFSel) passSystCuts[lType][MET] = true;
 
     if(passNjets  == true && passMET == true &&  passLSel == true &&
-       preselCuts == true && bgdEvent.dilep_.M() > 15.0) {
+       preselCuts == true && bgdEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
        
-       if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
-       if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
-       if(passNsignSel &&  passBtagVeto && passVBFSel == true                      && !pass3rLVeto && bgdEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
+       if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true                                       && !pass3rLVeto && bgdEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
 
       if(isRealLepton == false &&
          (bgdEvent.dstype_ == SmurfTree::ttbar  || bgdEvent.dstype_ == SmurfTree::tw   || bgdEvent.dstype_ == SmurfTree::dyee || bgdEvent.dstype_ == SmurfTree::dymm ||
@@ -654,14 +659,15 @@ void vbs_ana
       }
       theWeight = weightWS[0];
       
-      if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.08108;
-      if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.08108;
+      if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.07841;
+      if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.07841;
 
       if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = theMET;
 	if(thePlot ==37) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
 	else assert(0);
       	if     (fDecay == 31){
+	  std::cout << "found wwewk event" << std::endl;
       	  histo0->Fill(myVar,theWeight);
       	}
       	else if(fDecay == 21){
@@ -854,6 +860,11 @@ void vbs_ana
     if(signSel == 2 && systEvent.lq1_+systEvent.lq2_ ==  2) passNsignSel = false;
 
     if(lType == 0) passMass = passMass && (TMath::Abs(systEvent.dilep_.M()-91.1876) > 15 || systEvent.type_ != SmurfTree::mm);
+    int newId=int(systEvent.jet1McId_);
+    int wzId=newId%10;
+    //int tauId=int((newId%100-newId%10)/10);
+    int qDisAgree=int((newId%1000-newId%100)/100);
+    int hasZCand=int(newId/1000);
 
     bool passLSel = false;
     if     (lSel == 0 && systEvent.type_ == SmurfTree::mm) passLSel = true;
@@ -865,8 +876,8 @@ void vbs_ana
     else if(lSel == 6 && (systEvent.type_ == SmurfTree::me || systEvent.type_ == SmurfTree::em)) passLSel = true;
 
     if(passNjets  == true && passMET == true &&  passLSel == true &&
-       preselCuts == true && systEvent.dilep_.M() > 15.0) {
-      if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
+       preselCuts == true && systEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
+      if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
 
       if(isRealLepton == false &&
          (systEvent.dstype_ == SmurfTree::ttbar  || systEvent.dstype_ == SmurfTree::tw   || systEvent.dstype_ == SmurfTree::dyee || systEvent.dstype_ == SmurfTree::dymm ||
@@ -1068,6 +1079,11 @@ void vbs_ana
       if(signSel == 2 && dataEvent.lq1_+dataEvent.lq2_ ==  2) passNsignSel = false;
       
       if(lType == 0) passMass = passMass && (TMath::Abs(dataEvent.dilep_.M()-91.1876) > 15 || dataEvent.type_ != SmurfTree::mm);
+      int newId=int(dataEvent.jet1McId_);
+      int wzId=newId%10;
+      //int tauId=int((newId%100-newId%10)/10);
+      int qDisAgree=int((newId%1000-newId%100)/100);
+      int hasZCand=int(newId/1000);
       
       bool passLSel = false;
       if     (lSel == 0 && dataEvent.type_ == SmurfTree::mm) passLSel = true;
@@ -1078,14 +1094,14 @@ void vbs_ana
       else if(lSel == 5 && (dataEvent.type_ == SmurfTree::mm || dataEvent.type_ == SmurfTree::ee)) passLSel = true;
       else if(lSel == 6 && (dataEvent.type_ == SmurfTree::me || dataEvent.type_ == SmurfTree::em)) passLSel = true;
       
-      if(passNjets  == true && passMET == true &&  passLSel == true &&
-	 preselCuts == true && dataEvent.dilep_.M() > 15.0) {
-	
-	if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
-	if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
-	if(passNsignSel &&  passBtagVeto && passVBFSel == true                      && !pass3rLVeto && dataEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
-	
-      }
+    if(passNjets  == true && passMET == true &&  passLSel == true &&
+       preselCuts == true && dataEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
+       
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
+       if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true                                       && !pass3rLVeto && dataEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
+
+    }
       
       if(passNjets  == true && passMET == true &&  passLSel == true &&
 	 preselCuts == true && dataEvent.dilep_.M() > 15.0) {
@@ -1563,14 +1579,15 @@ void scaleFactor_WS(LorentzVector l,int lq, int ld, int mcld, double val[2]){
 //---------------------------------------------------------------------
 // |eta|        data                  mc                    factor
 //---------------------------------------------------------------------
-//0.0-0.5 0.00043 +/- 0.00002 | 0.00039 +/- 0.00002 ==> 1.098 +/- 0.091
-//0.5-1.0 0.00070 +/- 0.00003 | 0.00078 +/- 0.00004 ==> 0.891 +/- 0.059
-//1.0-1.5 0.00376 +/- 0.00010 | 0.00309 +/- 0.00009 ==> 1.219 +/- 0.050
-//1.5-2.0 0.00869 +/- 0.00021 | 0.00664 +/- 0.00018 ==> 1.309 +/- 0.048
-//2.0-2.5 0.01203 +/- 0.00030 | 0.00891 +/- 0.00025 ==> 1.351 +/- 0.051
+//---------------------------------------------------------------------
+//0.0-0.5 0.000109 +/- 0.000017 | 0.000106 +/- 0.000017 ==> 1.028 +/- 0.160
+//0.5-1.0 0.000210 +/- 0.000025 | 0.000188 +/- 0.000025 ==> 1.117 +/- 0.133
+//1.0-1.5 0.001302 +/- 0.000087 | 0.001022 +/- 0.000087 ==> 1.274 +/- 0.085
+//1.5-2.0 0.003437 +/- 0.000193 | 0.002562 +/- 0.000193 ==> 1.342 +/- 0.075
+//2.0-2.5 0.003270 +/- 0.000241 | 0.002245 +/- 0.000240 ==> 1.456 +/- 0.107
 // additional 10% uncertainty for the overall normalization
-  double factor[5]  = {1.098,0.891,1.219,1.309,1.351};
-  double factorE[5] = {0.091,0.059,0.050,0.048,0.051};
+  double factor[5]  = {1.028,1.117,1.274,1.342,1.456};
+  double factorE[5] = {0.160,0.133,0.085,0.075,0.107};
 
   if(abs(ld) == 11){
     if((mcld ==  11 && lq > 0) || 
