@@ -1,10 +1,10 @@
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Core/SmurfTree.h"
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Analysis/HWWlvlv/factors.h"
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Core/LeptonScaleLookup.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Ana/nt_scripts/trilepton.h"
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Analysis/HWWlvlv/OtherBkgScaleFactors_8TeV.h"
-#include "/home/ceballos/releases/CMSSW_5_3_14/src/Analysis/nt_scripts/trilepton.h"
-#include "/home/ceballos/releases/CMSSW_5_3_14/src/Analysis/nt_scripts/makeSystematicEffects.h"
-#include "/home/ceballos/releases/CMSSW_5_3_14/src/Analysis/nt_scripts/LeptonEfficiencyZH.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Ana/nt_scripts/makeSystematicEffects.h"
+#include "/home/ceballos/releases/CMSSW_5_3_14/src/Ana/nt_scripts/LeptonEfficiencyZH.h"
 #include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -323,15 +323,18 @@ void vbs_ana
   TH1D* histo_WS_CMS_MVAWSBoundingDown    = new TH1D( Form("histo_WS_CMS_wwss_MVAWSBoundingDown"), Form("histo_WS_CMS_wwss_MVAWSBoundingDown"), nBinMVA, xbins); histo_WS_CMS_MVAWSBoundingDown->Sumw2();
 
   double nSelectedData[nSelTypes*2];
+  double nSigCut[nSelTypes*2],nSigECut[nSelTypes*2];
   double bgdDecay[nSelTypes*2][45],weiDecay[nSelTypes*2][45];
+  double nSigCutSyst[nSelTypesSyst*2],nSigECutSyst[nSelTypesSyst*2];
   double bgdDecaySyst[nSelTypesSyst*2][45],weiDecaySyst[nSelTypesSyst*2][45];
   for(unsigned int i=0; i<nSelTypes*2; i++) {
-    nSelectedData[i] = 0.0; 
+    nSelectedData[i] = 0.0; nSigCut[i] = 0.0; nSigECut[i] = 0.0;
     for(int j=0; j<45; j++) {
       bgdDecay[i][j] = 0.0; weiDecay[i][j] = 0.0; 
     }
   }
   for(unsigned int i=0; i<nSelTypesSyst*2; i++) {
+    nSigCutSyst[i] = 0.0; nSigECutSyst[i] = 0.0;
     for(int j=0; j<45; j++) {
       bgdDecaySyst[i][j] = 0.0; weiDecaySyst[i][j] = 0.0; 
     }
@@ -1284,6 +1287,7 @@ void vbs_ana
     for(unsigned int j=0; j<nBkg; j++) {bgdCombined[i][j] = 0.0; bgdCombinedE[i][j] = 0.0;}
     if(showSignalOnly == false || i%nSelTypes == WWSEL) printf("selection: %s\n",selTypeName[i].Data());
     if(showSignalOnly == false || i%nSelTypes == WWSEL) printf("data(%2d): %f\n",i,nSelectedData[i]);
+    if(showSignalOnly == false || i%nSelTypes == WWSEL) printf("nSigCut(%2d): %11.3f +/- %8.3f\n",i,nSigCut[i],sqrt(nSigECut[i]));
     nTot[i] = 0.0; nETot[i] = 0.0;
     for(int j=0; j<45; j++){
       // WWqcd treatment
@@ -1322,6 +1326,7 @@ void vbs_ana
   for(unsigned int i=0; i<nSelTypesSyst*2; i++) {
     if(showSignalOnly == false) printf("selectionSyst: %s\n",selTypeNameSyst[i].Data());
     for(unsigned int j=0; j<nBkg; j++) {bgdCombinedSyst[i][j] = 0.0; bgdCombinedESyst[i][j] = 0.0;}
+    if(showSignalOnly == false) printf("nSigCutSyst(%2d): %11.3f +/- %8.3f\n",i,nSigCutSyst[i],sqrt(nSigECutSyst[i]));
     nTotSyst[i] = 0.0; nETotSyst[i] = 0.0;
     for(int j=0; j<45; j++){
       if(showSignalOnly == false) if(bgdDecaySyst[i][j] != 0) printf("bdgSyst(%2d,%2d) = %11.3f +/- %8.3f\n",i,j,bgdDecaySyst[i][j],sqrt(weiDecaySyst[i][j]));
@@ -1353,13 +1358,16 @@ void vbs_ana
   for(unsigned int i=0; i<nSelTypes*2; i++) {
     for(unsigned int j=0; j<nBkg; j++) if(bgdCombined[i][j] == 0) {bgdCombined[i][j] = 0.0000000001; bgdCombinedE[i][j] = 0.0;}
   }
-  double NFinal[nBkg]  = {bgdCombined[WWSEL+nSelTypes][0],bgdCombined[WWSEL+nSelTypes][1],bgdCombined[WWSEL+nSelTypes][2],
-                          bgdCombined[WWSEL+nSelTypes][3],bgdCombined[WWSEL+nSelTypes][4],bgdCombined[WWSEL+nSelTypes][5]};
+  double NFinal[nBkg+1]  = {bgdCombined[WWSEL+nSelTypes][0],bgdCombined[WWSEL+nSelTypes][1],bgdCombined[WWSEL+nSelTypes][2],
+                            bgdCombined[WWSEL+nSelTypes][3],bgdCombined[WWSEL+nSelTypes][4],bgdCombined[WWSEL+nSelTypes][5],nSigCut[WWSEL+nSelTypes]};
+  //double NFinalE[nBkg+1] = {1.0+sqrt(bgdCombinedE[WWSEL+nSelTypes][0])/bgdCombined[WWSEL+nSelTypes][0],1.0+sqrt(bgdCombinedE[WWSEL+nSelTypes][1])/bgdCombined[WWSEL+nSelTypes][1],
+  //                   	    1.0+sqrt(bgdCombinedE[WWSEL+nSelTypes][2])/bgdCombined[WWSEL+nSelTypes][2],1.0+sqrt(bgdCombinedE[WWSEL+nSelTypes][3])/bgdCombined[WWSEL+nSelTypes][3],
+  //		            1.0+sqrt(bgdCombinedE[WWSEL+nSelTypes][4])/bgdCombined[WWSEL+nSelTypes][4],1.0+sqrt(nSigECut[WWSEL+nSelTypes])/nSigCut[WWSEL+nSelTypes]};
 
   double QCDscale_WWewk = 1.05;
   double QCDscale_WWqcd = 1.16;
 
-  double systEffect[nSelTypesSyst][nBkg];
+  double systEffect[nSelTypesSyst][nBkg+1];
   for(unsigned int i=0 ; i<nSelTypesSyst; i++){
     for(unsigned int j=0 ; j<nBkg; j++){
       if(bgdCombinedE[WWSEL+nSelTypes][j] > 0){
@@ -1367,7 +1375,10 @@ void vbs_ana
         if(systEffect[i][j] < 1) systEffect[i][j] = 1.0/systEffect[i][j];
       } else {systEffect[i][j] = 1.0;}
     }
+    systEffect[i][nBkg] = nSigCutSyst[i+nSelTypesSyst]/nSigCut[WWSEL+nSelTypes];    
+    if(systEffect[i][nBkg] < 1) systEffect[i][nBkg] = 1.0/systEffect[i][nBkg];
   }
+  if(showSignalOnly == false) printf("Syst(sig) = %6.4f %6.4f %6.4f %6.4f %6.4f %6.4f %6.4f\n",systEffect[JESUP][nBkg]-1,systEffect[JESDOWN][nBkg]-1,systEffect[LEPP][nBkg]-1,systEffect[LEPM][nBkg]-1,systEffect[MET][nBkg]-1,systEffect[EFFP][nBkg]-1,systEffect[EFFM][nBkg]-1);
   if(showSignalOnly == false) printf("Syst(WWe) = %6.4f %6.4f %6.4f %6.4f %6.4f %6.4f %6.4f\n",systEffect[JESUP][0]-1,systEffect[JESDOWN][0]-1,systEffect[LEPP][0]-1,systEffect[LEPM][0]-1,systEffect[MET][0]-1,systEffect[EFFP][0]-1,systEffect[EFFM][0]-1);
   if(showSignalOnly == false) printf("Syst(WWq) = %6.4f %6.4f %6.4f %6.4f %6.4f %6.4f %6.4f\n",systEffect[JESUP][1]-1,systEffect[JESDOWN][1]-1,systEffect[LEPP][1]-1,systEffect[LEPM][1]-1,systEffect[MET][1]-1,systEffect[EFFP][1]-1,systEffect[EFFM][1]-1);
   if(showSignalOnly == false) printf("Syst(xWZ) = %6.4f %6.4f %6.4f %6.4f %6.4f %6.4f %6.4f\n",systEffect[JESUP][2]-1,systEffect[JESDOWN][2]-1,systEffect[LEPP][2]-1,systEffect[LEPM][2]-1,systEffect[MET][2]-1,systEffect[EFFP][2]-1,systEffect[EFFM][2]-1);
