@@ -1629,7 +1629,7 @@ void vbs_ana
   newcardShape << Form("process WWewk WWqcd WZ WS VVV Wjets\n");
   newcardShape << Form("process 0 1 2 3 4 5\n");
   newcardShape << Form("rate %6.3f  %6.3f  %6.3f  %6.3f  %6.3f  %6.3f\n",NFinal[0],NFinal[1],NFinal[2],NFinal[3],NFinal[4],TMath::Max(NFinal[5],0.0));
-  newcardShape << Form("lumi_%4s                               lnN %5.3f %5.3f %5.3f %5.3f %5.3f   -  \n",lumiE,lumiE,lumiE,lumiE,lumiE);		      
+  newcardShape << Form("lumi_%4s                               lnN %5.3f %5.3f %5.3f %5.3f %5.3f   -  \n",ECMsb.Data(),lumiE,lumiE,lumiE,lumiE,lumiE);		      
   newcardShape << Form("%s                                   shape 1.000 1.000 1.000 1.000 1.000   -  \n",effName);
   newcardShape << Form("%s                                   shape 1.000 1.000 1.000 1.000 1.000   -  \n",momName);
   newcardShape << Form("CMS_scale_met                        shape 1.000 1.000 1.000 1.000 1.000   -  \n");
