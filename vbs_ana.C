@@ -27,6 +27,7 @@ SmurfTree systEvent;
 const unsigned int nSelTypes = 3;
 const unsigned int nSelTypesSyst = 7;
 const bool showSignalOnly = false;
+// root -l -q -b vbs_ana.C+'(37,"ntuples_53x/backgroundA_skim8_ls0ls1.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';root -l -q -b vbs_ana.C+'(37,"ntuples_53x/backgroundA_skim8_ls0ls1.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)';
 
 enum selType {WWSEL, BTAGSEL, WZSEL};
 TString selTypeName[nSelTypes*2] = {"WWSEL-OS", "BTAGSEL-OS", "WZSEL-OS",
@@ -35,7 +36,7 @@ enum selTypeSyst {JESUP=0, JESDOWN, LEPP, LEPM, MET, EFFP, EFFM};
 TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS", "LEPM-OS", "MET-OS", "EFFP-OS", "EFFM-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
-bool run_over_data = true;
+bool run_over_data = false;
 
 void vbs_ana
 (
@@ -417,11 +418,24 @@ void vbs_ana
     double metMin = 30.0; if(bgdEvent.type_ == SmurfTree::ee) metMin = 40.0;
     if(lType == 0) if(bgdEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
+    // jet1McId and jet2McId actually provide lepton rejection information
+    // hasZCand = reject events with |mll-mZ|<15
+    // trackSel[0] == reject events with |mll-mZ|<10 for pf candidates with |eta|<3.0
+    // trackSel[1] == reject events with |mll-mZ|<10 for pf candidates with |eta|<4.7
+    // trackSel[2] == reject events with isolated reconstructed leptons with pt>10 and iso/pt<0.1
+    // trackSel[3] == reject events with isolated tracks with pt>10 and iso/pt<0.1 (not used by default)
+    int newId=int(bgdEvent.jet1McId_);
+    //double wzId=bgdEvent.jet1McId_%10;
+    //int tauId=int((bgdEvent.jet1McId_%100-bgdEvent.jet1McId_%10)/10)+int((bgdEvent.jet2McId_%100-bgdEvent.jet2McId_%10)/10)+int((bgdEvent.jet3McId_%100-bgdEvent.jet3McId_%10)/10)+int((bgdEvent.jet4McId_%100-bgdEvent.jet4McId_%10)/10);
+    int qDisAgree=int((newId%1000-newId%100)/100);
+    int hasZCand=int(newId/1000);
+    int trackSel[4] = {int((bgdEvent.jet2McId_%1000-bgdEvent.jet2McId_%100)/10),int((bgdEvent.jet2McId_%10000-bgdEvent.jet2McId_%1000)/10),int((bgdEvent.jet2McId_%100000-bgdEvent.jet2McId_%10000)/10),int(bgdEvent.jet2McId_/100000)};
+
     bool passNjets         = bgdEvent.njets_ >= 2;
     bool passMET           = TMath::Min(bgdEvent.pmet_,bgdEvent.pTrackMet_) > metMin;
     bool preselCuts        = bgdEvent.lep1_.Pt() > 20. && bgdEvent.lep2_.Pt() > 20.;
     bool passBtagVeto      = (bgdEvent.cuts_ & patternTopVeto) == patternTopVeto;
-    bool pass3rLVeto       = (bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto;
+    bool pass3rLVeto       = (bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && hasZCand == 0 && trackSel[0]+trackSel[1]+trackSel[2] == 0;
     bool passMass          = bgdEvent.dilep_.M() > 50.0 && (TMath::Abs(bgdEvent.dilep_.M()-91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee);
     bool passVBFSel        = (bgdEvent.jet1_+bgdEvent.jet2_).M() > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 3.5 && centrality == 1;
     // quick way to accept W+W+ (1) or W-W- (2)
@@ -430,11 +444,6 @@ void vbs_ana
     if(signSel == 2 && bgdEvent.lq1_+bgdEvent.lq2_ ==  2) passNsignSel = false;
 
     if(lType == 0) passMass = passMass && (TMath::Abs(bgdEvent.dilep_.M()-91.1876) > 15 || bgdEvent.type_ != SmurfTree::mm);
-    int newId=int(bgdEvent.jet1McId_);
-    //double wzId=bgdEvent.jet1McId_%10;
-    //int tauId=int((newId%100-newId%10)/10);
-    int qDisAgree=int((newId%1000-newId%100)/100);
-    int hasZCand=int(newId/1000);
 
     // 0      1      2       3     4   5      6        7           8  9            10            11     12  13    14
     // lep1pt,lep2pt,dilmass,dilpt,met,metPhi,trackMet,trackMetPhi,mt,dPhiDiLepMET,dPhiMETTrkMET,pTFrac,mtZ,mlljj,mjj;
@@ -506,18 +515,18 @@ void vbs_ana
     else if(lSel == 5 && (bgdEvent.type_ == SmurfTree::mm || bgdEvent.type_ == SmurfTree::ee)) passLSel = true;
     else if(lSel == 6 && (bgdEvent.type_ == SmurfTree::me || bgdEvent.type_ == SmurfTree::em)) passLSel = true;
 
-    if(passNsignSel && passLSel && NjetSyst[0] >= 2 	      && TMath::Min(outputVarJESP[4]/bgdEvent.met_*bgdEvent.pmet_,outputVarJESP[6]/bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVar[0]     > 20.0 && outputVar[1]     > 20.0 && passBtagVeto && pass3rLVeto && outputVar[2]     > 50.0 && passVBFSel) passSystCuts[lType][JESUP] = true;
-    if(passNsignSel && passLSel && NjetSyst[1] >= 2 	      && TMath::Min(outputVarJESM[4]/bgdEvent.met_*bgdEvent.pmet_,outputVarJESM[6]/bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVar[0]     > 20.0 && outputVar[1]     > 20.0 && passBtagVeto && pass3rLVeto && outputVar[2]     > 50.0 && passVBFSel) passSystCuts[lType][JESDOWN] = true;
-    if(passNsignSel && passLSel && bgdEvent.jet2_.Pt() > ptJetMin && TMath::Min(outputVarLepP[4]/bgdEvent.met_*bgdEvent.pmet_,outputVarLepP[6]/bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVarLepP[0] > 20.0 && outputVarLepP[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepP[2] > 50.0 && passVBFSel) passSystCuts[lType][LEPP] = true;
-    if(passNsignSel && passLSel && bgdEvent.jet2_.Pt() > ptJetMin && TMath::Min(outputVarLepM[4]/bgdEvent.met_*bgdEvent.pmet_,outputVarLepM[6]/bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVarLepM[0] > 20.0 && outputVarLepM[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepM[2] > 50.0 && passVBFSel) passSystCuts[lType][LEPM] = true;
-    if(passNsignSel && passLSel && bgdEvent.jet2_.Pt() > ptJetMin && TMath::Min(outputVarMET[4] /bgdEvent.met_*bgdEvent.pmet_,outputVarMET[6] /bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVarMET[0]  > 20.0 && outputVarMET[1]  > 20.0 && passBtagVeto && pass3rLVeto && outputVarMET[2]  > 50.0 && passVBFSel) passSystCuts[lType][MET] = true;
+    if(passNsignSel && qDisAgree == 0 && NjetSyst[0] >= 2	  && TMath::Min(outputVarJESP[4]/bgdEvent.met_*bgdEvent.pmet_,outputVarJESP[6]/bgdEvent.trackMet_*bgdEvent.pTrackMet_)       > metMin && outputVar[0]	  > 20.0 && outputVar[1]     > 20.0 && passBtagVeto && pass3rLVeto && outputVar[2]     > 50.0 && passVBFSel) passSystCuts[lType][JESUP] = true;
+    if(passNsignSel && qDisAgree == 0 && NjetSyst[1] >= 2	  && TMath::Min(outputVarJESM[4]/bgdEvent.met_*bgdEvent.pmet_,outputVarJESM[6]/bgdEvent.trackMet_*bgdEvent.pTrackMet_)       > metMin && outputVar[0]	  > 20.0 && outputVar[1]     > 20.0 && passBtagVeto && pass3rLVeto && outputVar[2]     > 50.0 && passVBFSel) passSystCuts[lType][JESDOWN] = true;
+    if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && TMath::Min(outputVarLepP[4]/bgdEvent.met_*bgdEvent.pmet_,outputVarLepP[6]/bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVarLepP[0] > 20.0 && outputVarLepP[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepP[2] > 50.0 && passVBFSel) passSystCuts[lType][LEPP] = true;
+    if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && TMath::Min(outputVarLepM[4]/bgdEvent.met_*bgdEvent.pmet_,outputVarLepM[6]/bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVarLepM[0] > 20.0 && outputVarLepM[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepM[2] > 50.0 && passVBFSel) passSystCuts[lType][LEPM] = true;
+    if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && TMath::Min(outputVarMET[4] /bgdEvent.met_*bgdEvent.pmet_,outputVarMET[6] /bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVarMET[0]  > 20.0 && outputVarMET[1]  > 20.0 && passBtagVeto && pass3rLVeto && outputVarMET[2]  > 50.0 && passVBFSel) passSystCuts[lType][MET] = true;
 
     if(passNjets  == true && passMET == true &&  passLSel == true &&
        preselCuts == true && bgdEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
        
-       if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
-       if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
-       if(passNsignSel &&  passBtagVeto && passVBFSel == true                                       && !pass3rLVeto && bgdEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
+       if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true                      && !pass3rLVeto && bgdEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
 
       if(isRealLepton == false &&
          (bgdEvent.dstype_ == SmurfTree::ttbar  || bgdEvent.dstype_ == SmurfTree::tw   || bgdEvent.dstype_ == SmurfTree::dyee || bgdEvent.dstype_ == SmurfTree::dymm ||
@@ -913,11 +922,18 @@ void vbs_ana
     double metMin = 30.0; if(systEvent.type_ == SmurfTree::ee) metMin = 40.0;
     if(lType == 0) if(systEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
+    int newId=int(systEvent.jet1McId_);
+    //double wzId=systEvent.jet1McId_%10;
+    //int tauId=int((systEvent.jet1McId_%100-systEvent.jet1McId_%10)/10)+int((systEvent.jet2McId_%100-systEvent.jet2McId_%10)/10)+int((systEvent.jet3McId_%100-systEvent.jet3McId_%10)/10)+int((systEvent.jet4McId_%100-systEvent.jet4McId_%10)/10);
+    int qDisAgree=int((newId%1000-newId%100)/100);
+    int hasZCand=int(newId/1000);
+    int trackSel[4] = {int((systEvent.jet2McId_%1000-systEvent.jet2McId_%100)/10),int((systEvent.jet2McId_%10000-systEvent.jet2McId_%1000)/10),int((systEvent.jet2McId_%100000-systEvent.jet2McId_%10000)/10),int(systEvent.jet2McId_/100000)};
+
     bool passNjets         = systEvent.njets_ >= 2;
     bool passMET           = TMath::Min(systEvent.pmet_,systEvent.pTrackMet_) > metMin;
     bool preselCuts        = systEvent.lep1_.Pt() > 20. && systEvent.lep2_.Pt() > 20.;
     bool passBtagVeto      = (systEvent.cuts_ & patternTopVeto) == patternTopVeto;
-    bool pass3rLVeto       = (systEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto;
+    bool pass3rLVeto       = (systEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && hasZCand == 0 && trackSel[0]+trackSel[1]+trackSel[2] == 0;
     bool passMass          = systEvent.dilep_.M() > 50.0 && (TMath::Abs(systEvent.dilep_.M()-91.1876) > 15 || systEvent.type_ != SmurfTree::ee);
     bool passVBFSel        = (systEvent.jet1_+systEvent.jet2_).M() > 500 && TMath::Abs(systEvent.jet1_.Eta()-systEvent.jet2_.Eta()) > 3.5 && centrality == 1;
     // quick way to accept W+W+ (1) or W-W- (2)
@@ -926,24 +942,19 @@ void vbs_ana
     if(signSel == 2 && systEvent.lq1_+systEvent.lq2_ ==  2) passNsignSel = false;
 
     if(lType == 0) passMass = passMass && (TMath::Abs(systEvent.dilep_.M()-91.1876) > 15 || systEvent.type_ != SmurfTree::mm);
-    int newId=int(systEvent.jet1McId_);
-    //double wzId=systEvent.jet1McId_%10;
-    //int tauId=int((newId%100-newId%10)/10);
-    int qDisAgree=int((newId%1000-newId%100)/100);
-    int hasZCand=int(newId/1000);
 
     bool passLSel = false;
     if     (lSel == 0 && systEvent.type_ == SmurfTree::mm) passLSel = true;
     else if(lSel == 1 && systEvent.type_ == SmurfTree::me) passLSel = true;
     else if(lSel == 2 && systEvent.type_ == SmurfTree::em) passLSel = true;
     else if(lSel == 3 && systEvent.type_ == SmurfTree::ee) passLSel = true;
-    else if(lSel == 4)                                    passLSel = true;
+    else if(lSel == 4)                                     passLSel = true;
     else if(lSel == 5 && (systEvent.type_ == SmurfTree::mm || systEvent.type_ == SmurfTree::ee)) passLSel = true;
     else if(lSel == 6 && (systEvent.type_ == SmurfTree::me || systEvent.type_ == SmurfTree::em)) passLSel = true;
 
     if(passNjets  == true && passMET == true &&  passLSel == true &&
        preselCuts == true && systEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
-      if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
+      if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
 
       if(isRealLepton == false &&
          (systEvent.dstype_ == SmurfTree::ttbar  || systEvent.dstype_ == SmurfTree::tw   || systEvent.dstype_ == SmurfTree::dyee || systEvent.dstype_ == SmurfTree::dymm ||
@@ -1130,11 +1141,18 @@ void vbs_ana
     double metMin = 30.0; if(dataEvent.type_ == SmurfTree::ee) metMin = 40.0;
     if(lType == 0) if(dataEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
+    int newId=int(dataEvent.jet1McId_);
+    //double wzId=dataEvent.jet1McId_%10;
+    //int tauId=int((dataEvent.jet1McId_%100-dataEvent.jet1McId_%10)/10)+int((dataEvent.jet2McId_%100-dataEvent.jet2McId_%10)/10)+int((dataEvent.jet3McId_%100-dataEvent.jet3McId_%10)/10)+int((dataEvent.jet4McId_%100-dataEvent.jet4McId_%10)/10);
+    int qDisAgree=int((newId%1000-newId%100)/100);
+    int hasZCand=int(newId/1000);
+    int trackSel[4] = {int((dataEvent.jet2McId_%1000-dataEvent.jet2McId_%100)/10),int((dataEvent.jet2McId_%10000-dataEvent.jet2McId_%1000)/10),int((dataEvent.jet2McId_%100000-dataEvent.jet2McId_%10000)/10),int(dataEvent.jet2McId_/100000)};
+
     bool passNjets         = dataEvent.njets_ >= 2;
     bool passMET           = TMath::Min(dataEvent.pmet_,dataEvent.pTrackMet_) > metMin;
     bool preselCuts        = dataEvent.lep1_.Pt() > 20. && dataEvent.lep2_.Pt() > 20.;
     bool passBtagVeto      = (dataEvent.cuts_ & patternTopVeto) == patternTopVeto;
-    bool pass3rLVeto       = (dataEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto;
+    bool pass3rLVeto       = (dataEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && hasZCand == 0 && trackSel[0]+trackSel[1]+trackSel[2] == 0;
     bool passMass          = dataEvent.dilep_.M() > 50.0 && (TMath::Abs(dataEvent.dilep_.M()-91.1876) > 15 || dataEvent.type_ != SmurfTree::ee);
     bool passVBFSel        = (dataEvent.jet1_+dataEvent.jet2_).M() > 500 && TMath::Abs(dataEvent.jet1_.Eta()-dataEvent.jet2_.Eta()) > 3.5 && centrality == 1;
     // quick way to accept W+W+ (1) or W-W- (2)
@@ -1143,11 +1161,6 @@ void vbs_ana
     if(signSel == 2 && dataEvent.lq1_+dataEvent.lq2_ ==  2) passNsignSel = false;
 
     if(lType == 0) passMass = passMass && (TMath::Abs(dataEvent.dilep_.M()-91.1876) > 15 || dataEvent.type_ != SmurfTree::mm);
-    int newId=int(dataEvent.jet1McId_);
-    //double wzId=dataEvent.jet1McId_%10;
-    //int tauId=int((newId%100-newId%10)/10);
-    int qDisAgree=int((newId%1000-newId%100)/100);
-    int hasZCand=int(newId/1000);
 
     bool passLSel = false;
     if     (lSel == 0 && dataEvent.type_ == SmurfTree::mm) passLSel = true;
@@ -1161,9 +1174,9 @@ void vbs_ana
     if(passNjets  == true && passMET == true &&  passLSel == true &&
        preselCuts == true && dataEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
        
-       if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
-       if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true && hasZCand == 0 &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
-       if(passNsignSel &&  passBtagVeto && passVBFSel == true                                       && !pass3rLVeto && dataEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
+       if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true                      && !pass3rLVeto && dataEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
 
     }
 
@@ -1459,14 +1472,14 @@ void vbs_ana
   histo_WZ_CMS_WZNLOBoundingUp  ->Scale(histo_WZ   ->GetSumOfWeights()/histo_WZ_CMS_WZNLOBoundingUp  ->GetSumOfWeights());
 
   for(int i=1; i<=histo_WWewk->GetNbinsX(); i++){
-    
-    mean = histo_WWewk			   ->GetBinContent(i);
+    // METRes
+    mean = histo_WWewk			      ->GetBinContent(i);
     up   = histo_WWewk_CMS_MVAMETResBoundingUp->GetBinContent(i);
     diff = TMath::Abs(mean-up);
     if     (mean-up >0) histo_WWewk_CMS_MVAMETResBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
     else		histo_WWewk_CMS_MVAMETResBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
 
-    mean = histo_WWqcd			   ->GetBinContent(i);
+    mean = histo_WWqcd			      ->GetBinContent(i);
     up   = histo_WWqcd_CMS_MVAMETResBoundingUp->GetBinContent(i);
     diff = TMath::Abs(mean-up);
     if     (mean-up >0) histo_WWqcd_CMS_MVAMETResBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
@@ -1484,7 +1497,7 @@ void vbs_ana
     if     (mean-up >0) histo_WZ_CMS_WZNLOBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
     else		histo_WZ_CMS_WZNLOBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
 
-    mean = histo_WS			    ->GetBinContent(i);
+    mean = histo_WS			   ->GetBinContent(i);
     up   = histo_WS_CMS_MVAMETResBoundingUp->GetBinContent(i);
     diff = TMath::Abs(mean-up);
     if     (mean-up >0) histo_WS_CMS_MVAMETResBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
@@ -1495,7 +1508,82 @@ void vbs_ana
     diff = TMath::Abs(mean-up);
     if     (mean-up >0) histo_VVV_CMS_MVAMETResBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
     else		histo_VVV_CMS_MVAMETResBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    // LepRes
+    mean = histo_WWewk			      ->GetBinContent(i);
+    up   = histo_WWewk_CMS_MVALepResBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WWewk_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WWewk_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    mean = histo_WWqcd			      ->GetBinContent(i);
+    up   = histo_WWqcd_CMS_MVALepResBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WWqcd_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WWqcd_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    mean = histo_WZ			   ->GetBinContent(i);
+    up   = histo_WZ_CMS_MVALepResBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WZ_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WZ_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
   
+    mean = histo_WZ		       ->GetBinContent(i);
+    up   = histo_WZ_CMS_WZNLOBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WZ_CMS_WZNLOBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WZ_CMS_WZNLOBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    mean = histo_WS			   ->GetBinContent(i);
+    up   = histo_WS_CMS_MVALepResBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WS_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WS_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+  
+    mean = histo_VVV			    ->GetBinContent(i);
+    up   = histo_VVV_CMS_MVALepResBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_VVV_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_VVV_CMS_MVALepResBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    // JES
+    mean = histo_WWewk			   ->GetBinContent(i);
+    up   = histo_WWewk_CMS_MVAJESBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WWewk_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WWewk_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    mean = histo_WWqcd			   ->GetBinContent(i);
+    up   = histo_WWqcd_CMS_MVAJESBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WWqcd_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WWqcd_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    mean = histo_WZ			->GetBinContent(i);
+    up   = histo_WZ_CMS_MVAJESBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WZ_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WZ_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+  
+    mean = histo_WZ		       ->GetBinContent(i);
+    up   = histo_WZ_CMS_WZNLOBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WZ_CMS_WZNLOBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WZ_CMS_WZNLOBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    mean = histo_WS			->GetBinContent(i);
+    up   = histo_WS_CMS_MVAJESBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_WS_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_WS_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+  
+    mean = histo_VVV			 ->GetBinContent(i);
+    up   = histo_VVV_CMS_MVAJESBoundingUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_VVV_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_VVV_CMS_MVAJESBoundingDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    // GEN
     mean = histo_Wjets 		         ->GetBinContent(i);
     up   = histo_Wjets_CMS_MVAWBoundingUp->GetBinContent(i);
     diff = TMath::Abs(mean-up);
