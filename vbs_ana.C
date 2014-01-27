@@ -212,17 +212,15 @@ void vbs_ana
   else if(thePlot >= 57 && thePlot <= 57) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
   else assert(0);
 
-  TH1D* histos;
-  if(thePlot != 19 && thePlot != 37) histos = new TH1D("histos", "histos", nBinPlot, xminPlot, xmaxPlot);
-  else                               histos = new TH1D("histos", "histos", nBinMVA, xbins);  
-  histos->Sumw2();
-  TH1D* histo0 = (TH1D*) histos->Clone("histo0");
-  TH1D* histo1 = (TH1D*) histos->Clone("histo1");
-  TH1D* histo2 = (TH1D*) histos->Clone("histo2");
-  TH1D* histo3 = (TH1D*) histos->Clone("histo3");
-  TH1D* histo4 = (TH1D*) histos->Clone("histo4");
-  TH1D* histo5 = (TH1D*) histos->Clone("histo5");
-  histos->Scale(0.0);
+  TH1D* histo0;
+  if(thePlot != 19 && thePlot != 37) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
+  else                               histo0 = new TH1D("histo0", "histo0", nBinMVA, xbins);  
+  histo0->Sumw2();
+  TH1D* histo1 = (TH1D*) histo0->Clone("histo1");
+  TH1D* histo2 = (TH1D*) histo0->Clone("histo2");
+  TH1D* histo3 = (TH1D*) histo0->Clone("histo3");
+  TH1D* histo4 = (TH1D*) histo0->Clone("histo4");
+  TH1D* histo5 = (TH1D*) histo0->Clone("histo5");
   histo0->Scale(0.0);
   histo1->Scale(0.0);
   histo2->Scale(0.0);
@@ -1260,27 +1258,24 @@ void vbs_ana
   sprintf(output,Form("histo_nice%s.root",ECMsb.Data()));	 
   TFile* outFilePlotsNote = new TFile(output,"recreate");
   outFilePlotsNote->cd();
-    double nOldH[6] = {histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights(),histos->GetSumOfWeights()};
+    double nOldH[5] = {histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights()};
     for(int i=1; i<=histo0->GetNbinsX(); i++){
       if(histo0->GetBinContent(i) < 0) {histo0->SetBinContent(i,0.000001);histo0->SetBinError(i,0.000001);}
       if(histo1->GetBinContent(i) < 0) {histo1->SetBinContent(i,0.000001);histo1->SetBinError(i,0.000001);}
       if(histo2->GetBinContent(i) < 0) {histo2->SetBinContent(i,0.000001);histo2->SetBinError(i,0.000001);}
       if(histo3->GetBinContent(i) < 0) {histo3->SetBinContent(i,0.000001);histo3->SetBinError(i,0.000001);}
       if(histo4->GetBinContent(i) < 0) {histo4->SetBinContent(i,0.000001);histo4->SetBinError(i,0.000001);}
-      if(histos->GetBinContent(i) < 0) {histos->SetBinContent(i,0.000001);histos->SetBinError(i,0.000001);}
     }
     if(nOldH[0] > 0) histo0->Scale(nOldH[0]/histo0->GetSumOfWeights());
     if(nOldH[1] > 0) histo1->Scale(nOldH[1]/histo1->GetSumOfWeights());
     if(nOldH[2] > 0) histo2->Scale(nOldH[2]/histo2->GetSumOfWeights());
     if(nOldH[3] > 0) histo3->Scale(nOldH[3]/histo3->GetSumOfWeights());
     if(nOldH[4] > 0) histo4->Scale(nOldH[4]/histo4->GetSumOfWeights());
-    if(nOldH[5] > 0) histos->Scale(nOldH[5]/histos->GetSumOfWeights());
 
-    printf("histo -> s: %8.2f d: %8.2f b: %8.2f | %8.2f %8.2f %8.2f %8.2f %8.2f\n",histos->GetSumOfWeights(),histo5->GetSumOfWeights(),
+    printf("histo -> d: %8.2f b: %8.2f | %8.2f %8.2f %8.2f %8.2f %8.2f\n",histo5->GetSumOfWeights(),
     histo0->GetSumOfWeights()+histo1->GetSumOfWeights()+histo2->GetSumOfWeights()+histo3->GetSumOfWeights()+histo4->GetSumOfWeights(),
     histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights());
 
-    histos->Write();
     histo0->Write();
     histo1->Write();
     histo2->Write();
