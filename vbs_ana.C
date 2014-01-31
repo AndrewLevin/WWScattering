@@ -1643,11 +1643,11 @@ void vbs_ana
   for(int nb=1; nb<=nBinMVA; nb++){
     double systNLO[3] = {1.0,1.0,1.0}; // WZ, WS, Wjets
     if     (histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLOBoundingUp    ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ_CMS_WZNLOBoundingUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
-    else if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLOBoundingDown  ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ_CMS_WZNLOBoundingDown  ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
+    else if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLOBoundingDown  ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ   ->GetBinContent(nb)/histo_WZ_CMS_WZNLOBoundingDown  ->GetBinContent(nb);
     if     (histo_WS   ->GetBinContent(nb) > 0 && histo_WS_CMS_MVAWSBoundingUp    ->GetBinContent(nb) > 0) systNLO[1] = histo_WS_CMS_MVAWSBoundingUp    ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
-    else if(histo_WS   ->GetBinContent(nb) > 0 && histo_WS_CMS_MVAWSBoundingDown  ->GetBinContent(nb) > 0) systNLO[1] = histo_WS_CMS_MVAWSBoundingDown  ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
+    else if(histo_WS   ->GetBinContent(nb) > 0 && histo_WS_CMS_MVAWSBoundingDown  ->GetBinContent(nb) > 0) systNLO[1] = histo_WS   ->GetBinContent(nb)/histo_WS_CMS_MVAWSBoundingDown  ->GetBinContent(nb);
     if     (histo_Wjets->GetBinContent(nb) > 0 && histo_Wjets_CMS_MVAWBoundingUp  ->GetBinContent(nb) > 0) systNLO[2] = histo_Wjets_CMS_MVAWBoundingUp  ->GetBinContent(nb)/histo_Wjets->GetBinContent(nb);
-    else if(histo_Wjets->GetBinContent(nb) > 0 && histo_Wjets_CMS_MVAWBoundingDown->GetBinContent(nb) > 0) systNLO[2] = histo_Wjets_CMS_MVAWBoundingDown->GetBinContent(nb)/histo_Wjets->GetBinContent(nb);
+    else if(histo_Wjets->GetBinContent(nb) > 0 && histo_Wjets_CMS_MVAWBoundingDown->GetBinContent(nb) > 0) systNLO[2] = histo_Wjets->GetBinContent(nb)/histo_Wjets_CMS_MVAWBoundingDown->GetBinContent(nb);
 
     double systEff[5] = {1.0,1.0,1.0,1.0,1.0};
     if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVALepEffBoundingUp->GetBinContent(nb) > 0) systEff[0] =  histo_WWewk_CMS_MVALepEffBoundingUp->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
@@ -1658,39 +1658,39 @@ void vbs_ana
 
     double systLep[5] = {1.0,1.0,1.0,1.0,1.0};
     if     (histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVALepResBoundingUp  ->GetBinContent(nb) > 0) systLep[0] =  histo_WWewk_CMS_MVALepResBoundingUp  ->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
-    else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVALepResBoundingDown->GetBinContent(nb) > 0) systLep[0] =  histo_WWewk_CMS_MVALepResBoundingDown->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
+    else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVALepResBoundingDown->GetBinContent(nb) > 0) systLep[0] =  histo_WWewk->GetBinContent(nb)/histo_WWewk_CMS_MVALepResBoundingDown->GetBinContent(nb);
     if     (histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_CMS_MVALepResBoundingUp  ->GetBinContent(nb) > 0) systLep[1] =  histo_WWqcd_CMS_MVALepResBoundingUp  ->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
-    else if(histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_CMS_MVALepResBoundingDown->GetBinContent(nb) > 0) systLep[1] =  histo_WWqcd_CMS_MVALepResBoundingDown->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
+    else if(histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_CMS_MVALepResBoundingDown->GetBinContent(nb) > 0) systLep[1] =  histo_WWqcd->GetBinContent(nb)/histo_WWqcd_CMS_MVALepResBoundingDown->GetBinContent(nb);
     if     (histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_CMS_MVALepResBoundingUp     ->GetBinContent(nb) > 0) systLep[2] =  histo_WZ_CMS_MVALepResBoundingUp     ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
-    else if(histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_CMS_MVALepResBoundingDown   ->GetBinContent(nb) > 0) systLep[2] =  histo_WZ_CMS_MVALepResBoundingDown   ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
+    else if(histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_CMS_MVALepResBoundingDown   ->GetBinContent(nb) > 0) systLep[2] =  histo_WZ   ->GetBinContent(nb)/histo_WZ_CMS_MVALepResBoundingDown   ->GetBinContent(nb);
     if     (histo_WS->GetBinContent(nb)    > 0 && histo_WS_CMS_MVALepResBoundingUp     ->GetBinContent(nb) > 0) systLep[3] =  histo_WS_CMS_MVALepResBoundingUp     ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
-    else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_CMS_MVALepResBoundingDown   ->GetBinContent(nb) > 0) systLep[3] =  histo_WS_CMS_MVALepResBoundingDown   ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
+    else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_CMS_MVALepResBoundingDown   ->GetBinContent(nb) > 0) systLep[3] =  histo_WS   ->GetBinContent(nb)/histo_WS_CMS_MVALepResBoundingDown   ->GetBinContent(nb);
     if     (histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_CMS_MVALepResBoundingUp    ->GetBinContent(nb) > 0) systLep[4] =  histo_VVV_CMS_MVALepResBoundingUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
-    else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_CMS_MVALepResBoundingDown  ->GetBinContent(nb) > 0) systLep[4] =  histo_VVV_CMS_MVALepResBoundingDown  ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
+    else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_CMS_MVALepResBoundingDown  ->GetBinContent(nb) > 0) systLep[4] =  histo_VVV  ->GetBinContent(nb)/histo_VVV_CMS_MVALepResBoundingDown  ->GetBinContent(nb);
 
     double systMet[5] = {1.0,1.0,1.0,1.0,1.0};
     if     (histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVAMETResBoundingUp  ->GetBinContent(nb) > 0) systMet[0] =  histo_WWewk_CMS_MVAMETResBoundingUp  ->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
-    else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVAMETResBoundingDown->GetBinContent(nb) > 0) systMet[0] =  histo_WWewk_CMS_MVAMETResBoundingDown->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
+    else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVAMETResBoundingDown->GetBinContent(nb) > 0) systMet[0] =  histo_WWewk->GetBinContent(nb)/histo_WWewk_CMS_MVAMETResBoundingDown->GetBinContent(nb);
     if     (histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_CMS_MVAMETResBoundingUp  ->GetBinContent(nb) > 0) systMet[1] =  histo_WWqcd_CMS_MVAMETResBoundingUp  ->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
-    else if(histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_CMS_MVAMETResBoundingDown->GetBinContent(nb) > 0) systMet[1] =  histo_WWqcd_CMS_MVAMETResBoundingDown->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
+    else if(histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_CMS_MVAMETResBoundingDown->GetBinContent(nb) > 0) systMet[1] =  histo_WWqcd->GetBinContent(nb)/histo_WWqcd_CMS_MVAMETResBoundingDown->GetBinContent(nb);
     if     (histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_CMS_MVAMETResBoundingUp     ->GetBinContent(nb) > 0) systMet[2] =  histo_WZ_CMS_MVAMETResBoundingUp     ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
-    else if(histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_CMS_MVAMETResBoundingDown   ->GetBinContent(nb) > 0) systMet[2] =  histo_WZ_CMS_MVAMETResBoundingDown   ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
+    else if(histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_CMS_MVAMETResBoundingDown   ->GetBinContent(nb) > 0) systMet[2] =  histo_WZ   ->GetBinContent(nb)/histo_WZ_CMS_MVAMETResBoundingDown   ->GetBinContent(nb);
     if     (histo_WS->GetBinContent(nb)    > 0 && histo_WS_CMS_MVAMETResBoundingUp     ->GetBinContent(nb) > 0) systMet[3] =  histo_WS_CMS_MVAMETResBoundingUp     ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
-    else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_CMS_MVAMETResBoundingDown   ->GetBinContent(nb) > 0) systMet[3] =  histo_WS_CMS_MVAMETResBoundingDown   ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
+    else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_CMS_MVAMETResBoundingDown   ->GetBinContent(nb) > 0) systMet[3] =  histo_WS   ->GetBinContent(nb)/histo_WS_CMS_MVAMETResBoundingDown   ->GetBinContent(nb);
     if     (histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_CMS_MVAMETResBoundingUp    ->GetBinContent(nb) > 0) systMet[4] =  histo_VVV_CMS_MVAMETResBoundingUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
-    else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_CMS_MVAMETResBoundingDown  ->GetBinContent(nb) > 0) systMet[4] =  histo_VVV_CMS_MVAMETResBoundingDown  ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
+    else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_CMS_MVAMETResBoundingDown  ->GetBinContent(nb) > 0) systMet[4] =  histo_VVV  ->GetBinContent(nb)/histo_VVV_CMS_MVAMETResBoundingDown  ->GetBinContent(nb);
 
     double systJes[5] = {1.0,1.0,1.0,1.0,1.0};
     if     (histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVAJESBoundingUp  ->GetBinContent(nb) > 0) systJes[0] =  histo_WWewk_CMS_MVAJESBoundingUp  ->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
-    else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVAJESBoundingDown->GetBinContent(nb) > 0) systJes[0] =  histo_WWewk_CMS_MVAJESBoundingDown->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
+    else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_CMS_MVAJESBoundingDown->GetBinContent(nb) > 0) systJes[0] =  histo_WWewk->GetBinContent(nb)/histo_WWewk_CMS_MVAJESBoundingDown->GetBinContent(nb);
     if     (histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_CMS_MVAJESBoundingUp  ->GetBinContent(nb) > 0) systJes[1] =  histo_WWqcd_CMS_MVAJESBoundingUp  ->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
-    else if(histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_CMS_MVAJESBoundingDown->GetBinContent(nb) > 0) systJes[1] =  histo_WWqcd_CMS_MVAJESBoundingDown->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
+    else if(histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_CMS_MVAJESBoundingDown->GetBinContent(nb) > 0) systJes[1] =  histo_WWqcd->GetBinContent(nb)/histo_WWqcd_CMS_MVAJESBoundingDown->GetBinContent(nb);
     if     (histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_CMS_MVAJESBoundingUp     ->GetBinContent(nb) > 0) systJes[2] =  histo_WZ_CMS_MVAJESBoundingUp     ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
-    else if(histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_CMS_MVAJESBoundingDown   ->GetBinContent(nb) > 0) systJes[2] =  histo_WZ_CMS_MVAJESBoundingDown   ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
+    else if(histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_CMS_MVAJESBoundingDown   ->GetBinContent(nb) > 0) systJes[2] =  histo_WZ   ->GetBinContent(nb)/histo_WZ_CMS_MVAJESBoundingDown   ->GetBinContent(nb);
     if     (histo_WS->GetBinContent(nb)    > 0 && histo_WS_CMS_MVAJESBoundingUp     ->GetBinContent(nb) > 0) systJes[3] =  histo_WS_CMS_MVAJESBoundingUp     ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
-    else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_CMS_MVAJESBoundingDown   ->GetBinContent(nb) > 0) systJes[3] =  histo_WS_CMS_MVAJESBoundingDown   ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
+    else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_CMS_MVAJESBoundingDown   ->GetBinContent(nb) > 0) systJes[3] =  histo_WS   ->GetBinContent(nb)/histo_WS_CMS_MVAJESBoundingDown   ->GetBinContent(nb);
     if     (histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_CMS_MVAJESBoundingUp    ->GetBinContent(nb) > 0) systJes[4] =  histo_VVV_CMS_MVAJESBoundingUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
-    else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_CMS_MVAJESBoundingDown  ->GetBinContent(nb) > 0) systJes[4] =  histo_VVV_CMS_MVAJESBoundingDown  ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
+    else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_CMS_MVAJESBoundingDown  ->GetBinContent(nb) > 0) systJes[4] =  histo_VVV  ->GetBinContent(nb)/histo_VVV_CMS_MVAJESBoundingDown  ->GetBinContent(nb);
 
     char outputLimitsShape[200];
     sprintf(outputLimitsShape,"histo_limits_wwss%2s_nsign%1d_shape_%4s_Bin%d.txt",finalStateName,signSel,ECMsb.Data(),nb-1);
