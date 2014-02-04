@@ -19,6 +19,10 @@
 #include "TCanvas.h"
 #include "TSystem.h"
 #include "TLorentzVector.h"
+//root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,4)';
+//root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';
+//root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)'
+
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
 const int verboseLevel =   1;
@@ -27,7 +31,6 @@ SmurfTree systEvent;
 const unsigned int nSelTypes = 3;
 const unsigned int nSelTypesSyst = 7;
 const bool showSignalOnly = false;
-// root -l -q -b vbs_ana.C+'(37,"ntuples_53x/backgroundA_skim8_ls0ls1.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';root -l -q -b vbs_ana.C+'(37,"ntuples_53x/backgroundA_skim8_ls0ls1.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)';
 
 enum selType {WWSEL, BTAGSEL, WZSEL};
 TString selTypeName[nSelTypes*2] = {"WWSEL-OS", "BTAGSEL-OS", "WZSEL-OS",
@@ -40,8 +43,8 @@ bool run_over_data = false;
 
 void vbs_ana
 (
- int thePlot = 37,
- TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_ls0ls1.root",
+ int thePlot = 0,
+ TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_lt012.root",
  TString dataInputFile   = "ntuples_53x/data_skim8.root",
  TString systInputFile   = "ntuples_53x/hww_syst_skim8.root",
  int period = 3,
@@ -154,7 +157,7 @@ void vbs_ana
 
   const int nBin = 4;
   Float_t xbins[nBin+1] = {700, 1100, 1500, 2000, 3000};
-  if(thePlot == 37) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
+  if(thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
@@ -175,16 +178,25 @@ void vbs_ana
   else if(lSel == 6) {sprintf(finalStateName,"of");}
   else {printf("Wrong lSel: %d\n",lSel); assert(0);}
 
-  int nBinPlot      = 200;
+  int nBinPlot      = 400;
   double xminPlot   = 0.0;
   double xmaxPlot   = 400.0;
 
-  if(thePlot >= 37 && thePlot <= 37) {nBinPlot = 8; xminPlot = 0.0; xmaxPlot =  2000;} // mjj
+  if     (thePlot >=  0 && thePlot <=  0) {nBinPlot = 8; xminPlot = 0.0; xmaxPlot =  2000;} // mjj
+  else if(thePlot >=  1 && thePlot <=  1) {nBinPlot = 20; xminPlot = 0.0; xmaxPlot = 2000.0;} // mlljj
+  else if(thePlot >=  2 && thePlot <=  9) {}
+  else if(thePlot >= 10 && thePlot <= 10) {nBinPlot = 10;  xminPlot =  -0.5; xmaxPlot =  9.5;}
+  else if(thePlot >= 11 && thePlot <= 11) {nBinPlot = 40; xminPlot = -0.5; xmaxPlot = 39.5;}
+  else if(thePlot >= 12 && thePlot <= 12) {nBinPlot = 36; xminPlot = 0.0; xmaxPlot = 180.0;}
+  else if(thePlot >= 13 && thePlot <= 14) {nBinPlot = 100; xminPlot = 0.0; xmaxPlot = 5.0;}
+  else if(thePlot >= 15 && thePlot <= 15) {nBinPlot = 9; xminPlot = 0.0; xmaxPlot =  8.75;} // detajjs
+  else if(thePlot >= 16 && thePlot <= 16) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
+  else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
   else assert(0);
 
   TH1D* histo0;
-  if(thePlot != 19 && thePlot != 37) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
-  else                               histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
+  if(thePlot != 0 && thePlot != 1) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
+  else                             histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
   histo0->Sumw2();
   TH1D* histo1 = (TH1D*) histo0->Clone("histo1");
   TH1D* histo2 = (TH1D*) histo0->Clone("histo2");
@@ -198,71 +210,71 @@ void vbs_ana
   histo4->Scale(0.0);
   histo5->Scale(0.0);
 
-  TH1D* histo_WWewk_WWewkStatUp           = new TH1D( Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatUp  ->Sumw2();
-  TH1D* histo_WWewk_WWewkStatDown         = new TH1D( Form("histo_WWewk_CMS_wwss%s_MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatDown->Sumw2();
-  TH1D* histo_WWqcd_WWqcdStatUp           = new TH1D( Form("histo_WWqcd_CMS_wwss%s_MVAWWqcdStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WWqcd_CMS_wwss%s_MVAWWqcdStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WWqcd_WWqcdStatUp  ->Sumw2();
-  TH1D* histo_WWqcd_WWqcdStatDown         = new TH1D( Form("histo_WWqcd_CMS_wwss%s_MVAWWqcdStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WWqcd_CMS_wwss%s_MVAWWqcdStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WWqcd_WWqcdStatDown->Sumw2();
-  TH1D* histo_WS_WSStatUp                 = new TH1D( Form("histo_WS_CMS_wwss%s_MVAWSStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WS_CMS_wwss%s_MVAWSStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WS_WSStatUp  ->Sumw2();
-  TH1D* histo_WS_WSStatDown               = new TH1D( Form("histo_WS_CMS_wwss%s_MVAWSStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WS_CMS_wwss%s_MVAWSStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WS_WSStatDown->Sumw2();
-  TH1D* histo_WZ_WZStatUp                 = new TH1D( Form("histo_WZ_CMS_wwss%s_MVAWZStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WZ_CMS_wwss%s_MVAWZStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WZ_WZStatUp  ->Sumw2();
-  TH1D* histo_WZ_WZStatDown               = new TH1D( Form("histo_WZ_CMS_wwss%s_MVAWZStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WZ_CMS_wwss%s_MVAWZStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WZ_WZStatDown->Sumw2();
-  TH1D* histo_VVV_VVVStatUp               = new TH1D( Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_VVV_VVVStatUp  ->Sumw2();
-  TH1D* histo_VVV_VVVStatDown             = new TH1D( Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_VVV_VVVStatDown->Sumw2();
-  TH1D* histo_Wjets_WjetsStatUp           = new TH1D( Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_Wjets_WjetsStatUp  ->Sumw2();
-  TH1D* histo_Wjets_WjetsStatDown         = new TH1D( Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_Wjets_WjetsStatDown->Sumw2();
+  TH1D* histo_WWewk_WWewkStatUp   = new TH1D( Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatUp  ->Sumw2();
+  TH1D* histo_WWewk_WWewkStatDown = new TH1D( Form("histo_WWewk_CMS_wwss%s_MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatDown->Sumw2();
+  TH1D* histo_WWqcd_WWqcdStatUp   = new TH1D( Form("histo_WWqcd_CMS_wwss%s_MVAWWqcdStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WWqcd_CMS_wwss%s_MVAWWqcdStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WWqcd_WWqcdStatUp  ->Sumw2();
+  TH1D* histo_WWqcd_WWqcdStatDown = new TH1D( Form("histo_WWqcd_CMS_wwss%s_MVAWWqcdStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WWqcd_CMS_wwss%s_MVAWWqcdStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WWqcd_WWqcdStatDown->Sumw2();
+  TH1D* histo_WS_WSStatUp         = new TH1D( Form("histo_WS_CMS_wwss%s_MVAWSStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WS_CMS_wwss%s_MVAWSStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WS_WSStatUp  ->Sumw2();
+  TH1D* histo_WS_WSStatDown       = new TH1D( Form("histo_WS_CMS_wwss%s_MVAWSStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WS_CMS_wwss%s_MVAWSStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WS_WSStatDown->Sumw2();
+  TH1D* histo_WZ_WZStatUp         = new TH1D( Form("histo_WZ_CMS_wwss%s_MVAWZStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WZ_CMS_wwss%s_MVAWZStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WZ_WZStatUp  ->Sumw2();
+  TH1D* histo_WZ_WZStatDown       = new TH1D( Form("histo_WZ_CMS_wwss%s_MVAWZStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WZ_CMS_wwss%s_MVAWZStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WZ_WZStatDown->Sumw2();
+  TH1D* histo_VVV_VVVStatUp       = new TH1D( Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_VVV_VVVStatUp  ->Sumw2();
+  TH1D* histo_VVV_VVVStatDown     = new TH1D( Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_VVV_VVVStatDown->Sumw2();
+  TH1D* histo_Wjets_WjetsStatUp   = new TH1D( Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_Wjets_WjetsStatUp  ->Sumw2();
+  TH1D* histo_Wjets_WjetsStatDown = new TH1D( Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_Wjets_WjetsStatDown->Sumw2();
 
-  TH1D* histo_WWewk_LepEffUp        = new TH1D( Form("histo_WWewk_%sUp",effName)  , Form("histo_WWewk_%sUp",effName)  , nBin, xbins); histo_WWewk_LepEffUp  ->Sumw2();
-  TH1D* histo_WWewk_LepEffDown      = new TH1D( Form("histo_WWewk_%sDown",effName), Form("histo_WWewk_%sDown",effName), nBin, xbins); histo_WWewk_LepEffDown->Sumw2();
-  TH1D* histo_WWqcd_LepEffUp        = new TH1D( Form("histo_WWqcd_%sUp",effName)  , Form("histo_WWqcd_%sUp",effName)  , nBin, xbins); histo_WWqcd_LepEffUp  ->Sumw2();
-  TH1D* histo_WWqcd_LepEffDown      = new TH1D( Form("histo_WWqcd_%sDown",effName), Form("histo_WWqcd_%sDown",effName), nBin, xbins); histo_WWqcd_LepEffDown->Sumw2();
-  TH1D* histo_WZ_LepEffUp           = new TH1D( Form("histo_WZ_%sUp",effName)  , Form("histo_WZ_%sUp",effName)  , nBin, xbins); histo_WZ_LepEffUp  ->Sumw2();
-  TH1D* histo_WZ_LepEffDown         = new TH1D( Form("histo_WZ_%sDown",effName), Form("histo_WZ_%sDown",effName), nBin, xbins); histo_WZ_LepEffDown->Sumw2();
-  TH1D* histo_WS_LepEffUp           = new TH1D( Form("histo_WS_%sUp",effName)  , Form("histo_WS_%sUp",effName)  , nBin, xbins); histo_WS_LepEffUp  ->Sumw2();
-  TH1D* histo_WS_LepEffDown         = new TH1D( Form("histo_WS_%sDown",effName), Form("histo_WS_%sDown",effName), nBin, xbins); histo_WS_LepEffDown->Sumw2();
-  TH1D* histo_VVV_LepEffUp          = new TH1D( Form("histo_VVV_%sUp",effName)  , Form("histo_VVV_%sUp",effName)  , nBin, xbins); histo_VVV_LepEffUp  ->Sumw2();
-  TH1D* histo_VVV_LepEffDown        = new TH1D( Form("histo_VVV_%sDown",effName), Form("histo_VVV_%sDown",effName), nBin, xbins); histo_VVV_LepEffDown->Sumw2();
+  TH1D* histo_WWewk_LepEffUp      = new TH1D( Form("histo_WWewk_%sUp",effName)  , Form("histo_WWewk_%sUp",effName)  , nBin, xbins); histo_WWewk_LepEffUp  ->Sumw2();
+  TH1D* histo_WWewk_LepEffDown    = new TH1D( Form("histo_WWewk_%sDown",effName), Form("histo_WWewk_%sDown",effName), nBin, xbins); histo_WWewk_LepEffDown->Sumw2();
+  TH1D* histo_WWqcd_LepEffUp      = new TH1D( Form("histo_WWqcd_%sUp",effName)  , Form("histo_WWqcd_%sUp",effName)  , nBin, xbins); histo_WWqcd_LepEffUp  ->Sumw2();
+  TH1D* histo_WWqcd_LepEffDown    = new TH1D( Form("histo_WWqcd_%sDown",effName), Form("histo_WWqcd_%sDown",effName), nBin, xbins); histo_WWqcd_LepEffDown->Sumw2();
+  TH1D* histo_WZ_LepEffUp         = new TH1D( Form("histo_WZ_%sUp",effName)  , Form("histo_WZ_%sUp",effName)  , nBin, xbins); histo_WZ_LepEffUp  ->Sumw2();
+  TH1D* histo_WZ_LepEffDown       = new TH1D( Form("histo_WZ_%sDown",effName), Form("histo_WZ_%sDown",effName), nBin, xbins); histo_WZ_LepEffDown->Sumw2();
+  TH1D* histo_WS_LepEffUp         = new TH1D( Form("histo_WS_%sUp",effName)  , Form("histo_WS_%sUp",effName)  , nBin, xbins); histo_WS_LepEffUp  ->Sumw2();
+  TH1D* histo_WS_LepEffDown       = new TH1D( Form("histo_WS_%sDown",effName), Form("histo_WS_%sDown",effName), nBin, xbins); histo_WS_LepEffDown->Sumw2();
+  TH1D* histo_VVV_LepEffUp        = new TH1D( Form("histo_VVV_%sUp",effName)  , Form("histo_VVV_%sUp",effName)  , nBin, xbins); histo_VVV_LepEffUp  ->Sumw2();
+  TH1D* histo_VVV_LepEffDown      = new TH1D( Form("histo_VVV_%sDown",effName), Form("histo_VVV_%sDown",effName), nBin, xbins); histo_VVV_LepEffDown->Sumw2();
 
-  TH1D* histo_WWewk_LepResUp        = new TH1D( Form("histo_WWewk_%sUp",momName)  , Form("histo_WWewk_%sUp",momName)  , nBin, xbins); histo_WWewk_LepResUp  ->Sumw2();
-  TH1D* histo_WWewk_LepResDown      = new TH1D( Form("histo_WWewk_%sDown",momName), Form("histo_WWewk_%sDown",momName), nBin, xbins); histo_WWewk_LepResDown->Sumw2();
-  TH1D* histo_WWqcd_LepResUp        = new TH1D( Form("histo_WWqcd_%sUp",momName)  , Form("histo_WWqcd_%sUp",momName)  , nBin, xbins); histo_WWqcd_LepResUp  ->Sumw2();
-  TH1D* histo_WWqcd_LepResDown      = new TH1D( Form("histo_WWqcd_%sDown",momName), Form("histo_WWqcd_%sDown",momName), nBin, xbins); histo_WWqcd_LepResDown->Sumw2();
-  TH1D* histo_WZ_LepResUp           = new TH1D( Form("histo_WZ_%sUp",momName)  , Form("histo_WZ_%sUp",momName)  , nBin, xbins); histo_WZ_LepResUp  ->Sumw2();
-  TH1D* histo_WZ_LepResDown         = new TH1D( Form("histo_WZ_%sDown",momName), Form("histo_WZ_%sDown",momName), nBin, xbins); histo_WZ_LepResDown->Sumw2();
-  TH1D* histo_WS_LepResUp           = new TH1D( Form("histo_WS_%sUp",momName)  , Form("histo_WS_%sUp",momName)  , nBin, xbins); histo_WS_LepResUp  ->Sumw2();
-  TH1D* histo_WS_LepResDown         = new TH1D( Form("histo_WS_%sDown",momName), Form("histo_WS_%sDown",momName), nBin, xbins); histo_WS_LepResDown->Sumw2();
-  TH1D* histo_VVV_LepResUp          = new TH1D( Form("histo_VVV_%sUp",momName)  , Form("histo_VVV_%sUp",momName)  , nBin, xbins); histo_VVV_LepResUp  ->Sumw2();
-  TH1D* histo_VVV_LepResDown        = new TH1D( Form("histo_VVV_%sDown",momName), Form("histo_VVV_%sDown",momName), nBin, xbins); histo_VVV_LepResDown->Sumw2();
+  TH1D* histo_WWewk_LepResUp      = new TH1D( Form("histo_WWewk_%sUp",momName)  , Form("histo_WWewk_%sUp",momName)  , nBin, xbins); histo_WWewk_LepResUp  ->Sumw2();
+  TH1D* histo_WWewk_LepResDown    = new TH1D( Form("histo_WWewk_%sDown",momName), Form("histo_WWewk_%sDown",momName), nBin, xbins); histo_WWewk_LepResDown->Sumw2();
+  TH1D* histo_WWqcd_LepResUp      = new TH1D( Form("histo_WWqcd_%sUp",momName)  , Form("histo_WWqcd_%sUp",momName)  , nBin, xbins); histo_WWqcd_LepResUp  ->Sumw2();
+  TH1D* histo_WWqcd_LepResDown    = new TH1D( Form("histo_WWqcd_%sDown",momName), Form("histo_WWqcd_%sDown",momName), nBin, xbins); histo_WWqcd_LepResDown->Sumw2();
+  TH1D* histo_WZ_LepResUp         = new TH1D( Form("histo_WZ_%sUp",momName)  , Form("histo_WZ_%sUp",momName)  , nBin, xbins); histo_WZ_LepResUp  ->Sumw2();
+  TH1D* histo_WZ_LepResDown       = new TH1D( Form("histo_WZ_%sDown",momName), Form("histo_WZ_%sDown",momName), nBin, xbins); histo_WZ_LepResDown->Sumw2();
+  TH1D* histo_WS_LepResUp         = new TH1D( Form("histo_WS_%sUp",momName)  , Form("histo_WS_%sUp",momName)  , nBin, xbins); histo_WS_LepResUp  ->Sumw2();
+  TH1D* histo_WS_LepResDown       = new TH1D( Form("histo_WS_%sDown",momName), Form("histo_WS_%sDown",momName), nBin, xbins); histo_WS_LepResDown->Sumw2();
+  TH1D* histo_VVV_LepResUp        = new TH1D( Form("histo_VVV_%sUp",momName)  , Form("histo_VVV_%sUp",momName)  , nBin, xbins); histo_VVV_LepResUp  ->Sumw2();
+  TH1D* histo_VVV_LepResDown      = new TH1D( Form("histo_VVV_%sDown",momName), Form("histo_VVV_%sDown",momName), nBin, xbins); histo_VVV_LepResDown->Sumw2();
 
-  TH1D* histo_WWewk_METResUp        = new TH1D( Form("histo_WWewk_%sUp","CMS_scale_met")  , Form("histo_WWewk_%sUp","CMS_scale_met")  , nBin, xbins); histo_WWewk_METResUp  ->Sumw2();
-  TH1D* histo_WWewk_METResDown      = new TH1D( Form("histo_WWewk_%sDown","CMS_scale_met"), Form("histo_WWewk_%sDown","CMS_scale_met"), nBin, xbins); histo_WWewk_METResDown->Sumw2();
-  TH1D* histo_WWqcd_METResUp        = new TH1D( Form("histo_WWqcd_%sUp","CMS_scale_met")  , Form("histo_WWqcd_%sUp","CMS_scale_met")  , nBin, xbins); histo_WWqcd_METResUp  ->Sumw2();
-  TH1D* histo_WWqcd_METResDown      = new TH1D( Form("histo_WWqcd_%sDown","CMS_scale_met"), Form("histo_WWqcd_%sDown","CMS_scale_met"), nBin, xbins); histo_WWqcd_METResDown->Sumw2();
-  TH1D* histo_WZ_METResUp           = new TH1D( Form("histo_WZ_%sUp","CMS_scale_met")  , Form("histo_WZ_%sUp","CMS_scale_met")  , nBin, xbins); histo_WZ_METResUp  ->Sumw2();
-  TH1D* histo_WZ_METResDown         = new TH1D( Form("histo_WZ_%sDown","CMS_scale_met"), Form("histo_WZ_%sDown","CMS_scale_met"), nBin, xbins); histo_WZ_METResDown->Sumw2();
-  TH1D* histo_WS_METResUp           = new TH1D( Form("histo_WS_%sUp","CMS_scale_met")  , Form("histo_WS_%sUp","CMS_scale_met")  , nBin, xbins); histo_WS_METResUp  ->Sumw2();
-  TH1D* histo_WS_METResDown         = new TH1D( Form("histo_WS_%sDown","CMS_scale_met"), Form("histo_WS_%sDown","CMS_scale_met"), nBin, xbins); histo_WS_METResDown->Sumw2();
-  TH1D* histo_VVV_METResUp          = new TH1D( Form("histo_VVV_%sUp","CMS_scale_met")  , Form("histo_VVV_%sUp","CMS_scale_met")  , nBin, xbins); histo_VVV_METResUp  ->Sumw2();
-  TH1D* histo_VVV_METResDown        = new TH1D( Form("histo_VVV_%sDown","CMS_scale_met"), Form("histo_VVV_%sDown","CMS_scale_met"), nBin, xbins); histo_VVV_METResDown->Sumw2();
+  TH1D* histo_WWewk_METResUp      = new TH1D( Form("histo_WWewk_%sUp","CMS_scale_met")  , Form("histo_WWewk_%sUp","CMS_scale_met")  , nBin, xbins); histo_WWewk_METResUp  ->Sumw2();
+  TH1D* histo_WWewk_METResDown    = new TH1D( Form("histo_WWewk_%sDown","CMS_scale_met"), Form("histo_WWewk_%sDown","CMS_scale_met"), nBin, xbins); histo_WWewk_METResDown->Sumw2();
+  TH1D* histo_WWqcd_METResUp      = new TH1D( Form("histo_WWqcd_%sUp","CMS_scale_met")  , Form("histo_WWqcd_%sUp","CMS_scale_met")  , nBin, xbins); histo_WWqcd_METResUp  ->Sumw2();
+  TH1D* histo_WWqcd_METResDown    = new TH1D( Form("histo_WWqcd_%sDown","CMS_scale_met"), Form("histo_WWqcd_%sDown","CMS_scale_met"), nBin, xbins); histo_WWqcd_METResDown->Sumw2();
+  TH1D* histo_WZ_METResUp         = new TH1D( Form("histo_WZ_%sUp","CMS_scale_met")  , Form("histo_WZ_%sUp","CMS_scale_met")  , nBin, xbins); histo_WZ_METResUp  ->Sumw2();
+  TH1D* histo_WZ_METResDown       = new TH1D( Form("histo_WZ_%sDown","CMS_scale_met"), Form("histo_WZ_%sDown","CMS_scale_met"), nBin, xbins); histo_WZ_METResDown->Sumw2();
+  TH1D* histo_WS_METResUp         = new TH1D( Form("histo_WS_%sUp","CMS_scale_met")  , Form("histo_WS_%sUp","CMS_scale_met")  , nBin, xbins); histo_WS_METResUp  ->Sumw2();
+  TH1D* histo_WS_METResDown       = new TH1D( Form("histo_WS_%sDown","CMS_scale_met"), Form("histo_WS_%sDown","CMS_scale_met"), nBin, xbins); histo_WS_METResDown->Sumw2();
+  TH1D* histo_VVV_METResUp        = new TH1D( Form("histo_VVV_%sUp","CMS_scale_met")  , Form("histo_VVV_%sUp","CMS_scale_met")  , nBin, xbins); histo_VVV_METResUp  ->Sumw2();
+  TH1D* histo_VVV_METResDown      = new TH1D( Form("histo_VVV_%sDown","CMS_scale_met"), Form("histo_VVV_%sDown","CMS_scale_met"), nBin, xbins); histo_VVV_METResDown->Sumw2();
 
-  TH1D* histo_WWewk_JESUp        = new TH1D( Form("histo_WWewk_%sUp","CMS_scale_j")  , Form("histo_WWewk_%sUp","CMS_scale_j")  , nBin, xbins); histo_WWewk_JESUp  ->Sumw2();
-  TH1D* histo_WWewk_JESDown      = new TH1D( Form("histo_WWewk_%sDown","CMS_scale_j"), Form("histo_WWewk_%sDown","CMS_scale_j"), nBin, xbins); histo_WWewk_JESDown->Sumw2();
-  TH1D* histo_WWqcd_JESUp        = new TH1D( Form("histo_WWqcd_%sUp","CMS_scale_j")  , Form("histo_WWqcd_%sUp","CMS_scale_j")  , nBin, xbins); histo_WWqcd_JESUp  ->Sumw2();
-  TH1D* histo_WWqcd_JESDown      = new TH1D( Form("histo_WWqcd_%sDown","CMS_scale_j"), Form("histo_WWqcd_%sDown","CMS_scale_j"), nBin, xbins); histo_WWqcd_JESDown->Sumw2();
-  TH1D* histo_WZ_JESUp           = new TH1D( Form("histo_WZ_%sUp","CMS_scale_j")  , Form("histo_WZ_%sUp","CMS_scale_j")  , nBin, xbins); histo_WZ_JESUp  ->Sumw2();
-  TH1D* histo_WZ_JESDown         = new TH1D( Form("histo_WZ_%sDown","CMS_scale_j"), Form("histo_WZ_%sDown","CMS_scale_j"), nBin, xbins); histo_WZ_JESDown->Sumw2();
-  TH1D* histo_WS_JESUp           = new TH1D( Form("histo_WS_%sUp","CMS_scale_j")  , Form("histo_WS_%sUp","CMS_scale_j")  , nBin, xbins); histo_WS_JESUp  ->Sumw2();
-  TH1D* histo_WS_JESDown         = new TH1D( Form("histo_WS_%sDown","CMS_scale_j"), Form("histo_WS_%sDown","CMS_scale_j"), nBin, xbins); histo_WS_JESDown->Sumw2();
-  TH1D* histo_VVV_JESUp          = new TH1D( Form("histo_VVV_%sUp","CMS_scale_j")  , Form("histo_VVV_%sUp","CMS_scale_j")  , nBin, xbins); histo_VVV_JESUp  ->Sumw2();
-  TH1D* histo_VVV_JESDown        = new TH1D( Form("histo_VVV_%sDown","CMS_scale_j"), Form("histo_VVV_%sDown","CMS_scale_j"), nBin, xbins); histo_VVV_JESDown->Sumw2();
+  TH1D* histo_WWewk_JESUp         = new TH1D( Form("histo_WWewk_%sUp","CMS_scale_j")  , Form("histo_WWewk_%sUp","CMS_scale_j")  , nBin, xbins); histo_WWewk_JESUp  ->Sumw2();
+  TH1D* histo_WWewk_JESDown       = new TH1D( Form("histo_WWewk_%sDown","CMS_scale_j"), Form("histo_WWewk_%sDown","CMS_scale_j"), nBin, xbins); histo_WWewk_JESDown->Sumw2();
+  TH1D* histo_WWqcd_JESUp         = new TH1D( Form("histo_WWqcd_%sUp","CMS_scale_j")  , Form("histo_WWqcd_%sUp","CMS_scale_j")  , nBin, xbins); histo_WWqcd_JESUp  ->Sumw2();
+  TH1D* histo_WWqcd_JESDown       = new TH1D( Form("histo_WWqcd_%sDown","CMS_scale_j"), Form("histo_WWqcd_%sDown","CMS_scale_j"), nBin, xbins); histo_WWqcd_JESDown->Sumw2();
+  TH1D* histo_WZ_JESUp            = new TH1D( Form("histo_WZ_%sUp","CMS_scale_j")  , Form("histo_WZ_%sUp","CMS_scale_j")  , nBin, xbins); histo_WZ_JESUp  ->Sumw2();
+  TH1D* histo_WZ_JESDown          = new TH1D( Form("histo_WZ_%sDown","CMS_scale_j"), Form("histo_WZ_%sDown","CMS_scale_j"), nBin, xbins); histo_WZ_JESDown->Sumw2();
+  TH1D* histo_WS_JESUp            = new TH1D( Form("histo_WS_%sUp","CMS_scale_j")  , Form("histo_WS_%sUp","CMS_scale_j")  , nBin, xbins); histo_WS_JESUp  ->Sumw2();
+  TH1D* histo_WS_JESDown          = new TH1D( Form("histo_WS_%sDown","CMS_scale_j"), Form("histo_WS_%sDown","CMS_scale_j"), nBin, xbins); histo_WS_JESDown->Sumw2();
+  TH1D* histo_VVV_JESUp           = new TH1D( Form("histo_VVV_%sUp","CMS_scale_j")  , Form("histo_VVV_%sUp","CMS_scale_j")  , nBin, xbins); histo_VVV_JESUp  ->Sumw2();
+  TH1D* histo_VVV_JESDown         = new TH1D( Form("histo_VVV_%sDown","CMS_scale_j"), Form("histo_VVV_%sDown","CMS_scale_j"), nBin, xbins); histo_VVV_JESDown->Sumw2();
 
-  TH1D* histo_WZ_CMS_WZNLOUp        = new TH1D( Form("histo_WZ_CMS_wwss_WZNLOUp"),   Form("histo_WZ_CMS_wwss_WZNLOUp"),   nBin, xbins); histo_WZ_CMS_WZNLOUp  ->Sumw2();
-  TH1D* histo_WZ_CMS_WZNLODown      = new TH1D( Form("histo_WZ_CMS_wwss_WZNLODown"), Form("histo_WZ_CMS_wwss_WZNLODown"), nBin, xbins); histo_WZ_CMS_WZNLODown->Sumw2();
+  TH1D* histo_WZ_CMS_WZNLOUp      = new TH1D( Form("histo_WZ_CMS_wwss_WZNLOUp"),   Form("histo_WZ_CMS_wwss_WZNLOUp"),	nBin, xbins); histo_WZ_CMS_WZNLOUp  ->Sumw2();
+  TH1D* histo_WZ_CMS_WZNLODown    = new TH1D( Form("histo_WZ_CMS_wwss_WZNLODown"), Form("histo_WZ_CMS_wwss_WZNLODown"), nBin, xbins); histo_WZ_CMS_WZNLODown->Sumw2();
 
-  TH1D* histo_WS_WSUp      = new TH1D( Form("histo_WS_CMS_wwss_MVAWSUp"),   Form("histo_WS_CMS_wwss_MVAWSUp"),   nBin, xbins); histo_WS_WSUp  ->Sumw2();
-  TH1D* histo_WS_WSDown    = new TH1D( Form("histo_WS_CMS_wwss_MVAWSDown"), Form("histo_WS_CMS_wwss_MVAWSDown"), nBin, xbins); histo_WS_WSDown->Sumw2();
+  TH1D* histo_WS_WSUp             = new TH1D( Form("histo_WS_CMS_wwss_MVAWSUp"),   Form("histo_WS_CMS_wwss_MVAWSUp"),   nBin, xbins); histo_WS_WSUp  ->Sumw2();
+  TH1D* histo_WS_WSDown           = new TH1D( Form("histo_WS_CMS_wwss_MVAWSDown"), Form("histo_WS_CMS_wwss_MVAWSDown"), nBin, xbins); histo_WS_WSDown->Sumw2();
 
-  TH1D* histo_Wjets_WUp      = new TH1D( Form("histo_Wjets_CMS_wwss_MVAWUp"),   Form("histo_Wjets_CMS_wwss_MVAWUp"),   nBin, xbins); histo_Wjets_WUp  ->Sumw2();
-  TH1D* histo_Wjets_WDown    = new TH1D( Form("histo_Wjets_CMS_wwss_MVAWDown"), Form("histo_Wjets_CMS_wwss_MVAWDown"), nBin, xbins); histo_Wjets_WDown->Sumw2();
+  TH1D* histo_Wjets_WUp           = new TH1D( Form("histo_Wjets_CMS_wwss_MVAWUp"),   Form("histo_Wjets_CMS_wwss_MVAWUp"),   nBin, xbins); histo_Wjets_WUp  ->Sumw2();
+  TH1D* histo_Wjets_WDown         = new TH1D( Form("histo_Wjets_CMS_wwss_MVAWDown"), Form("histo_Wjets_CMS_wwss_MVAWDown"), nBin, xbins); histo_Wjets_WDown->Sumw2();
 
   double nSelectedData[nSelTypes*2];
   double bgdDecay[nSelTypes*2][45],weiDecay[nSelTypes*2][45];
@@ -425,7 +437,7 @@ void vbs_ana
 			 bgdEvent.njets_, bgdEvent.jet1_, bgdEvent.jet2_,
 			 year, 5, outputVarJESM);
     double MVAVar[6] = {outputVar[13],outputVarJESP[13],outputVarJESM[13],outputVarLepP[13],outputVarLepM[13],outputVarMET[13]};
-    if(thePlot == 37) {MVAVar[0]=outputVar[14];MVAVar[1]=outputVarJESP[14];MVAVar[2]=outputVarJESM[14];MVAVar[3]=outputVarLepP[14];MVAVar[4]=outputVarLepM[14];MVAVar[5]=outputVarMET[14];}
+    if(thePlot == 0) {MVAVar[0]=outputVar[14];MVAVar[1]=outputVarJESP[14];MVAVar[2]=outputVarJESM[14];MVAVar[3]=outputVarLepP[14];MVAVar[4]=outputVarLepM[14];MVAVar[5]=outputVarMET[14];}
     for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
     double addLepEff	 = 1.0; double addLepEffUp   = 1.0; double addLepEffDown = 1.0;
     addLepEff  = leptonEfficiency(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid1_, 0)*
@@ -639,8 +651,25 @@ void vbs_ana
       if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.07841;
 
       if(passCuts[1][WWSEL]){ // begin making plots
-	double myVar = theMET;
-	if(thePlot ==37) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
+	double myVar = -1.0;
+	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
+	else if(thePlot == 1) myVar = TMath::Max(TMath::Min((bgdEvent.lep1_+bgdEvent.lep2_+bgdEvent.jet1_+bgdEvent.jet2_).M(),2999.999),700.001);
+	else if(thePlot == 2) myVar = bgdEvent.lep1_.Pt();
+	else if(thePlot == 3) myVar = bgdEvent.lep2_.Pt();
+	else if(thePlot == 4) myVar = bgdEvent.jet1_.Pt();
+	else if(thePlot == 5) myVar = bgdEvent.jet2_.Pt();
+	else if(thePlot == 6) myVar = bgdEvent.jet3_.Pt();
+	else if(thePlot == 7) myVar = bgdEvent.mt_;
+	else if(thePlot == 8) myVar = bgdEvent.dilep_.M();
+	else if(thePlot == 9) myVar = bgdEvent.dilep_.Pt();
+	else if(thePlot ==10) myVar = bgdEvent.njets_;
+	else if(thePlot ==11) myVar = bgdEvent.nvtx_;
+	else if(thePlot ==12) myVar = bgdEvent.dPhi_*180.0/TMath::Pi();
+	else if(thePlot ==13) myVar = TMath::Min(fabs(bgdEvent.jet1_.Eta()),fabs(bgdEvent.jet2_.Eta()));
+	else if(thePlot ==14) myVar = TMath::Max(fabs(bgdEvent.jet1_.Eta()),fabs(bgdEvent.jet2_.Eta()));
+	else if(thePlot ==15) myVar = TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta());
+	else if(thePlot ==16) myVar = bgdEvent.type_;
+	else if(thePlot ==17) myVar = bgdEvent.dR_;
 	else assert(0);
       	if     (fDecay == 31){
       	  histo0->Fill(myVar,theWeight);
@@ -994,7 +1023,7 @@ void vbs_ana
 			    systEvent.njets_, systEvent.jet1_, systEvent.jet2_,
 			    year, 3, outputVar);
       double MVAVar[6] = {outputVar[13],0,0,0,0,0};
-      if(thePlot == 37) {MVAVar[0]=outputVar[14];}
+      if(thePlot == 0) {MVAVar[0]=outputVar[14];}
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	if     (fDecay == 27){
@@ -1084,8 +1113,24 @@ void vbs_ana
        preselCuts == true && dataEvent.dilep_.M() > 15.0) {
 
       if(passCuts[1][WWSEL]){ // begin making plots
-	double myVar = theMET;
-	if(thePlot ==37) myVar = TMath::Max(TMath::Min((dataEvent.jet1_+dataEvent.jet2_).M(),1999.999),500.001);
+	double myVar = -1.0;
+	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((dataEvent.jet1_+dataEvent.jet2_).M(),1999.999),500.001);
+	else if(thePlot == 1) myVar = TMath::Max(TMath::Min((dataEvent.lep1_+dataEvent.lep2_+dataEvent.jet1_+dataEvent.jet2_).M(),2999.999),700.001);
+	else if(thePlot == 3) myVar = dataEvent.lep2_.Pt();
+	else if(thePlot == 4) myVar = dataEvent.jet1_.Pt();
+	else if(thePlot == 5) myVar = dataEvent.jet2_.Pt();
+	else if(thePlot == 6) myVar = dataEvent.jet3_.Pt();
+	else if(thePlot == 7) myVar = dataEvent.mt_;
+	else if(thePlot == 8) myVar = dataEvent.dilep_.M();
+	else if(thePlot == 9) myVar = dataEvent.dilep_.Pt();
+	else if(thePlot ==10) myVar = dataEvent.njets_;
+	else if(thePlot ==11) myVar = dataEvent.nvtx_;
+	else if(thePlot ==12) myVar = dataEvent.dPhi_*180.0/TMath::Pi();
+	else if(thePlot ==13) myVar = TMath::Min(fabs(dataEvent.jet1_.Eta()),fabs(dataEvent.jet2_.Eta()));
+	else if(thePlot ==14) myVar = TMath::Max(fabs(dataEvent.jet1_.Eta()),fabs(dataEvent.jet2_.Eta()));
+	else if(thePlot ==15) myVar = TMath::Abs(dataEvent.jet1_.Eta()-dataEvent.jet2_.Eta());
+	else if(thePlot ==16) myVar = dataEvent.type_;
+	else if(thePlot ==17) myVar = dataEvent.dR_;
 	else assert(0);
       	histo5->Fill(myVar,1.0);
       } // end making plots
@@ -1097,7 +1142,7 @@ void vbs_ana
 			    dataEvent.njets_, dataEvent.jet1_, dataEvent.jet2_, 
 			    year, 3, outputVar);
       double MVAVar[6] = {outputVar[13],0,0,0,0,0};
-      if(thePlot == 37) {MVAVar[0]=outputVar[14];}
+      if(thePlot == 0) {MVAVar[0]=outputVar[14];}
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	histo_Data->Fill(MVAVar[0], 1.0);
@@ -1593,33 +1638,33 @@ void vbs_ana
     newcardShape << Form("process WWewk WWqcd WZ WS VVV Wjets\n");
     newcardShape << Form("process 0 1 2 3 4 5\n");
     newcardShape << Form("rate %6.3f  %6.3f  %6.3f  %6.3f  %6.3f  %6.3f\n",histo_WWewk->GetBinContent(nb),histo_WWqcd->GetBinContent(nb),histo_WZ->GetBinContent(nb),histo_WS->GetBinContent(nb),histo_VVV->GetBinContent(nb),histo_Wjets->GetBinContent(nb));
-    newcardShape << Form("lumi_%4s                                 lnN %5.3f %5.3f %5.3f %5.3f %5.3f   -  \n",ECMsb.Data(),lumiE,lumiE,lumiE,lumiE,lumiE);		      
-    newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f   -  \n",effName,systEff[0],systEff[1],systEff[2],systEff[3],systEff[4]);
-    newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f   -  \n",momName,systLep[0],systLep[1],systLep[2],systLep[3],systLep[4]);
-    newcardShape << Form("CMS_scale_met                            lnN %5.3f %5.3f %5.3f %5.3f %5.3f   -  \n",systMet[0],systMet[1],systMet[2],systMet[3],systMet[4]);
-    newcardShape << Form("CMS_scale_j                              lnN %5.3f %5.3f %5.3f %5.3f %5.3f   -  \n",systJes[0],systJes[1],systJes[2],systJes[3],systJes[4]);		       
-    newcardShape << Form("pdf_qqbar                                lnN %5.3f %5.3f %5.3f   -     -     -  \n",pdf_qqbar[0],pdf_qqbar[1],pdf_qqbar[2]);
-    newcardShape << Form("QCDscale_WWewk		           lnN %5.3f   -     -	   -     -     -  \n",QCDscale_WWewk);	   
-    newcardShape << Form("QCDscale_WWqcd		           lnN   -   %5.3f   -	   -     -     -  \n",QCDscale_WWqcd);	   
-    newcardShape << Form("QCDscale_VV		                   lnN   -     -   1.100   -     -     -  \n");		 
-    newcardShape << Form("CMS_wwss_WZ3l                            lnN   -     -   %5.3f   -     -     -  \n",syst_WZ3l);		 
-    newcardShape << Form("CMS_wwss_WZNLO                   lnN   -     -   %5.3f   -     -     -  \n",systNLO[0]);
-    newcardShape << Form("CMS_wwss_MVAWS                   lnN   -     -    -    %5.3f   -     -  \n",systNLO[1]);		 
-    newcardShape << Form("QCDscale_VVV		                   lnN   -     -    -	  -   1.500   -  \n");  	    
+    newcardShape << Form("lumi_%4s                                 lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",ECMsb.Data(),lumiE,lumiE,lumiE,lumiE,lumiE);		     
+    newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",effName,systEff[0],systEff[1],systEff[2],systEff[3],systEff[4]);
+    newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",momName,systLep[0],systLep[1],systLep[2],systLep[3],systLep[4]);
+    newcardShape << Form("CMS_scale_met                            lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",systMet[0],systMet[1],systMet[2],systMet[3],systMet[4]);
+    newcardShape << Form("CMS_scale_j                              lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",systJes[0],systJes[1],systJes[2],systJes[3],systJes[4]);		      
+    newcardShape << Form("pdf_qqbar                                lnN %5.3f %5.3f %5.3f   -     -    -  \n",pdf_qqbar[0],pdf_qqbar[1],pdf_qqbar[2]);
+    newcardShape << Form("QCDscale_WWewk		           lnN %5.3f   -     -	   -     -    -  \n",QCDscale_WWewk);	  
+    newcardShape << Form("QCDscale_WWqcd		           lnN   -   %5.3f   -	   -     -    -  \n",QCDscale_WWqcd);	  
+    newcardShape << Form("QCDscale_VV		                   lnN   -     -   1.100   -     -    -  \n");  	
+    newcardShape << Form("CMS_wwss_WZ3l                            lnN   -     -   %5.3f   -     -    -  \n",syst_WZ3l);		
+    newcardShape << Form("CMS_wwss_WZNLO                           lnN   -     -   %5.3f   -     -    -  \n",systNLO[0]);
+    newcardShape << Form("CMS_wwss_MVAWS                           lnN   -     -    -    %5.3f   -    -  \n",systNLO[1]);		
+    newcardShape << Form("QCDscale_VVV		                   lnN   -     -    -	  -   1.500   -  \n");  	   
     newcardShape << Form("CMS_FakeRate                             lnN   -     -    -	  -	-   %5.3f\n",WjetsSyst);  
-    newcardShape << Form("CMS_wwss_MVAW                    lnN   -     -    -	  -	-   %5.3f\n",systNLO[2]);
+    newcardShape << Form("CMS_wwss_MVAW                            lnN   -     -    -	  -	-   %5.3f\n",systNLO[2]);
     if(histo_WWewk->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWWewkStat_%s_Bin%d lnN  %5.3f  -    -    -    -    -   \n",finalStateName,ECMsb.Data(),nb-1,histo_WWewk_WWewkStatUp->GetBinContent(nb)/histo_WWewk->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWWewkStat_%s_Bin%d         lnN  %5.3f  -    -     -     -      - \n",finalStateName,ECMsb.Data(),nb-1,histo_WWewk_WWewkStatUp->GetBinContent(nb)/histo_WWewk->GetBinContent(nb));
     if(histo_WWqcd->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWWqcdStat_%s_Bin%d lnN    -   %5.3f -	 -    -    -   \n",finalStateName,ECMsb.Data(),nb-1,histo_WWqcd_WWqcdStatUp->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWWqcdStat_%s_Bin%d         lnN    -   %5.3f -	  -     -      - \n",finalStateName,ECMsb.Data(),nb-1,histo_WWqcd_WWqcdStatUp->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb));
     if(histo_WZ->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWZStat_%s_Bin%d    lnN    -    -   %5.3f -    -    -   \n",finalStateName,ECMsb.Data(),nb-1,histo_WZ_WZStatUp	  ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWZStat_%s_Bin%d            lnN    -    -   %5.3f  -     -      - \n",finalStateName,ECMsb.Data(),nb-1,histo_WZ_WZStatUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb));
     if(histo_WS->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWSStat_%s_Bin%d    lnN    -    -    -	%5.3f -    -   \n",finalStateName,ECMsb.Data(),nb-1,histo_WS_WSStatUp	  ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWSStat_%s_Bin%d            lnN    -    -    -	%5.3f   -      - \n",finalStateName,ECMsb.Data(),nb-1,histo_WS_WSStatUp    ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb));
     if(histo_VVV->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAVVVStat_%s_Bin%d   lnN    -    -    -	 -   %5.3f -   \n",finalStateName,ECMsb.Data(),nb-1,histo_VVV_VVVStatUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAVVVStat_%s_Bin%d           lnN    -    -    -	  -   %5.3f    - \n",finalStateName,ECMsb.Data(),nb-1,histo_VVV_VVVStatUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb));
     if(histo_Wjets->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWjetsStat_%s_Bin%d lnN    -    -    -	 -    -   %5.3f\n",finalStateName,ECMsb.Data(),nb-1,histo_Wjets_WjetsStatUp->GetBinContent(nb)/histo_Wjets->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWjetsStat_%s_Bin%d         lnN    -    -    -	  -     -   %5.3f\n",finalStateName,ECMsb.Data(),nb-1,histo_Wjets_WjetsStatUp->GetBinContent(nb)/histo_Wjets->GetBinContent(nb));
     newcardShape.close();
   }
   } // if showSignalOnly == true
