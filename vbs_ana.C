@@ -10,6 +10,7 @@
 #include <TTree.h>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "TLegend.h"
 #include "TPaveText.h"
 #include "TRandom.h"
@@ -23,7 +24,12 @@
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)'
 
-void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
+std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
+int x_param_number = 11;
+int y_param_number = 12;
+std::vector<std::pair<float,float> > grid_points;
+std::vector<float> histo_grid;
+std::vector<int> lhe_weight_index;
 
 const int verboseLevel =   1;
 bool UseDyttDataDriven = true; // if true, then remove em events in dyll MC
@@ -40,6 +46,99 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
 bool run_over_data = false;
+bool doAQGCsAna = false;
+
+void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
+
+void parse_grid(string lhe_filename){
+  grid_points.push_back(pair<float,float>(0,0));
+  histo_grid.push_back(0);
+  lhe_weight_index.push_back(0);
+
+  ifstream infile(lhe_filename.c_str());
+  assert(infile.is_open());
+
+  while(!infile.eof()){
+    std::string line;
+    getline(infile,line);
+
+    if(line=="<initrwgt>\0"){
+      getline(infile,line);
+      assert(line=="<weightgroup type='mg_reweighting'>");
+
+      int i = 1;
+
+      while(true){
+	getline(infile,line);
+
+	if(line=="</initrwgt>\0")
+	  return;
+
+	if (line == "</weight>\0" || line=="</weightgroup>\0")
+	  continue;
+
+	int param_number1 = -1;
+	int param_number2 = -1;
+	float param1 = 0;
+	float param2 = 0;
+
+	assert(line.find("set param_card anoinputs") != string::npos);
+	std::string paraminfo1=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
+	stringstream ss1;
+	ss1 << paraminfo1;
+	ss1 >> param_number1;
+	if(param_number1 == x_param_number)
+	  ss1 >> param1;
+	else if (param_number1==y_param_number)
+	  ss1 >> param2;
+	//else
+	//  assert(0);
+
+	getline(infile,line);
+
+	if (line != "</weight>\0"){
+
+	  assert(line.find("set param_card anoinputs") != string::npos);
+	  std::string paraminfo2=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
+	  stringstream ss2;
+	  ss2 << paraminfo2;
+	  ss2 >> param_number2;
+	  if(param_number2 == x_param_number)
+	    ss2 >> param1;
+	  else if (param_number2==y_param_number)
+	    ss2 >> param2;
+	  //else
+	  //  assert(0);
+
+	  assert(param_number1 != param_number2);
+
+	}
+	if((param_number1 == x_param_number && param_number2 == y_param_number) || (param_number2 == x_param_number && param_number1 == y_param_number)|| ( param_number1 == x_param_number && param_number2 == -1) || (param_number1 == y_param_number && param_number2 == -1)) {
+	  
+	  //the same grid point may happen multiple times
+	  //make sure to only add each grid point once
+	  bool found =false;
+	  for(unsigned int j = 0; j < grid_points.size(); j++){
+	    if (grid_points[j] == pair<float,float>(param1,param2))
+	      found = true;
+	  }
+	  
+	  if(!found){
+	    grid_points.push_back(pair<float,float>(param1,param2));
+	    histo_grid.push_back(0);
+	    lhe_weight_index.push_back(i);
+	  }
+	}
+
+	i++;
+
+      }
+    }
+  }
+
+  std::cout << "reweight block not found, exiting" << std::endl;
+  exit(1);
+}
 
 void vbs_ana
 (
@@ -51,6 +150,26 @@ void vbs_ana
  int lSel = 14
  )
 {
+
+  if(doAQGCsAna == true){
+    parse_grid(file_for_grid);
+    std::cout << "grid_points.size() = " << grid_points.size() << std::endl;
+    for(unsigned int i = 0; i < grid_points.size(); i++){
+      std::cout << grid_points[i].first << ", " << grid_points[i].second << std::endl;
+    }
+    //change to more convenient units  
+    for(unsigned int i = 0; i < grid_points.size(); i++){
+      grid_points[i].first = grid_points[i].first*pow(10.,11);
+      grid_points[i].second = grid_points[i].second*pow(10.,11);
+    }
+    for(unsigned int i = 0; i < grid_points.size(); i++){
+      std::cout << grid_points[i].first << ", " << grid_points[i].second << std::endl;
+    }
+    for(unsigned int i = 0; i < lhe_weight_index.size(); i++){
+      std::cout << "lhe_weight_index[i] = " << lhe_weight_index[i] << std::endl;
+    }
+  }
+
   double frCorr = 0.78;
   double lumi = 1.0;
   double ptJetMin = 30.0;
@@ -167,6 +286,16 @@ void vbs_ana
   TH1D *histo_WS        = (TH1D*) histoMVA->Clone("histo_WS");
   TH1D *histo_VVV       = (TH1D*) histoMVA->Clone("histo_VVV");
   TH1D *histo_Wjets     = (TH1D*) histoMVA->Clone("histo_Wjets");
+
+  std::vector<TH1D *> histo_WWewk_anom;
+
+  if(doAQGCsAna == true){
+    for(unsigned int a = 0; a < grid_points.size(); a++){
+      stringstream ss; 
+      ss << a;
+      histo_WWewk_anom.push_back((TH1D*) histoMVA->Clone("histo_WWewk_anom"+a));
+    }
+  }
 
   char finalStateName[2],effName[10],momName[10];sprintf(effName,"CMS_eff_l");sprintf(momName,"CMS_p_scale_l");
   if     (lSel == 0) {sprintf(finalStateName,"mm");}
@@ -721,27 +850,42 @@ void vbs_ana
       }
 
       if     (fDecay == 21){
-        if(passCuts[1][WWSEL])  	     histo_VVV  			->Fill(MVAVar[0], theWeight);
+        if(passCuts[1][WWSEL])  	     histo_VVV           ->Fill(MVAVar[0], theWeight);
         if(passCuts[1][WWSEL])  	     histo_VVV_LepEffUp  ->Fill(MVAVar[0], theWeight*addLepEffUp  /addLepEff);
         if(passCuts[1][WWSEL])  	     histo_VVV_LepEffDown->Fill(MVAVar[0], theWeight*addLepEffDown/addLepEff);
-        if(passSystCuts[1][JESUP  ] == true) histo_VVV_JESUp	->Fill(MVAVar[1], theWeight);
-        if(passSystCuts[1][JESDOWN] == true) histo_VVV_JESDown	->Fill(MVAVar[2], theWeight);
+        if(passSystCuts[1][JESUP  ] == true) histo_VVV_JESUp	 ->Fill(MVAVar[1], theWeight);
+        if(passSystCuts[1][JESDOWN] == true) histo_VVV_JESDown	 ->Fill(MVAVar[2], theWeight);
         if(passSystCuts[1][LEPP]    == true) histo_VVV_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_VVV_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_VVV_METResUp  ->Fill(MVAVar[5], theWeight);;
       }
       else if(fDecay == 31){
-        if(passCuts[1][WWSEL])  	     histo_WWewk			  ->Fill(MVAVar[0], theWeight);
+        if(passCuts[1][WWSEL])  	     histo_WWewk           ->Fill(MVAVar[0], theWeight);
         if(passCuts[1][WWSEL])  	     histo_WWewk_LepEffUp  ->Fill(MVAVar[0], theWeight*addLepEffUp  /addLepEff);
         if(passCuts[1][WWSEL])  	     histo_WWewk_LepEffDown->Fill(MVAVar[0], theWeight*addLepEffDown/addLepEff);
-        if(passSystCuts[1][JESUP  ] == true) histo_WWewk_JESUp	  ->Fill(MVAVar[1], theWeight);
+        if(passSystCuts[1][JESUP  ] == true) histo_WWewk_JESUp	   ->Fill(MVAVar[1], theWeight);
         if(passSystCuts[1][JESDOWN] == true) histo_WWewk_JESDown   ->Fill(MVAVar[2], theWeight);
         if(passSystCuts[1][LEPP]    == true) histo_WWewk_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_WWewk_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_WWewk_METResUp  ->Fill(MVAVar[5], theWeight);;
+
+        if(passCuts[1][WWSEL] && doAQGCsAna == true){
+	  //the qcd WW that we subtract from the signal is not reweighted
+	  if(bgdEvent.scale1fb_ > 0){
+	    assert(bgdEvent.lheWeights_.size() >= grid_points.size());
+	    assert(grid_points.size() == histo_grid.size());
+	    assert(lhe_weight_index.size() == histo_grid.size());
+	  }
+	  for(unsigned int a = 0; a < grid_points.size(); a++){
+	    if(bgdEvent.scale1fb_ > 0)
+	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
+	    else
+	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight);
+	  }
+	}
       }
       else if(fDecay == 27){
-        if(passCuts[1][WWSEL])  	     histo_WZ			       ->Fill(MVAVar[0], theWeight);
+        if(passCuts[1][WWSEL])  	     histo_WZ           ->Fill(MVAVar[0], theWeight);
         if(passCuts[1][WWSEL])  	     histo_WZ_LepEffUp  ->Fill(MVAVar[0], theWeight*addLepEffUp  /addLepEff);
         if(passCuts[1][WWSEL])  	     histo_WZ_LepEffDown->Fill(MVAVar[0], theWeight*addLepEffDown/addLepEff);
         if(passSystCuts[1][JESUP  ] == true) histo_WZ_JESUp     ->Fill(MVAVar[1], theWeight);
@@ -751,10 +895,10 @@ void vbs_ana
         if(passSystCuts[1][MET]     == true) histo_WZ_METResUp  ->Fill(MVAVar[5], theWeight);;
       }
       else if(fDecay == 29){
-        if(passCuts[1][WWSEL])  	     histo_WWqcd		          ->Fill(MVAVar[0], theWeight);
+        if(passCuts[1][WWSEL])  	     histo_WWqcd           ->Fill(MVAVar[0], theWeight);
         if(passCuts[1][WWSEL])  	     histo_WWqcd_LepEffUp  ->Fill(MVAVar[0], theWeight*addLepEffUp  /addLepEff);
         if(passCuts[1][WWSEL])  	     histo_WWqcd_LepEffDown->Fill(MVAVar[0], theWeight*addLepEffDown/addLepEff);
-        if(passSystCuts[1][JESUP  ] == true) histo_WWqcd_JESUp	  ->Fill(MVAVar[1], theWeight);
+        if(passSystCuts[1][JESUP  ] == true) histo_WWqcd_JESUp	   ->Fill(MVAVar[1], theWeight);
         if(passSystCuts[1][JESDOWN] == true) histo_WWqcd_JESDown   ->Fill(MVAVar[2], theWeight);
         if(passSystCuts[1][LEPP]    == true) histo_WWqcd_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_WWqcd_LepResDown->Fill(MVAVar[4], theWeight);
@@ -763,7 +907,7 @@ void vbs_ana
       else if(fDecay == 30 || fDecay == 28 ||
               fDecay ==  5 || fDecay == 13 || fDecay == 20 || 
 	      fDecay == 10 || fDecay ==  9 || fDecay == 19){
-        if(passCuts[1][WWSEL])  	     histo_WS		               ->Fill(MVAVar[0], theWeight);
+        if(passCuts[1][WWSEL])  	     histo_WS           ->Fill(MVAVar[0], theWeight);
         if(passCuts[1][WWSEL])  	     histo_WS_LepEffUp  ->Fill(MVAVar[0], theWeight*addLepEffUp  /addLepEff);
         if(passCuts[1][WWSEL])  	     histo_WS_LepEffDown->Fill(MVAVar[0], theWeight*addLepEffDown/addLepEff);
         if(passSystCuts[1][JESUP  ] == true) histo_WS_JESUp     ->Fill(MVAVar[1], theWeight);
@@ -1163,6 +1307,12 @@ void vbs_ana
   char output[200];
   sprintf(output,Form("histo_nice%s.root",ECMsb.Data()));	 
   TFile* outFilePlotsNote = new TFile(output,"recreate");
+
+  TFile *th2d_outfile; 
+  if(doAQGCsAna == true){
+    th2d_outfile = new TFile("aQGC_grids.root","recreate");
+  }
+
   outFilePlotsNote->cd();
     double nOldH[5] = {histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights()};
     for(int i=1; i<=histo0->GetNbinsX(); i++){
@@ -1575,6 +1725,22 @@ void vbs_ana
   histo_WS_WSDown	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WS   ->GetBinContent(i)>0)printf("%5.1f ",histo_WS_WSDown       ->GetBinContent(i)/histo_WS->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
 
   for(int nb=1; nb<=nBin; nb++){
+    if(doAQGCsAna == true){
+      stringstream ss;
+      ss << nb;
+    
+      TH2D *th2d  = new TH2D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),11,-11,11,11,-11,11);
+
+      for(unsigned int a = 0; a < grid_points.size(); a++){
+        //histo_grid[nb][a] = histo_WWewk_anom[a]->GetBinContent(nb);
+        assert(histo_WWewk_anom[0]->GetBinContent(nb) > 0);
+        //assert(histo_grid[nb][0]>0);
+        th2d->SetBinContent(th2d->GetXaxis()->FindFixBin(grid_points[a].first), th2d->GetYaxis()->FindFixBin(grid_points[a].second), histo_WWewk_anom[a]->GetBinContent(nb)/histo_WWewk_anom[0]->GetBinContent(nb));
+      }
+      th2d_outfile->cd();
+      th2d->Write();
+    }
+
     double systNLO[3] = {1.0,1.0,1.0}; // WZ, WS, Wjets
     if     (histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
     else if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLODown  ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ   ->GetBinContent(nb)/histo_WZ_CMS_WZNLODown  ->GetBinContent(nb);
