@@ -292,7 +292,7 @@ void vbs_ana
 
   if(doAQGCsAna == true){
     for(unsigned int a = 0; a < grid_points.size(); a++){
-      stringstream ss; 
+      stringstream ss;
       ss << a;
       histo_WWewk_anom.push_back((TH1D*) histoMVA->Clone("histo_WWewk_anom"+a));
     }
