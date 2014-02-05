@@ -47,7 +47,7 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
 bool run_over_data = false;
-bool doAQGCsAna = true;
+bool doAQGCsAna = false;
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
