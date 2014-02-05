@@ -24,7 +24,8 @@
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)'
 
-std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
+//std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
+std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
 int x_param_number = 11;
 int y_param_number = 12;
 std::vector<std::pair<float,float> > grid_points;
@@ -46,7 +47,7 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
 bool run_over_data = false;
-bool doAQGCsAna = false;
+bool doAQGCsAna = true;
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
