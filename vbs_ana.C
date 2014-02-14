@@ -47,10 +47,9 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
 bool run_over_data = false;
-bool doAQGCsAna = true;
+bool doAQGCsAna = false;
 bool use_anom_sample = false;
 int which_lhe_weight = 60;
-
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
@@ -315,9 +314,10 @@ void vbs_ana
   double xminPlot   = 0.0;
   double xmaxPlot   = 400.0;
 
-  if     (thePlot >=  0 && thePlot <=  0) {nBinPlot = 8; xminPlot = 0.0; xmaxPlot =  2000;} // mjj
-  else if(thePlot >=  1 && thePlot <=  1) {nBinPlot = 60; xminPlot = 0.0; xmaxPlot = 4000.0;} // mlljj
-  else if(thePlot >=  2 && thePlot <=  9) {nBinPlot = 60; xminPlot = 0.0; xmaxPlot = 1500;} //mll
+  if     (thePlot >=  0 && thePlot <=  0) {nBinPlot = 8; xminPlot = 0.0; xmaxPlot =  2000.0;} // mjj
+  else if(thePlot >=  1 && thePlot <=  1) {nBinPlot = 20; xminPlot = 0.0; xmaxPlot = 2000.0;} // mlljj
+  else if(thePlot >=  2 && thePlot <=  8) {}
+  else if(thePlot >=  9 && thePlot <=  9) {nBinPlot = 50;  xminPlot =  0.0; xmaxPlot =  500.0;} // mll
   else if(thePlot >= 10 && thePlot <= 10) {nBinPlot = 10;  xminPlot =  -0.5; xmaxPlot =  9.5;}
   else if(thePlot >= 11 && thePlot <= 11) {nBinPlot = 40; xminPlot = -0.5; xmaxPlot = 39.5;}
   else if(thePlot >= 12 && thePlot <= 12) {nBinPlot = 36; xminPlot = 0.0; xmaxPlot = 180.0;}
@@ -329,8 +329,7 @@ void vbs_ana
 
   TH1D* histo0;
   if(thePlot != 0 && thePlot != 1) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
-  else     histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
-
+  else                             histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
   histo0->Sumw2();
   TH1D* histo1 = (TH1D*) histo0->Clone("histo1");
   TH1D* histo2 = (TH1D*) histo0->Clone("histo2");
@@ -794,8 +793,8 @@ void vbs_ana
 	else if(thePlot == 5) myVar = bgdEvent.jet2_.Pt();
 	else if(thePlot == 6) myVar = bgdEvent.jet3_.Pt();
 	else if(thePlot == 7) myVar = bgdEvent.mt_;
-	else if(thePlot == 8) myVar = bgdEvent.dilep_.M();
-	else if(thePlot == 9) myVar = bgdEvent.dilep_.Pt();
+	else if(thePlot == 8) myVar = bgdEvent.dilep_.Pt();
+	else if(thePlot == 9) myVar = TMath::Min(bgdEvent.dilep_.M(),499.999);
 	else if(thePlot ==10) myVar = bgdEvent.njets_;
 	else if(thePlot ==11) myVar = bgdEvent.nvtx_;
 	else if(thePlot ==12) myVar = bgdEvent.dPhi_*180.0/TMath::Pi();
@@ -806,13 +805,12 @@ void vbs_ana
 	else if(thePlot ==17) myVar = bgdEvent.dR_;
 	else assert(0);
       	if     (fDecay == 31){
-	  if(use_anom_sample){
-	    if(bgdEvent.scale1fb_ > 0){
-	      theWeight=theWeight*bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0];
-	    }
-	  }
-	  histo0->Fill(myVar,theWeight);
-      	}
+	  if(use_anom_sample && bgdEvent.scale1fb_ > 0){
+	    histo0->Fill(myVar,theWeight*bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0]);
+	  } else {
+      	    histo0->Fill(myVar,theWeight);
+      	  }
+	}
       	else if(fDecay == 21){
       	  histo1->Fill(myVar,theWeight);
       	}
@@ -1275,8 +1273,8 @@ void vbs_ana
 	else if(thePlot == 5) myVar = dataEvent.jet2_.Pt();
 	else if(thePlot == 6) myVar = dataEvent.jet3_.Pt();
 	else if(thePlot == 7) myVar = dataEvent.mt_;
-	else if(thePlot == 8) myVar = dataEvent.dilep_.M();
-	else if(thePlot == 9) myVar = dataEvent.dilep_.Pt();
+	else if(thePlot == 8) myVar = dataEvent.dilep_.Pt();
+	else if(thePlot == 9) myVar = TMath::Min(dataEvent.dilep_.M(),499.999);
 	else if(thePlot ==10) myVar = dataEvent.njets_;
 	else if(thePlot ==11) myVar = dataEvent.nvtx_;
 	else if(thePlot ==12) myVar = dataEvent.dPhi_*180.0/TMath::Pi();
