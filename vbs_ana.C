@@ -47,8 +47,8 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
 bool run_over_data = false;
-bool doAQGCsAna = false;
-bool use_anom_sample = true;
+bool doAQGCsAna = true;
+bool use_anom_sample = false;
 int which_lhe_weight = 60;
 
 
@@ -280,7 +280,7 @@ void vbs_ana
 
   const int nBin = 4;
   Float_t xbins[nBin+1] = {700, 1100, 1500, 2000, 3000};
-  if(thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
+  if(thePlot == 0 || thePlot==1) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
@@ -297,7 +297,7 @@ void vbs_ana
     for(unsigned int a = 0; a < grid_points.size(); a++){
       stringstream ss;
       ss << a;
-      histo_WWewk_anom.push_back((TH1D*) histoMVA->Clone("histo_WWewk_anom"+a));
+      histo_WWewk_anom.push_back((TH1D*) histoMVA->Clone(TString("histo_WWewk_anom"+ss.str())));
     }
   }
 
@@ -328,8 +328,9 @@ void vbs_ana
   else assert(0);
 
   TH1D* histo0;
-  if(thePlot != 0)   histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
-  else                              histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
+  if(thePlot != 0 && thePlot != 1) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
+  else     histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
+
   histo0->Sumw2();
   TH1D* histo1 = (TH1D*) histo0->Clone("histo1");
   TH1D* histo2 = (TH1D*) histo0->Clone("histo2");
@@ -810,7 +811,7 @@ void vbs_ana
 	      theWeight=theWeight*bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0];
 	    }
 	  }
-      	  histo0->Fill(myVar,theWeight);
+	  histo0->Fill(myVar,theWeight);
       	}
       	else if(fDecay == 21){
       	  histo1->Fill(myVar,theWeight);
