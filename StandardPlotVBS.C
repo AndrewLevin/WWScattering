@@ -190,7 +190,7 @@ class StandardPlot {
 
             if(_hist[iWWEWK] && _isHWWOverlaid == false) _hist[iWWEWK]->Draw("hist,same");
 
-            if(_data) {
+            if(_data && _data->GetSumOfWeights()) {
 	      bool plotCorrectErrorBars = true;
 	      if(plotCorrectErrorBars == true) {
   		TGraphAsymmErrors * g = new TGraphAsymmErrors(_data);
@@ -268,13 +268,13 @@ class StandardPlot {
             TString higgsLabel = " HWW";
             higgsLabel.Form(" WW EWK");
 
-            if(_data         ) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _data,          " data",    "lp"); j++; }
-            if     (_hist[iWWEWK] && _isHWWOverlaid) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "f" ); j++; }
-            else if(_hist[iWWEWK])		     { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "l" ); j++; }
-            if(_hist[iVV    ]) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVV    ], " VV+VVV",      "f" ); j++; }
-            if(_hist[iWWQCD ]) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWQCD ], " WW QCD",      "f" ); j++; }
-            if(_hist[iWJets ]) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWJets ], " W+jets",      "f" ); j++; }
-            if(_hist[iWW    ]) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Wrong sign"  ,"f" ); j++; }
+            if(_data->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _data,          " data",    "lp"); j++; }
+            if     (_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0 && _isHWWOverlaid) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "f" ); j++; }
+            else if(_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0)		     { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "l" ); j++; }
+            if(_hist[iVV    ] &&_hist[iVV    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVV    ], " VV+VVV",      "f" ); j++; }
+            if(_hist[iWWQCD ] &&_hist[iWWQCD ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWQCD ], " WW QCD",      "f" ); j++; }
+            if(_hist[iWJets ] &&_hist[iWJets ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWJets ], " W+jets",      "f" ); j++; }
+            if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Wrong sign"  ,"f" ); j++; }
 
             TLatex* luminosity = new TLatex(0.9, 0.8, TString::Format("L = %.1f fb^{-1}",_lumi));
             luminosity->SetNDC();
