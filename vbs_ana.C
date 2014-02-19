@@ -279,7 +279,7 @@ void vbs_ana
 
   const int nBin = 4;
   Float_t xbins[nBin+1] = {700, 1100, 1500, 2000, 3000};
-  if(thePlot == 0 || thePlot==1) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
+  if(thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
