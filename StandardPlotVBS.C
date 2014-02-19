@@ -248,6 +248,7 @@ class StandardPlot {
             }
 
             if(_breakdown) {
+                THStackAxisFonts(hstack, "x", _xLabel.Data());
                 THStackAxisFonts(hstack, "y", "Events / bin");
                 hstack->GetHistogram()->LabelsOption("v");
             } else {
