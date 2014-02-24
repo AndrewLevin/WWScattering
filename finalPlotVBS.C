@@ -12,7 +12,7 @@
 #include "StandardPlotVBS.C"
 
  //.x finalPlotVBS.C+(0,1,"m_{jj}","GeV","histo_nice8TeV.root","wwss_mjj",0,19.4)
- 
+
 void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TString units = "", 
                   TString plotName = "histo_nice.root", TString outputName = "njets",
                   bool isLogY = false, double lumi = 19.4) {

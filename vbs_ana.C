@@ -49,7 +49,7 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
 bool run_over_data = false;
 bool doAQGCsAna = false;
 bool use_anom_sample = false;
-int which_lhe_weight = 60;
+int which_lhe_weight = 61;
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
@@ -325,6 +325,7 @@ void vbs_ana
   else if(thePlot >= 15 && thePlot <= 15) {nBinPlot = 9; xminPlot = 0.0; xmaxPlot =  8.75;} // detajjs
   else if(thePlot >= 16 && thePlot <= 16) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
+  else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
   else assert(0);
 
   TH1D* histo0;
@@ -496,11 +497,13 @@ void vbs_ana
     int lType = 1;
     if     (bgdEvent.lq1_ * bgdEvent.lq2_ < 0) lType = 0;
 
+    double zeppenfeld = TMath::Min(TMath::Max(TMath::Abs(bgdEvent.lep1_.Eta()-(bgdEvent.jet1_.Eta()+bgdEvent.jet2_.Eta())/2.),
+                                              TMath::Abs(bgdEvent.lep2_.Eta()-(bgdEvent.jet1_.Eta()+bgdEvent.jet2_.Eta())/2.)),3.999);
     int centrality = 0;
-    if(((bgdEvent.jet1_.Eta()-bgdEvent.lep1_.Eta() > 0 && bgdEvent.jet2_.Eta()-bgdEvent.lep1_.Eta() < 0) ||
-        (bgdEvent.jet2_.Eta()-bgdEvent.lep1_.Eta() > 0 && bgdEvent.jet1_.Eta()-bgdEvent.lep1_.Eta() < 0)) &&
-       ((bgdEvent.jet1_.Eta()-bgdEvent.lep2_.Eta() > 0 && bgdEvent.jet2_.Eta()-bgdEvent.lep2_.Eta() < 0) ||
-        (bgdEvent.jet2_.Eta()-bgdEvent.lep2_.Eta() > 0 && bgdEvent.jet1_.Eta()-bgdEvent.lep2_.Eta() < 0))) centrality = 1; 
+    if(((bgdEvent.jet1_.Eta()-bgdEvent.lep1_.Eta()+0.1 > 0 && bgdEvent.jet2_.Eta()-bgdEvent.lep1_.Eta() < 0) ||
+        (bgdEvent.jet2_.Eta()-bgdEvent.lep1_.Eta()+0.1 > 0 && bgdEvent.jet1_.Eta()-bgdEvent.lep1_.Eta() < 0)) &&
+       ((bgdEvent.jet1_.Eta()-bgdEvent.lep2_.Eta()+0.1 > 0 && bgdEvent.jet2_.Eta()-bgdEvent.lep2_.Eta() < 0) ||
+        (bgdEvent.jet2_.Eta()-bgdEvent.lep2_.Eta()+0.1 > 0 && bgdEvent.jet1_.Eta()-bgdEvent.lep2_.Eta() < 0))) centrality = 1; 
     double metMin = 30.0; if(bgdEvent.type_ == SmurfTree::ee) metMin = 40.0;
     if(lType == 0) if(bgdEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
@@ -803,6 +806,7 @@ void vbs_ana
 	else if(thePlot ==15) myVar = TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta());
 	else if(thePlot ==16) myVar = bgdEvent.type_;
 	else if(thePlot ==17) myVar = bgdEvent.dR_;
+	else if(thePlot ==18) myVar = zeppenfeld;
 	else assert(0);
       	if     (fDecay == 31){
 	  if(use_anom_sample && bgdEvent.scale1fb_ > 0){
@@ -996,10 +1000,10 @@ void vbs_ana
     if     (systEvent.lq1_ * systEvent.lq2_ < 0) lType = 0;
 
     int centrality = 0;
-    if(((systEvent.jet1_.Eta()-systEvent.lep1_.Eta() > 0 && systEvent.jet2_.Eta()-systEvent.lep1_.Eta() < 0) ||
-        (systEvent.jet2_.Eta()-systEvent.lep1_.Eta() > 0 && systEvent.jet1_.Eta()-systEvent.lep1_.Eta() < 0)) &&
-       ((systEvent.jet1_.Eta()-systEvent.lep2_.Eta() > 0 && systEvent.jet2_.Eta()-systEvent.lep2_.Eta() < 0) ||
-        (systEvent.jet2_.Eta()-systEvent.lep2_.Eta() > 0 && systEvent.jet1_.Eta()-systEvent.lep2_.Eta() < 0))) centrality = 1; 
+    if(((systEvent.jet1_.Eta()-systEvent.lep1_.Eta()+0.1 > 0 && systEvent.jet2_.Eta()-systEvent.lep1_.Eta() < 0) ||
+        (systEvent.jet2_.Eta()-systEvent.lep1_.Eta()+0.1 > 0 && systEvent.jet1_.Eta()-systEvent.lep1_.Eta() < 0)) &&
+       ((systEvent.jet1_.Eta()-systEvent.lep2_.Eta()+0.1 > 0 && systEvent.jet2_.Eta()-systEvent.lep2_.Eta() < 0) ||
+        (systEvent.jet2_.Eta()-systEvent.lep2_.Eta()+0.1 > 0 && systEvent.jet1_.Eta()-systEvent.lep2_.Eta() < 0))) centrality = 1; 
     double metMin = 30.0; if(systEvent.type_ == SmurfTree::ee) metMin = 40.0;
     if(lType == 0) if(systEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
@@ -1214,11 +1218,13 @@ void vbs_ana
     int lType = 1;
     if     (dataEvent.lq1_ * dataEvent.lq2_ < 0) lType = 0;
 
+    double zeppenfeld = TMath::Min(TMath::Max(TMath::Abs(dataEvent.lep1_.Eta()-(dataEvent.jet1_.Eta()+dataEvent.jet2_.Eta())/2.),
+                                              TMath::Abs(dataEvent.lep2_.Eta()-(dataEvent.jet1_.Eta()+dataEvent.jet2_.Eta())/2.)),3.999);
     int centrality = 0;
-    if(((dataEvent.jet1_.Eta()-dataEvent.lep1_.Eta() > 0 && dataEvent.jet2_.Eta()-dataEvent.lep1_.Eta() < 0) ||
-        (dataEvent.jet2_.Eta()-dataEvent.lep1_.Eta() > 0 && dataEvent.jet1_.Eta()-dataEvent.lep1_.Eta() < 0)) &&
-       ((dataEvent.jet1_.Eta()-dataEvent.lep2_.Eta() > 0 && dataEvent.jet2_.Eta()-dataEvent.lep2_.Eta() < 0) ||
-        (dataEvent.jet2_.Eta()-dataEvent.lep2_.Eta() > 0 && dataEvent.jet1_.Eta()-dataEvent.lep2_.Eta() < 0))) centrality = 1; 
+    if(((dataEvent.jet1_.Eta()-dataEvent.lep1_.Eta()+0.1 > 0 && dataEvent.jet2_.Eta()-dataEvent.lep1_.Eta() < 0) ||
+        (dataEvent.jet2_.Eta()-dataEvent.lep1_.Eta()+0.1 > 0 && dataEvent.jet1_.Eta()-dataEvent.lep1_.Eta() < 0)) &&
+       ((dataEvent.jet1_.Eta()-dataEvent.lep2_.Eta()+0.1 > 0 && dataEvent.jet2_.Eta()-dataEvent.lep2_.Eta() < 0) ||
+        (dataEvent.jet2_.Eta()-dataEvent.lep2_.Eta()+0.1 > 0 && dataEvent.jet1_.Eta()-dataEvent.lep2_.Eta() < 0))) centrality = 1; 
     double metMin = 30.0; if(dataEvent.type_ == SmurfTree::ee) metMin = 40.0;
     if(lType == 0) if(dataEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
@@ -1283,6 +1289,7 @@ void vbs_ana
 	else if(thePlot ==15) myVar = TMath::Abs(dataEvent.jet1_.Eta()-dataEvent.jet2_.Eta());
 	else if(thePlot ==16) myVar = dataEvent.type_;
 	else if(thePlot ==17) myVar = dataEvent.dR_;
+	else if(thePlot ==18) myVar = zeppenfeld;
 	else assert(0);
       	histo5->Fill(myVar,1.0);
       } // end making plots
