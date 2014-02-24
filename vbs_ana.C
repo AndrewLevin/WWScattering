@@ -143,6 +143,8 @@ void parse_grid(string lhe_filename){
   exit(1);
 }
 
+// thePlot == 0 (mjj), 9 (mll), anything else (mlljj)
+
 void vbs_ana
 (
  int thePlot = 0,
@@ -279,7 +281,8 @@ void vbs_ana
 
   const int nBin = 4;
   Float_t xbins[nBin+1] = {700, 1100, 1500, 2000, 3000};
-  if(thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
+  if     (thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
+  else if(thePlot == 9) {xbins[0] =   0; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
@@ -329,8 +332,8 @@ void vbs_ana
   else assert(0);
 
   TH1D* histo0;
-  if(thePlot != 0 && thePlot != 1) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
-  else                             histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
+  if(thePlot != 0 && thePlot != 1 && thePlot != 9) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
+  else                                             histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
   histo0->Sumw2();
   TH1D* histo1 = (TH1D*) histo0->Clone("histo1");
   TH1D* histo2 = (TH1D*) histo0->Clone("histo2");
@@ -573,7 +576,8 @@ void vbs_ana
 			 bgdEvent.njets_, bgdEvent.jet1_, bgdEvent.jet2_,
 			 year, 5, outputVarJESM);
     double MVAVar[6] = {outputVar[13],outputVarJESP[13],outputVarJESM[13],outputVarLepP[13],outputVarLepM[13],outputVarMET[13]};
-    if(thePlot == 0) {MVAVar[0]=outputVar[14];MVAVar[1]=outputVarJESP[14];MVAVar[2]=outputVarJESM[14];MVAVar[3]=outputVarLepP[14];MVAVar[4]=outputVarLepM[14];MVAVar[5]=outputVarMET[14];}
+    if     (thePlot == 0) {MVAVar[0]=outputVar[14];MVAVar[1]=outputVarJESP[14];MVAVar[2]=outputVarJESM[14];MVAVar[3]=outputVarLepP[14];MVAVar[4]=outputVarLepM[14];MVAVar[5]=outputVarMET[14];}
+    else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];MVAVar[1]=outputVarJESP[ 2];MVAVar[2]=outputVarJESM[ 2];MVAVar[3]=outputVarLepP[ 2];MVAVar[4]=outputVarLepM[ 2];MVAVar[5]=outputVarMET[ 2];}
     for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
     double addLepEff	 = 1.0; double addLepEffUp   = 1.0; double addLepEffDown = 1.0;
     addLepEff  = leptonEfficiency(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid1_, 0)*
@@ -1179,7 +1183,8 @@ void vbs_ana
 			    systEvent.njets_, systEvent.jet1_, systEvent.jet2_,
 			    year, 3, outputVar);
       double MVAVar[6] = {outputVar[13],0,0,0,0,0};
-      if(thePlot == 0) {MVAVar[0]=outputVar[14];}
+      if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
+      else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	if     (fDecay == 27){
