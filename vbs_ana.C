@@ -1306,7 +1306,8 @@ void vbs_ana
 			    dataEvent.njets_, dataEvent.jet1_, dataEvent.jet2_, 
 			    year, 3, outputVar);
       double MVAVar[6] = {outputVar[13],0,0,0,0,0};
-      if(thePlot == 0) {MVAVar[0]=outputVar[14];}
+      if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
+      else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	histo_Data->Fill(MVAVar[0], 1.0);
