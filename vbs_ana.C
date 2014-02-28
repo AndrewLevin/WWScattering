@@ -24,8 +24,8 @@
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)'
 
-//std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
-std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
+std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
+//std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
 int x_param_number = 11;
 int y_param_number = 12;
 std::vector<std::pair<float,float> > grid_points;
@@ -49,106 +49,19 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
 bool run_over_data = false;
 bool doAQGCsAna = false;
 bool use_anom_sample = false;
-int which_lhe_weight = 61;
+int sm_lhe_weight = -1;
+int which_lhe_weight = 0;
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
-void parse_grid(string lhe_filename){
-  grid_points.push_back(pair<float,float>(0,0));
-  histo_grid.push_back(0);
-  lhe_weight_index.push_back(0);
-
-  ifstream infile(lhe_filename.c_str());
-  assert(infile.is_open());
-
-  while(!infile.eof()){
-    std::string line;
-    getline(infile,line);
-
-    if(line=="<initrwgt>\0"){
-      getline(infile,line);
-      assert(line=="<weightgroup type='mg_reweighting'>");
-
-      int i = 1;
-
-      while(true){
-	getline(infile,line);
-
-	if(line=="</initrwgt>\0")
-	  return;
-
-	if (line == "</weight>\0" || line=="</weightgroup>\0")
-	  continue;
-
-	int param_number1 = -1;
-	int param_number2 = -1;
-	float param1 = 0;
-	float param2 = 0;
-
-	assert(line.find("set param_card anoinputs") != string::npos);
-	std::string paraminfo1=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
-	stringstream ss1;
-	ss1 << paraminfo1;
-	ss1 >> param_number1;
-	if(param_number1 == x_param_number)
-	  ss1 >> param1;
-	else if (param_number1==y_param_number)
-	  ss1 >> param2;
-	//else
-	//  assert(0);
-
-	getline(infile,line);
-
-	if (line != "</weight>\0"){
-
-	  assert(line.find("set param_card anoinputs") != string::npos);
-	  std::string paraminfo2=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
-	  stringstream ss2;
-	  ss2 << paraminfo2;
-	  ss2 >> param_number2;
-	  if(param_number2 == x_param_number)
-	    ss2 >> param1;
-	  else if (param_number2==y_param_number)
-	    ss2 >> param2;
-	  //else
-	  //  assert(0);
-
-	  assert(param_number1 != param_number2);
-
-	}
-	if((param_number1 == x_param_number && param_number2 == y_param_number) || (param_number2 == x_param_number && param_number1 == y_param_number)|| ( param_number1 == x_param_number && param_number2 == -1) || (param_number1 == y_param_number && param_number2 == -1)) {
-	  
-	  //the same grid point may happen multiple times
-	  //make sure to only add each grid point once
-	  bool found =false;
-	  for(unsigned int j = 0; j < grid_points.size(); j++){
-	    if (grid_points[j] == pair<float,float>(param1,param2))
-	      found = true;
-	  }
-	  
-	  if(!found){
-	    grid_points.push_back(pair<float,float>(param1,param2));
-	    histo_grid.push_back(0);
-	    lhe_weight_index.push_back(i);
-	  }
-	}
-
-	i++;
-
-      }
-    }
-  }
-
-  std::cout << "reweight block not found, exiting" << std::endl;
-  exit(1);
-}
+void parse_grid(string lhe_filename);
 
 // thePlot == 0 (mjj), 9 (mll), anything else (mlljj)
 
 void vbs_ana
 (
  int thePlot = 0,
- TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_lt012.root",
+ TString bgdInputFile    = "ntuples_53x/wwss_qed_4_qcd_99_lt012.root",
  TString dataInputFile   = "ntuples_53x/data_skim8.root",
  TString systInputFile   = "ntuples_53x/hww_syst_skim8.root",
  int period = 3,
@@ -161,7 +74,15 @@ void vbs_ana
     std::cout << "grid_points.size() = " << grid_points.size() << std::endl;
     for(unsigned int i = 0; i < grid_points.size(); i++){
       std::cout << grid_points[i].first << ", " << grid_points[i].second << std::endl;
+      if(grid_points[i].first==0 && grid_points[i].second==0){
+	assert(sm_lhe_weight==-1);
+	sm_lhe_weight=i;
+      }
     }
+
+    assert(sm_lhe_weight!=-1);
+    std::cout << "sm_lhe_weight = " << sm_lhe_weight << std::endl;
+ 
     //change to more convenient units  
     for(unsigned int i = 0; i < grid_points.size(); i++){
       grid_points[i].first = grid_points[i].first*pow(10.,11);
@@ -887,14 +808,16 @@ void vbs_ana
 
         if(passCuts[1][WWSEL] && doAQGCsAna == true){
 	  //the qcd WW that we subtract from the signal is not reweighted
-	  if(bgdEvent.scale1fb_ > 0){
+	  if(bgdEvent.scale1fb_ > 0 && bgdEvent.scale1fb_ > 0.00018239){
 	    assert(bgdEvent.lheWeights_.size() >= grid_points.size());
 	    assert(grid_points.size() == histo_grid.size());
 	    assert(lhe_weight_index.size() == histo_grid.size());
 	  }
+
 	  for(unsigned int a = 0; a < grid_points.size(); a++){
-	    if(bgdEvent.scale1fb_ > 0)
+	    if(bgdEvent.scale1fb_ > 0 && bgdEvent.scale1fb_ > 0.00018239)
 	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
+	    
 	    else
 	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight);
 	  }
@@ -1307,6 +1230,7 @@ void vbs_ana
 			    year, 3, outputVar);
       double MVAVar[6] = {outputVar[13],0,0,0,0,0};
       if(thePlot == 0) {MVAVar[0]=outputVar[14];}
+      else if(thePlot == 9) {MVAVar[0]=outputVar[2];}
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	histo_Data->Fill(MVAVar[0], 1.0);
@@ -1749,13 +1673,13 @@ void vbs_ana
       stringstream ss;
       ss << nb;
     
-      TH2D *th2d  = new TH2D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),11,-11,11,11,-11,11);
+      TH2D *th2d  = new TH2D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),11,-4.125,4.125,11,-1.375,1.375);
 
       for(unsigned int a = 0; a < grid_points.size(); a++){
         //histo_grid[nb][a] = histo_WWewk_anom[a]->GetBinContent(nb);
         assert(histo_WWewk_anom[0]->GetBinContent(nb) > 0);
         //assert(histo_grid[nb][0]>0);
-        th2d->SetBinContent(th2d->GetXaxis()->FindFixBin(grid_points[a].first), th2d->GetYaxis()->FindFixBin(grid_points[a].second), histo_WWewk_anom[a]->GetBinContent(nb)/histo_WWewk_anom[0]->GetBinContent(nb));
+        th2d->SetBinContent(th2d->GetXaxis()->FindFixBin(grid_points[a].first), th2d->GetYaxis()->FindFixBin(grid_points[a].second), histo_WWewk_anom[a]->GetBinContent(nb)/histo_WWewk_anom[sm_lhe_weight]->GetBinContent(nb));
       }
       th2d_outfile->cd();
       th2d->Write();
@@ -1881,4 +1805,170 @@ void scaleFactor_WS(LorentzVector l,int lq, int ld, int mcld, double val[2]){
       else if(abs(l.Eta()) >= 2.0 && abs(l.Eta()) < 2.5) {val[0] = val[0]*factor[4]; val[1] = val[1]*(factor[4]+sqrt(factorE[4]*factorE[4]+0.10*0.10));}
     }
   }
+}
+
+int begin_weight=0;
+int end_weight=120;
+
+void parse_grid(string lhe_filename){
+
+  ifstream infile(lhe_filename.c_str());
+  assert(infile.is_open());
+
+  while(!infile.eof()){
+    std::string line;
+    getline(infile,line);
+
+
+    //set the grid point for the original unweighted event
+    if(line=="<slha>\0"){
+      getline(infile,line);
+      assert(line=="######################################################################");
+      getline(infile,line);
+      assert(line=="## PARAM_CARD AUTOMATICALY GENERATED BY MG5 FOLLOWING UFO MODEL   ####");
+      getline(infile,line);
+      assert(line=="######################################################################");
+      getline(infile,line);
+      assert(line=="##                                                                  ##");
+      getline(infile,line);
+      assert(line=="##  Width set on Auto will be computed following the information    ##");
+      getline(infile,line);
+      assert(line=="##        present in the decay.py files of the model. By default,   ##");
+      getline(infile,line);
+      assert(line=="##        this is only 1->2 decay modes.                            ##");
+      getline(infile,line);
+      assert(line=="##                                                                  ##");
+      getline(infile,line);
+      assert(line=="######################################################################");
+      getline(infile,line);
+      assert(line=="###################################");
+      getline(infile,line);
+      assert(line=="## INFORMATION FOR ANOINPUTS");
+      getline(infile,line);
+      assert(line=="###################################");
+      getline(infile,line);
+      assert(line=="Block anoinputs ");
+      std::vector <string> param_values;
+      for(int i = 0; i < 20; i++){
+	getline(infile,line); 
+	param_values.push_back(line);
+      }
+
+      assert(param_values[19] == "   20 0.000000e+00 # FT9 ");
+
+      std::cout << "parameter values for unweighted event:" << std::endl;
+
+      std::cout << param_values[x_param_number-1] << std::endl;
+      std::cout << param_values[y_param_number-1] << std::endl;
+
+      stringstream x_param_ss;
+      x_param_ss << x_param_number;
+      stringstream y_param_ss;
+      y_param_ss << y_param_number;
+
+      stringstream x_param_numerical_ss;
+      stringstream y_param_numerical_ss;
+
+      float x_param_numerical;
+      float y_param_numerical;
+
+      x_param_numerical_ss << param_values[x_param_number-1].substr(param_values[x_param_number-1].find(x_param_ss.str())+x_param_ss.str().size(),param_values[x_param_number-1].find("#")-param_values[x_param_number-1].find(x_param_ss.str())-x_param_ss.str().size());
+      y_param_numerical_ss << param_values[y_param_number-1].substr(param_values[y_param_number-1].find(y_param_ss.str())+y_param_ss.str().size(),param_values[y_param_number-1].find("#")-param_values[y_param_number-1].find(y_param_ss.str())-y_param_ss.str().size());
+
+      x_param_numerical_ss >> x_param_numerical;
+      y_param_numerical_ss >> y_param_numerical;
+
+      grid_points.push_back(pair<float,float>(x_param_numerical,y_param_numerical));
+      histo_grid.push_back(0);
+      lhe_weight_index.push_back(0);
+
+      //these should be the same as the strings printed out above
+      std::cout << "x_param = " << x_param_numerical << std::endl;
+      std::cout << "y_param = " << y_param_numerical << std::endl;
+
+    }
+
+    if(line=="<initrwgt>\0"){
+
+      //make sure that the parameter values for the unweighted events were already added
+      assert(grid_points.size() == 1 && histo_grid.size() == 1 && lhe_weight_index.size() ==1);
+
+      getline(infile,line);
+      assert(line=="<weightgroup type='mg_reweighting'>");
+
+      int i = 1;
+
+      while(true){
+	getline(infile,line);
+
+	if(line=="</initrwgt>\0")
+	  return;
+
+	if (line == "</weight>\0" || line=="</weightgroup>\0")
+	  continue;
+
+	int param_number1 = -1;
+	int param_number2 = -1;
+	float param1 = grid_points[0].first;
+	float param2 = grid_points[0].second;
+
+	assert(line.find("set param_card anoinputs") != string::npos);
+	std::string paraminfo1=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
+	stringstream ss1;
+	ss1 << paraminfo1;
+	ss1 >> param_number1;
+	if(param_number1 == x_param_number)
+	  ss1 >> param1;
+	else if (param_number1==y_param_number)
+	  ss1 >> param2;
+	//else
+	//  assert(0);
+
+	getline(infile,line);
+
+	if (line != "</weight>\0"){
+
+	  assert(line.find("set param_card anoinputs") != string::npos);
+	  std::string paraminfo2=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
+	  stringstream ss2;
+	  ss2 << paraminfo2;
+	  ss2 >> param_number2;
+	  if(param_number2 == x_param_number)
+	    ss2 >> param1;
+	  else if (param_number2==y_param_number)
+	    ss2 >> param2;
+	  //else
+	  //  assert(0);
+
+	  assert(param_number1 != param_number2);
+
+	}
+	if((param_number1 == x_param_number && param_number2 == y_param_number) || (param_number2 == x_param_number && param_number1 == y_param_number)|| ( param_number1 == x_param_number && param_number2 == -1) || (param_number1 == y_param_number && param_number2 == -1)) {
+	  
+	  //the same grid point may happen multiple times
+	  //make sure to only add each grid point once
+	  bool found =false;
+	  for(unsigned int j = 0; j < grid_points.size(); j++){
+	    if (grid_points[j] == pair<float,float>(param1,param2)){
+	      found = true;
+	      //std::cout << "i = " << i << std::endl;
+	      //std::cout << "found j = " << j << std::endl;
+	    }
+	  }
+
+	  if(!found && i <= end_weight && i >= begin_weight){
+	    grid_points.push_back(pair<float,float>(param1,param2));
+	    histo_grid.push_back(0);
+	    lhe_weight_index.push_back(i);
+	  }
+	}
+
+	i++;
+
+      }
+    }
+  }
+
+  std::cout << "reweight block not found, exiting" << std::endl;
+  exit(1);
 }
