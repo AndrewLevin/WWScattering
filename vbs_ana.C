@@ -24,8 +24,8 @@
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)'
 
-std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
-//std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
+//std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
+std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
 int x_param_number = 11;
 int y_param_number = 12;
 std::vector<std::pair<float,float> > grid_points;
@@ -50,7 +50,7 @@ bool run_over_data = false;
 bool doAQGCsAna = false;
 bool use_anom_sample = false;
 int sm_lhe_weight = -1;
-int which_lhe_weight = 0;
+int which_lhe_weight = 0; // 61
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
@@ -61,7 +61,7 @@ void parse_grid(string lhe_filename);
 void vbs_ana
 (
  int thePlot = 0,
- TString bgdInputFile    = "ntuples_53x/wwss_qed_4_qcd_99_lt012.root",
+ TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_lt012.root",
  TString dataInputFile   = "ntuples_53x/data_skim8.root",
  TString systInputFile   = "ntuples_53x/hww_syst_skim8.root",
  int period = 3,
@@ -82,7 +82,7 @@ void vbs_ana
 
     assert(sm_lhe_weight!=-1);
     std::cout << "sm_lhe_weight = " << sm_lhe_weight << std::endl;
- 
+
     //change to more convenient units  
     for(unsigned int i = 0; i < grid_points.size(); i++){
       grid_points[i].first = grid_points[i].first*pow(10.,11);
@@ -808,16 +808,15 @@ void vbs_ana
 
         if(passCuts[1][WWSEL] && doAQGCsAna == true){
 	  //the qcd WW that we subtract from the signal is not reweighted
-	  if(bgdEvent.scale1fb_ > 0 && bgdEvent.scale1fb_ > 0.00018239){
+	  if(bgdEvent.scale1fb_ > 0){
 	    assert(bgdEvent.lheWeights_.size() >= grid_points.size());
 	    assert(grid_points.size() == histo_grid.size());
 	    assert(lhe_weight_index.size() == histo_grid.size());
 	  }
 
 	  for(unsigned int a = 0; a < grid_points.size(); a++){
-	    if(bgdEvent.scale1fb_ > 0 && bgdEvent.scale1fb_ > 0.00018239)
+	    if(bgdEvent.scale1fb_ > 0)
 	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
-	    
 	    else
 	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight);
 	  }
@@ -1229,8 +1228,8 @@ void vbs_ana
 			    dataEvent.njets_, dataEvent.jet1_, dataEvent.jet2_, 
 			    year, 3, outputVar);
       double MVAVar[6] = {outputVar[13],0,0,0,0,0};
-      if(thePlot == 0) {MVAVar[0]=outputVar[14];}
-      else if(thePlot == 9) {MVAVar[0]=outputVar[2];}
+      if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
+      else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	histo_Data->Fill(MVAVar[0], 1.0);
