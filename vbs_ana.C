@@ -1409,7 +1409,7 @@ void vbs_ana
   }
   if(showSignalOnly == false) printf("WjetsSyst: %f --> %f\n",bgdCombined[WWSEL+nSelTypes][5],WjetsSyst);
   double pdf_qqbar[3] = {1.073,1.068,1.069};
-  double syst_WZ3l = 1.010;
+  double syst_WZ3l = sqrt(1.010*1.010+1.200*1.200);
 
   double nOldWjets = TMath::Max(histo_Wjets->GetSumOfWeights(),0.000001);
   for(int i=1; i<=histo_Wjets->GetNbinsX(); i++){
