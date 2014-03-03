@@ -720,6 +720,11 @@ void vbs_ana
       if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.07841;
       if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.07841;
 
+      if(bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto){
+        if(bgdEvent.dstype_ == SmurfTree::wz    ) theWeight = theWeight * 1.20;
+	if(bgdEvent.dstype_ == SmurfTree::wgstar) theWeight = 0.0;
+      }
+
       if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
