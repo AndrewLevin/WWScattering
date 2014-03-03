@@ -147,10 +147,24 @@ class StandardPlot {
 	    TH1D* hSum = (TH1D*)_data->Clone();
 	    hSum->Rebin(rebin);
 	    hSum->Scale(0.0);
+	    TAxis *xa;
             for (int i=0; i<nSamples; i++) {
 
                 // in case the user doesn't set it
                 if( !_hist[i] ) continue;
+  	    	bool modifyXAxis = false;
+		if(modifyXAxis == true){
+		  xa =_hist[i]->GetXaxis();
+   	          xa->SetLabelSize(0.001);
+	          xa->SetLabelColor(4);
+  	    	  for(Int_t k=1;k<=_hist[i]->GetNbinsX();++k){
+  	    	    xa->SetBinLabel(1 ,"m_{ll}< 250&m_{jj}< 750");
+  	    	    xa->SetBinLabel(2 ,"m_{ll}>=250&m_{jj}< 750");
+  	    	    xa->SetBinLabel(3 ,"m_{ll}< 250&m_{jj}>=750");
+  	    	    xa->SetBinLabel(4 ,"m_{ll}>=250&m_{jj}>=750");
+  	    	    xa->SetRangeUser(1,4);
+  	    	  }
+		}
                 _hist[i]->Rebin(rebin);
                 _hist[i]->SetLineColor(_sampleColor[i]);
 

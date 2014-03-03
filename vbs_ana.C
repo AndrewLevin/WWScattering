@@ -56,16 +56,16 @@ void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
 void parse_grid(string lhe_filename);
 
-// thePlot == 0 (mjj), 9 (mll), anything else (mlljj)
+// thePlot == 0 (mjj), 9 (mll), 19 (2D mll-mjj), anything else (mlljj)
 
 void vbs_ana
 (
  int thePlot = 0,
+ int lSel = 4,
  TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_lt012.root",
  TString dataInputFile   = "ntuples_53x/data_skim8.root",
  TString systInputFile   = "ntuples_53x/hww_syst_skim8.root",
- int period = 3,
- int lSel = 4
+ int period = 3
  )
 {
 
@@ -204,6 +204,7 @@ void vbs_ana
   Float_t xbins[nBin+1] = {700, 1100, 1500, 2000, 3000};
   if     (thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
   else if(thePlot == 9) {xbins[0] =   0; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
+  else if(thePlot ==19) {xbins[0] =-0.5; xbins[1] = 0.5; xbins[2] =  1.5; xbins[3] =  2.5; xbins[4] =  3.5;}
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
@@ -250,11 +251,12 @@ void vbs_ana
   else if(thePlot >= 16 && thePlot <= 16) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
   else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
+  else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else assert(0);
 
   TH1D* histo0;
-  if(thePlot != 0 && thePlot != 1 && thePlot != 9) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
-  else                                             histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
+  if(thePlot != 0 && thePlot != 1 && thePlot != 9 && thePlot != 19) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
+  else                                                              histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
   histo0->Sumw2();
   TH1D* histo1 = (TH1D*) histo0->Clone("histo1");
   TH1D* histo2 = (TH1D*) histo0->Clone("histo2");
@@ -499,6 +501,13 @@ void vbs_ana
     double MVAVar[6] = {outputVar[13],outputVarJESP[13],outputVarJESM[13],outputVarLepP[13],outputVarLepM[13],outputVarMET[13]};
     if     (thePlot == 0) {MVAVar[0]=outputVar[14];MVAVar[1]=outputVarJESP[14];MVAVar[2]=outputVarJESM[14];MVAVar[3]=outputVarLepP[14];MVAVar[4]=outputVarLepM[14];MVAVar[5]=outputVarMET[14];}
     else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];MVAVar[1]=outputVarJESP[ 2];MVAVar[2]=outputVarJESM[ 2];MVAVar[3]=outputVarLepP[ 2];MVAVar[4]=outputVarLepM[ 2];MVAVar[5]=outputVarMET[ 2];}
+    else if(thePlot ==19) {if(outputVar[2]    < 250&&outputVar[14]    <  750) MVAVar[0]=0.0; else if(outputVar[2]    >=250&&outputVar[14]    <  750) MVAVar[0]=1.0; else if(outputVar[2]    < 250&&outputVar[14]    >= 750) MVAVar[0]=2.0; else if(outputVar[2]    >=250&&outputVar[14]    >= 750) MVAVar[0]=3.0; else assert(0);
+                           if(outputVarJESP[2]< 250&&outputVarJESP[14]<  750) MVAVar[1]=0.0; else if(outputVarJESP[2]>=250&&outputVarJESP[14]<  750) MVAVar[1]=1.0; else if(outputVarJESP[2]< 250&&outputVarJESP[14]>= 750) MVAVar[1]=2.0; else if(outputVarJESP[2]>=250&&outputVarJESP[14]>= 750) MVAVar[1]=3.0; else assert(0);
+                           if(outputVarJESM[2]< 250&&outputVarJESM[14]<  750) MVAVar[2]=0.0; else if(outputVarJESM[2]>=250&&outputVarJESM[14]<  750) MVAVar[2]=1.0; else if(outputVarJESM[2]< 250&&outputVarJESM[14]>= 750) MVAVar[2]=2.0; else if(outputVarJESM[2]>=250&&outputVarJESM[14]>= 750) MVAVar[2]=3.0; else assert(0);
+                           if(outputVarLepP[2]< 250&&outputVarLepP[14]<  750) MVAVar[3]=0.0; else if(outputVarLepP[2]>=250&&outputVarLepP[14]<  750) MVAVar[3]=1.0; else if(outputVarLepP[2]< 250&&outputVarLepP[14]>= 750) MVAVar[3]=2.0; else if(outputVarLepP[2]>=250&&outputVarLepP[14]>= 750) MVAVar[3]=3.0; else assert(0);
+                           if(outputVarLepM[2]< 250&&outputVarLepM[14]<  750) MVAVar[4]=0.0; else if(outputVarLepM[2]>=250&&outputVarLepM[14]<  750) MVAVar[4]=1.0; else if(outputVarLepM[2]< 250&&outputVarLepM[14]>= 750) MVAVar[4]=2.0; else if(outputVarLepM[2]>=250&&outputVarLepM[14]>= 750) MVAVar[4]=3.0; else assert(0);
+                           if(outputVarMET[2] < 250&&outputVarMET[14] <  750) MVAVar[5]=0.0; else if(outputVarMET[2] >=250&&outputVarMET[14] <  750) MVAVar[5]=1.0; else if(outputVarMET[2] < 250&&outputVarMET[14] >= 750) MVAVar[5]=2.0; else if(outputVarMET[2] >=250&&outputVarMET[14] >= 750) MVAVar[5]=3.0; else assert(0);}
+
     for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
     double addLepEff	 = 1.0; double addLepEffUp   = 1.0; double addLepEffDown = 1.0;
     addLepEff  = leptonEfficiency(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid1_, 0)*
@@ -732,7 +741,9 @@ void vbs_ana
 	else if(thePlot ==16) myVar = bgdEvent.type_;
 	else if(thePlot ==17) myVar = bgdEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
+	else if(thePlot ==19) myVar = MVAVar[0];
 	else assert(0);
+
       	if     (fDecay == 31){
 	  if(use_anom_sample && bgdEvent.scale1fb_ > 0){
 	    histo0->Fill(myVar,theWeight*bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0]);
@@ -1107,6 +1118,8 @@ void vbs_ana
       double MVAVar[6] = {outputVar[13],0,0,0,0,0};
       if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
       else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
+      else if(thePlot ==19) {if(outputVar[2]< 250&&outputVar[14]<  750) MVAVar[0]=0.0; else if(outputVar[2]>=250&&outputVar[14]<  750) MVAVar[0]=1.0; else if(outputVar[2]< 250&&outputVar[14]>= 750) MVAVar[0]=2.0; else if(outputVar[2]>=250&&outputVar[14]>= 750) MVAVar[0]=3.0; else assert(0);
+                            }
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	if     (fDecay == 27){
@@ -1197,6 +1210,19 @@ void vbs_ana
     if(passNjets  == true && passMET == true &&  passLSel == true &&
        preselCuts == true && dataEvent.dilep_.M() > 15.0) {
 
+      double outputVar[15];
+      makeSystematicEffects(dataEvent.lid1_, dataEvent.lid2_, dataEvent.lep1_, dataEvent.lep2_, dataEvent.dilep_, 
+                            dataEvent.mt_, theMET, theMETPHI, 
+                            dataEvent.trackMet_, dataEvent.trackMetPhi_, 
+			    dataEvent.njets_, dataEvent.jet1_, dataEvent.jet2_, 
+			    year, 3, outputVar);
+      double MVAVar[6] = {outputVar[13],0,0,0,0,0};
+      if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
+      else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
+      else if(thePlot ==19) {if(outputVar[2]< 250&&outputVar[14]<  750) MVAVar[0]=0.0; else if(outputVar[2]>=250&&outputVar[14]<  750) MVAVar[0]=1.0; else if(outputVar[2]< 250&&outputVar[14]>= 750) MVAVar[0]=2.0; else if(outputVar[2]>=250&&outputVar[14]>= 750) MVAVar[0]=3.0; else assert(0);
+                            }
+      for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
+
       if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((dataEvent.jet1_+dataEvent.jet2_).M(),1999.999),500.001);
@@ -1217,20 +1243,11 @@ void vbs_ana
 	else if(thePlot ==16) myVar = dataEvent.type_;
 	else if(thePlot ==17) myVar = dataEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
+	else if(thePlot ==19) myVar = MVAVar[0];
 	else assert(0);
       	histo5->Fill(myVar,1.0);
       } // end making plots
 
-      double outputVar[15];
-      makeSystematicEffects(dataEvent.lid1_, dataEvent.lid2_, dataEvent.lep1_, dataEvent.lep2_, dataEvent.dilep_, 
-                            dataEvent.mt_, theMET, theMETPHI, 
-                            dataEvent.trackMet_, dataEvent.trackMetPhi_, 
-			    dataEvent.njets_, dataEvent.jet1_, dataEvent.jet2_, 
-			    year, 3, outputVar);
-      double MVAVar[6] = {outputVar[13],0,0,0,0,0};
-      if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
-      else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
-      for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	histo_Data->Fill(MVAVar[0], 1.0);
       }
