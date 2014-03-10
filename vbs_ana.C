@@ -50,7 +50,7 @@ bool run_over_data = false;
 bool doAQGCsAna = false;
 bool use_anom_sample = false;
 int sm_lhe_weight = -1;
-int which_lhe_weight = 0; // 61
+int which_lhe_weight = 0; // 61 for WW / 9 for WZ
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
@@ -360,6 +360,8 @@ void vbs_ana
       printf("--- reading event %5d of %5d\n",evt,nBgd);
     bgdEvent.tree_->GetEntry(evt);
 
+    if(bgdEvent.lep1_.Pt() < 1.0) continue;
+
     if(!(((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) == SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection) ||
          ((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) == SmurfTree::Lep2FullSelection) ||
 	  bgdEvent.dstype_ != SmurfTree::data)) continue;
@@ -440,11 +442,10 @@ void vbs_ana
     // trackSel[2] == reject events with isolated reconstructed leptons with pt>10 and iso/pt<0.1
     // trackSel[3] == reject events with isolated tracks with pt>10 and iso/pt<0.1 (not used by default)
     int newId=int(bgdEvent.jet1McId_);
-    //double wzId=bgdEvent.jet1McId_%10;
-    //int tauId=int((bgdEvent.jet1McId_%100-bgdEvent.jet1McId_%10)/10)+int((bgdEvent.jet2McId_%100-bgdEvent.jet2McId_%10)/10)+int((bgdEvent.jet3McId_%100-bgdEvent.jet3McId_%10)/10)+int((bgdEvent.jet4McId_%100-bgdEvent.jet4McId_%10)/10);
+    //int tauId=int((bgdEvent.jet1McId_%100-bgdEvent.jet1McId_%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((bgdEvent.jet2McId_%1000-bgdEvent.jet2McId_%100)/10),int((bgdEvent.jet2McId_%10000-bgdEvent.jet2McId_%1000)/10),int((bgdEvent.jet2McId_%100000-bgdEvent.jet2McId_%10000)/10),int(bgdEvent.jet2McId_/100000)};
+    int trackSel[4] = {int((bgdEvent.jet2McId_%100-bgdEvent.jet2McId_%10)/10),int((bgdEvent.jet2McId_%1000-bgdEvent.jet2McId_%100)/10),int((bgdEvent.jet2McId_%10000-bgdEvent.jet2McId_%1000)/10),int(bgdEvent.jet2McId_/10000)};
 
     bool passNjets         = bgdEvent.njets_ >= 2;
     bool passMET           = TMath::Min(bgdEvent.pmet_,bgdEvent.pTrackMet_) > metMin;
@@ -725,6 +726,10 @@ void vbs_ana
 	if(bgdEvent.dstype_ == SmurfTree::wgstar) theWeight = 0.0;
       }
 
+      if(fDecay == 31 && use_anom_sample == true){
+        theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0];
+      }
+
       if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
@@ -750,11 +755,7 @@ void vbs_ana
 	else assert(0);
 
       	if     (fDecay == 31){
-	  if(use_anom_sample && bgdEvent.scale1fb_ > 0){
-	    histo0->Fill(myVar,theWeight*bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0]);
-	  } else {
-      	    histo0->Fill(myVar,theWeight);
-      	  }
+          histo0->Fill(myVar,theWeight);
 	}
       	else if(fDecay == 21){
       	  histo1->Fill(myVar,theWeight);
@@ -898,6 +899,8 @@ void vbs_ana
       printf("--- reading event %5d of %5d\n",evt,nSyst);
     systEvent.tree_->GetEntry(evt);
 
+    if(systEvent.lep1_.Pt() < 1.0) continue;
+
     if(systEvent.dstype_ == SmurfTree::data &&
       (systEvent.cuts_ & SmurfTree::Trigger) != SmurfTree::Trigger) continue;
     if(systEvent.dstype_ == SmurfTree::data && systEvent.run_ <  minRun) continue;
@@ -950,11 +953,10 @@ void vbs_ana
     if(lType == 0) if(systEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
     int newId=int(systEvent.jet1McId_);
-    //double wzId=systEvent.jet1McId_%10;
-    //int tauId=int((systEvent.jet1McId_%100-systEvent.jet1McId_%10)/10)+int((systEvent.jet2McId_%100-systEvent.jet2McId_%10)/10)+int((systEvent.jet3McId_%100-systEvent.jet3McId_%10)/10)+int((systEvent.jet4McId_%100-systEvent.jet4McId_%10)/10);
+    //int tauId=int((systEvent.jet1McId_%100-systEvent.jet1McId_%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((systEvent.jet2McId_%1000-systEvent.jet2McId_%100)/10),int((systEvent.jet2McId_%10000-systEvent.jet2McId_%1000)/10),int((systEvent.jet2McId_%100000-systEvent.jet2McId_%10000)/10),int(systEvent.jet2McId_/100000)};
+    int trackSel[4] = {int((systEvent.jet2McId_%100-systEvent.jet2McId_%10)/10),int((systEvent.jet2McId_%1000-systEvent.jet2McId_%100)/10),int((systEvent.jet2McId_%10000-systEvent.jet2McId_%1000)/10),int(systEvent.jet2McId_/10000)};
 
     bool passNjets         = systEvent.njets_ >= 2;
     bool passMET           = TMath::Min(systEvent.pmet_,systEvent.pTrackMet_) > metMin;
@@ -1144,6 +1146,8 @@ void vbs_ana
       printf("--- reading event %5d of %5d\n",evt,nData);
     dataEvent.tree_->GetEntry(evt);
 
+    if(dataEvent.lep1_.Pt() < 1.0) continue;
+
     bool lId = (dataEvent.cuts_ & SmurfTree::Lep1FullSelection) == SmurfTree::Lep1FullSelection && (dataEvent.cuts_ & SmurfTree::Lep2FullSelection) == SmurfTree::Lep2FullSelection;
 
     if(!lId) continue;
@@ -1174,11 +1178,10 @@ void vbs_ana
     if(lType == 0) if(dataEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
     int newId=int(dataEvent.jet1McId_);
-    //double wzId=dataEvent.jet1McId_%10;
-    //int tauId=int((dataEvent.jet1McId_%100-dataEvent.jet1McId_%10)/10)+int((dataEvent.jet2McId_%100-dataEvent.jet2McId_%10)/10)+int((dataEvent.jet3McId_%100-dataEvent.jet3McId_%10)/10)+int((dataEvent.jet4McId_%100-dataEvent.jet4McId_%10)/10);
+    //int tauId=int((dataEvent.jet1McId_%100-dataEvent.jet1McId_%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((dataEvent.jet2McId_%1000-dataEvent.jet2McId_%100)/10),int((dataEvent.jet2McId_%10000-dataEvent.jet2McId_%1000)/10),int((dataEvent.jet2McId_%100000-dataEvent.jet2McId_%10000)/10),int(dataEvent.jet2McId_/100000)};
+    int trackSel[4] = {int((dataEvent.jet2McId_%100-dataEvent.jet2McId_%10)/10),int((dataEvent.jet2McId_%1000-dataEvent.jet2McId_%100)/10),int((dataEvent.jet2McId_%10000-dataEvent.jet2McId_%1000)/10),int(dataEvent.jet2McId_/10000)};
 
     bool passNjets         = dataEvent.njets_ >= 2;
     bool passMET           = TMath::Min(dataEvent.pmet_,dataEvent.pTrackMet_) > metMin;
