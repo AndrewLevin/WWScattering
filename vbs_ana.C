@@ -20,9 +20,9 @@
 #include "TCanvas.h"
 #include "TSystem.h"
 #include "TLorentzVector.h"
-//root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,4)';
-//root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';
-//root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)'
+//root -l -q -b vbs_ana.C+'(0,4,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,14,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)'
 
 //std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
 std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
@@ -37,7 +37,7 @@ bool UseDyttDataDriven = true; // if true, then remove em events in dyll MC
 SmurfTree systEvent;
 const unsigned int nSelTypes = 3;
 const unsigned int nSelTypesSyst = 7;
-const bool showSignalOnly = false;
+const bool showSignalOnly = true;
 
 enum selType {WWSEL, BTAGSEL, WZSEL};
 TString selTypeName[nSelTypes*2] = {"WWSEL-OS", "BTAGSEL-OS", "WZSEL-OS",
@@ -48,9 +48,9 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
 
 bool run_over_data = false;
 bool doAQGCsAna = false;
-bool use_anom_sample = false;
+bool use_anom_sample = true;
 int sm_lhe_weight = -1;
-int which_lhe_weight = 0; // 61 for WW / 9 for WZ
+int which_lhe_weight = 999; // 61 for WW / 9 for WZ --> 999 ==> 61 for WW and 9 for WZ
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
@@ -390,6 +390,7 @@ void vbs_ana
     else if(bgdEvent.dstype_ == SmurfTree::ggzz  	   ) fDecay = 29;
     else if(bgdEvent.dstype_ == SmurfTree::ggww  	   ) fDecay = 30;
     else if(bgdEvent.dstype_ == SmurfTree::wwewk  	   ) fDecay = 31;
+    else if(bgdEvent.dstype_ == SmurfTree::wzewk  	   ) fDecay = 31;
     else if(bgdEvent.dstype_ == SmurfTree::other           ) fDecay = 40;
     else if(bgdEvent.processId_==121 ||
             bgdEvent.processId_==122)   fDecay = 41;
@@ -727,7 +728,12 @@ void vbs_ana
       }
 
       if(fDecay == 31 && use_anom_sample == true){
-        theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0];
+        if (which_lhe_weight != 999) theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0];
+	else {
+           if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[61]/bgdEvent.lheWeights_[0];
+           else if(bgdEvent.dstype_ == SmurfTree::wzewk) theWeight = theWeight * bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0];
+           else {fDecay = 0;std::cout << bgdEvent.dstype_ << std::endl;}
+	}
       }
 
       if(passCuts[1][WWSEL]){ // begin making plots
