@@ -170,7 +170,7 @@ class StandardPlot {
             if(_data) _data->SetMarkerStyle(kFullCircle);
 	    hstack->Draw("hist");
 
-	    bool plotSystErrorBars = true;
+	    bool plotSystErrorBars = false;
 	    double systBck = 0.10;
 	    if(plotSystErrorBars == true) {
   	      TGraphAsymmErrors * gsyst = new TGraphAsymmErrors(hSum);
@@ -186,6 +186,19 @@ class StandardPlot {
 	      gsyst->Draw("E2same");
               //TExec *setex1 = new TExec("setex1","gStyle->SetErrorX(0)");
               //setex1->Draw();
+	    }
+	    else { // plot statistical errors
+  	      TGraphAsymmErrors * gsyst = new TGraphAsymmErrors(hSum);
+              for (int i = 0; i < gsyst->GetN(); ++i) {
+                gsyst->SetPointEYlow (i, hSum->GetBinError(i+1));
+                gsyst->SetPointEYhigh(i, hSum->GetBinError(i+1));
+	      }
+              gsyst->SetFillColor(12);
+              gsyst->SetFillStyle(3345);
+              gsyst->SetMarkerSize(0);
+              gsyst->SetLineWidth(0);
+              gsyst->SetLineColor(kWhite);
+	      gsyst->Draw("E2same");
 	    }
 
             if(_hist[iWWEWK] && _isHWWOverlaid == false) _hist[iWWEWK]->Draw("hist,same");
@@ -266,7 +279,7 @@ class StandardPlot {
             // total mess to get it nice, should be redone
             size_t j=0;
             TString higgsLabel = " HWW";
-            higgsLabel.Form(" WW EWK");
+            higgsLabel.Form("signal");
 
             if(_data->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _data,          " data",    "lp"); j++; }
             if     (_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0 && _isHWWOverlaid) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "f" ); j++; }

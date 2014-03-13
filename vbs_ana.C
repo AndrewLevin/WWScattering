@@ -1,3 +1,5 @@
+
+
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Core/SmurfTree.h"
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Analysis/HWWlvlv/factors.h"
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Core/LeptonScaleLookup.h"
@@ -24,11 +26,11 @@
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';
 //root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)'
 
-//std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
-std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
-int x_param_number = 11;
-int y_param_number = 12;
-std::vector<std::pair<float,float> > grid_points;
+std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
+//std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
+int x_param_number = 12;
+int y_param_number = 13;
+std::vector<float > oneD_grid_points;
 std::vector<float> histo_grid;
 std::vector<int> lhe_weight_index;
 
@@ -47,21 +49,25 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
 bool run_over_data = false;
-bool doAQGCsAna = false;
+bool doAQGCsAna = true;
 bool use_anom_sample = false;
 int sm_lhe_weight = -1;
-int which_lhe_weight = 0; // 61
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
-void parse_grid(string lhe_filename);
+void parse_reweight_info(string lhe_filename);
 
 // thePlot == 0 (mjj), 9 (mll), anything else (mlljj)
 
 void vbs_ana
 (
  int thePlot = 0,
- TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_lt012.root",
+ int which_lhe_weight = 0,
+ //TString bgdInputFile    = "ntuples_53x/wwss_qed_4_qcd_99_lt012_sm.root",
+ TString bgdInputFile    = "ntuples_53x/wwss_qed_4_qcd_99_lt012.root",
+ //TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_lt012.root",
+ //TString bgdInputFile = "ntuples_53x/wz3l_ewk_sm.root",
+ //TString bgdInputFile = "ntuples_53x/wz3l_ewk_lt012.root",
  TString dataInputFile   = "ntuples_53x/data_skim8.root",
  TString systInputFile   = "ntuples_53x/hww_syst_skim8.root",
  int period = 3,
@@ -70,11 +76,11 @@ void vbs_ana
 {
 
   if(doAQGCsAna == true){
-    parse_grid(file_for_grid);
-    std::cout << "grid_points.size() = " << grid_points.size() << std::endl;
-    for(unsigned int i = 0; i < grid_points.size(); i++){
-      std::cout << grid_points[i].first << ", " << grid_points[i].second << std::endl;
-      if(grid_points[i].first==0 && grid_points[i].second==0){
+    parse_reweight_info(file_for_grid);
+    std::cout << "oneD_grid_points.size() = " << oneD_grid_points.size() << std::endl;
+    for(unsigned int i = 0; i < oneD_grid_points.size(); i++){
+      std::cout << oneD_grid_points[i] << std::endl;
+      if(oneD_grid_points[i]==0){
 	assert(sm_lhe_weight==-1);
 	sm_lhe_weight=i;
       }
@@ -82,14 +88,13 @@ void vbs_ana
 
     assert(sm_lhe_weight!=-1);
     std::cout << "sm_lhe_weight = " << sm_lhe_weight << std::endl;
-
+ 
     //change to more convenient units  
-    for(unsigned int i = 0; i < grid_points.size(); i++){
-      grid_points[i].first = grid_points[i].first*pow(10.,11);
-      grid_points[i].second = grid_points[i].second*pow(10.,11);
+    for(unsigned int i = 0; i < oneD_grid_points.size(); i++){
+      oneD_grid_points[i] = oneD_grid_points[i]*pow(10.,11);
     }
-    for(unsigned int i = 0; i < grid_points.size(); i++){
-      std::cout << grid_points[i].first << ", " << grid_points[i].second << std::endl;
+    for(unsigned int i = 0; i < oneD_grid_points.size(); i++){
+      std::cout << oneD_grid_points[i] << std::endl;
     }
     for(unsigned int i = 0; i < lhe_weight_index.size(); i++){
       std::cout << "lhe_weight_index[i] = " << lhe_weight_index[i] << std::endl;
@@ -217,7 +222,7 @@ void vbs_ana
   std::vector<TH1D *> histo_WWewk_anom;
 
   if(doAQGCsAna == true){
-    for(unsigned int a = 0; a < grid_points.size(); a++){
+    for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
       stringstream ss;
       ss << a;
       histo_WWewk_anom.push_back((TH1D*) histoMVA->Clone(TString("histo_WWewk_anom"+ss.str())));
@@ -501,8 +506,11 @@ void vbs_ana
     else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];MVAVar[1]=outputVarJESP[ 2];MVAVar[2]=outputVarJESM[ 2];MVAVar[3]=outputVarLepP[ 2];MVAVar[4]=outputVarLepM[ 2];MVAVar[5]=outputVarMET[ 2];}
     for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
     double addLepEff	 = 1.0; double addLepEffUp   = 1.0; double addLepEffDown = 1.0;
+
+
     addLepEff  = leptonEfficiency(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid1_, 0)*
     		 leptonEfficiency(bgdEvent.lep2_.Pt(), bgdEvent.lep2_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid2_, 0);
+
     if(addLepEff > 0) {
       addLepEffUp   = leptonEfficiency(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid1_, 1)*
         	      leptonEfficiency(bgdEvent.lep2_.Pt(), bgdEvent.lep2_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid2_, 1);
@@ -535,6 +543,8 @@ void vbs_ana
     if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && TMath::Min(outputVarLepM[4]/bgdEvent.met_*bgdEvent.pmet_,outputVarLepM[6]/bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVarLepM[0] > 20.0 && outputVarLepM[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepM[2] > 50.0 && passVBFSel) passSystCuts[lType][LEPM] = true;
     if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && TMath::Min(outputVarMET[4] /bgdEvent.met_*bgdEvent.pmet_,outputVarMET[6] /bgdEvent.trackMet_*bgdEvent.pTrackMet_) > metMin && outputVarMET[0]  > 20.0 && outputVarMET[1]  > 20.0 && passBtagVeto && pass3rLVeto && outputVarMET[2]  > 50.0 && passVBFSel) passSystCuts[lType][MET] = true;
 
+
+
     if(passNjets  == true && passMET == true &&  passLSel == true &&
        preselCuts == true && bgdEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
        
@@ -560,6 +570,7 @@ void vbs_ana
       if(((bgdEvent.cuts_ & SmurfTree::Lep2LooseEleV4) == SmurfTree::Lep2LooseEleV4) && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection) nFake++;
       if(((bgdEvent.cuts_ & SmurfTree::Lep3LooseEleV4) == SmurfTree::Lep3LooseEleV4) && (bgdEvent.cuts_ & SmurfTree::Lep3FullSelection) != SmurfTree::Lep3FullSelection) nFake++;
       if(nFake < 0) assert(0);
+
  
       if(nFake > 1){
 	add = add*fakeRate(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDFRMu, fhDFREl, (bgdEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2  && (bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection, 
@@ -570,8 +581,11 @@ void vbs_ana
 											(bgdEvent.cuts_ & SmurfTree::Lep3LooseEleV4) == SmurfTree::Lep3LooseEleV4 && (bgdEvent.cuts_ & SmurfTree::Lep3FullSelection) != SmurfTree::Lep3FullSelection);
 	fDecay = 22;
 	theWeight	       = -1.0*add*frCorr;
+
+
       }
       else if(nFake == 1){
+
         if(bgdEvent.dstype_ == SmurfTree::data){
 	  add = add*fakeRate(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDFRMu, fhDFREl, (bgdEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2  && (bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection, 
 	                                                                                  (bgdEvent.cuts_ & SmurfTree::Lep1LooseEleV4) == SmurfTree::Lep1LooseEleV4 && (bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection);
@@ -582,6 +596,8 @@ void vbs_ana
           if(fCheckProblem == true && TMath::Abs((bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_)-add)/add>0.0001)
 	    printf("PROBLEMA: %f - %f %f %f %f %f = %f\n",add,bgdEvent.sfWeightFR_,bgdEvent.sfWeightPU_,bgdEvent.sfWeightEff_,bgdEvent.sfWeightTrig_,bgdEvent.sfWeightHPt_,bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_);
 	  // new category, W+jetsM
+
+
 	  if((bgdEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2 ||
 	     (bgdEvent.cuts_ & SmurfTree::Lep2LooseMuV2)  == SmurfTree::Lep2LooseMuV2 ||
 	     (bgdEvent.cuts_ & SmurfTree::Lep3LooseMuV2)  == SmurfTree::Lep3LooseMuV2){
@@ -597,13 +613,16 @@ void vbs_ana
 	  theWeight              = add*1.0*frCorr;
 	}
 	else if(isRealLepton == true || bgdEvent.dstype_ == SmurfTree::wgamma){
+
           add = add*fakeRate(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDFRMu, fhDFREl, (bgdEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2  && (bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection, 
 	                                                                                  (bgdEvent.cuts_ & SmurfTree::Lep1LooseEleV4) == SmurfTree::Lep1LooseEleV4 && (bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection);
           add = add*fakeRate(bgdEvent.lep2_.Pt(), bgdEvent.lep2_.Eta(), fhDFRMu, fhDFREl, (bgdEvent.cuts_ & SmurfTree::Lep2LooseMuV2)  == SmurfTree::Lep2LooseMuV2  && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection,
 	                                                                                  (bgdEvent.cuts_ & SmurfTree::Lep2LooseEleV4) == SmurfTree::Lep2LooseEleV4 && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection);
           add = add*fakeRate(bgdEvent.lep3_.Pt(), bgdEvent.lep3_.Eta(), fhDFRMu, fhDFREl, (bgdEvent.cuts_ & SmurfTree::Lep3LooseMuV2)  == SmurfTree::Lep3LooseMuV2  && (bgdEvent.cuts_ & SmurfTree::Lep3FullSelection) != SmurfTree::Lep3FullSelection,
 	                                                                                  (bgdEvent.cuts_ & SmurfTree::Lep3LooseEleV4) == SmurfTree::Lep3LooseEleV4 && (bgdEvent.cuts_ & SmurfTree::Lep3FullSelection) != SmurfTree::Lep3FullSelection);
+
 	  add = add*nPUScaleFactor2012(fhDPU ,bgdEvent.npu_);
+
           add = add*leptonEfficiency(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid1_);
 	  add = add*leptonEfficiency(bgdEvent.lep2_.Pt(), bgdEvent.lep2_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid2_);
           if((bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) != SmurfTree::ExtraLeptonVeto)
@@ -625,6 +644,8 @@ void vbs_ana
       	  							     TMath::Abs( bgdEvent.lid3_), TMath::Abs(bgdEvent.lid2_));
       	    trigEff  = 1.0 - ((1.0-trigEff0)*(1.0-trigEff1)*(1.0-trigEff2));
          }
+
+
 	  
 	  add = add*trigEff;
 	  if(fCheckProblem == true && (bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && TMath::Abs((bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_)+add)/add>0.0001)
@@ -669,6 +690,7 @@ void vbs_ana
         if((bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) != SmurfTree::ExtraLeptonVeto)
         add2 = add2*leptonEfficiency(bgdEvent.lep3_.Pt(), bgdEvent.lep3_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid3_);
 
+
         double trigEff = trigLookup.GetExpectedTriggerEfficiency(fabs(bgdEvent.lep1_.Eta()), bgdEvent.lep1_.Pt() , 
 								 fabs(bgdEvent.lep2_.Eta()), bgdEvent.lep2_.Pt(), 
 	        						 TMath::Abs( bgdEvent.lid1_), TMath::Abs(bgdEvent.lid2_));
@@ -686,6 +708,7 @@ void vbs_ana
       	   trigEff  = 1.0 - ((1.0-trigEff0)*(1.0-trigEff1)*(1.0-trigEff2));
         }
         add = add1*add2*trigEff;
+
 
         if(fCheckProblem == true && (bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) && add != 0 && TMath::Abs((bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_)-add)/add>0.0001)
 	 printf("PROBLEMCB(%d): %f %f %f = %f - %f %f %f %f %f = %f\n",bgdEvent.event_,add1,add2,trigEff,add,bgdEvent.sfWeightFR_,bgdEvent.sfWeightPU_,bgdEvent.sfWeightEff_,bgdEvent.sfWeightTrig_,bgdEvent.sfWeightHPt_,bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_);
@@ -733,11 +756,16 @@ void vbs_ana
 	else if(thePlot ==17) myVar = bgdEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
 	else assert(0);
+
+
+
       	if     (fDecay == 31){
 	  if(use_anom_sample && bgdEvent.scale1fb_ > 0){
 	    histo0->Fill(myVar,theWeight*bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0]);
+	    //histo0->Fill(myVar,1);
 	  } else {
       	    histo0->Fill(myVar,theWeight);
+      	    //histo0->Fill(myVar,1);
       	  }
 	}
       	else if(fDecay == 21){
@@ -806,17 +834,23 @@ void vbs_ana
         if(passSystCuts[1][LEPM]    == true) histo_WWewk_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_WWewk_METResUp  ->Fill(MVAVar[5], theWeight);;
 
+
+
+
         if(passCuts[1][WWSEL] && doAQGCsAna == true){
+
+
 	  //the qcd WW that we subtract from the signal is not reweighted
-	  if(bgdEvent.scale1fb_ > 0){
-	    assert(bgdEvent.lheWeights_.size() >= grid_points.size());
-	    assert(grid_points.size() == histo_grid.size());
+	  if(bgdEvent.scale1fb_ > 0 && bgdEvent.scale1fb_ > 0.00018239){
+	    assert(bgdEvent.lheWeights_.size() >= oneD_grid_points.size());
+	    assert(oneD_grid_points.size() == histo_grid.size());
 	    assert(lhe_weight_index.size() == histo_grid.size());
 	  }
 
-	  for(unsigned int a = 0; a < grid_points.size(); a++){
-	    if(bgdEvent.scale1fb_ > 0)
+	  for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
+	    if(bgdEvent.scale1fb_ > 0 && bgdEvent.scale1fb_ > 0.00018239)
 	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
+	    
 	    else
 	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight);
 	  }
@@ -1228,8 +1262,8 @@ void vbs_ana
 			    dataEvent.njets_, dataEvent.jet1_, dataEvent.jet2_, 
 			    year, 3, outputVar);
       double MVAVar[6] = {outputVar[13],0,0,0,0,0};
-      if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
-      else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
+      if(thePlot == 0) {MVAVar[0]=outputVar[14];}
+      else if(thePlot == 9) {MVAVar[0]=outputVar[2];}
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	histo_Data->Fill(MVAVar[0], 1.0);
@@ -1251,9 +1285,9 @@ void vbs_ana
   sprintf(output,Form("histo_nice%s.root",ECMsb.Data()));	 
   TFile* outFilePlotsNote = new TFile(output,"recreate");
 
-  TFile *th2d_outfile; 
+  TFile *th1d_outfile; 
   if(doAQGCsAna == true){
-    th2d_outfile = new TFile("aQGC_grids.root","recreate");
+    th1d_outfile = new TFile("aQGC_grids.root","recreate");
   }
 
   outFilePlotsNote->cd();
@@ -1672,16 +1706,16 @@ void vbs_ana
       stringstream ss;
       ss << nb;
     
-      TH2D *th2d  = new TH2D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),11,-4.125,4.125,11,-1.375,1.375);
+      TH1D *th1d  = new TH1D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),11,-1.375,1.375);
 
-      for(unsigned int a = 0; a < grid_points.size(); a++){
+      for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
         //histo_grid[nb][a] = histo_WWewk_anom[a]->GetBinContent(nb);
         assert(histo_WWewk_anom[0]->GetBinContent(nb) > 0);
         //assert(histo_grid[nb][0]>0);
-        th2d->SetBinContent(th2d->GetXaxis()->FindFixBin(grid_points[a].first), th2d->GetYaxis()->FindFixBin(grid_points[a].second), histo_WWewk_anom[a]->GetBinContent(nb)/histo_WWewk_anom[sm_lhe_weight]->GetBinContent(nb));
+        th1d->SetBinContent(th1d->GetXaxis()->FindFixBin(oneD_grid_points[a]), histo_WWewk_anom[a]->GetBinContent(nb)/histo_WWewk_anom[sm_lhe_weight]->GetBinContent(nb));
       }
-      th2d_outfile->cd();
-      th2d->Write();
+      th1d_outfile->cd();
+      th1d->Write();
     }
 
     double systNLO[3] = {1.0,1.0,1.0}; // WZ, WS, Wjets
@@ -1809,10 +1843,14 @@ void scaleFactor_WS(LorentzVector l,int lq, int ld, int mcld, double val[2]){
 int begin_weight=0;
 int end_weight=120;
 
-void parse_grid(string lhe_filename){
+
+//this only handles the case where there are 0, 1, or 2 parameters different from 0 in a given event
+void parse_reweight_info(string lhe_filename){
 
   ifstream infile(lhe_filename.c_str());
   assert(infile.is_open());
+
+  std::vector <float> param_values;
 
   while(!infile.eof()){
     std::string line;
@@ -1847,50 +1885,38 @@ void parse_grid(string lhe_filename){
       assert(line=="###################################");
       getline(infile,line);
       assert(line=="Block anoinputs ");
-      std::vector <string> param_values;
-      for(int i = 0; i < 20; i++){
+
+      param_values.push_back(-1);
+      std::cout << "parameter values for unweighted event:" << std::endl;
+      for(int i = 1; i <= 20; i++){
 	getline(infile,line); 
-	param_values.push_back(line);
+	std::cout << line << std::endl;
+	stringstream i_ss;
+	i_ss << i;
+	stringstream param_numerical_ss;
+	param_numerical_ss << line.substr(line.find(i_ss.str())+i_ss.str().size(),line.find("#")-line.find(i_ss.str())-i_ss.str().size());
+	float param_numerical;
+	param_numerical_ss >> param_numerical;
+	std::cout << "param_numerical = " << param_numerical << std::endl;
+	param_values.push_back(param_numerical);
       }
 
-      assert(param_values[19] == "   20 0.000000e+00 # FT9 ");
+      assert(line == "   20 0.000000e+00 # FT9 ");
 
-      std::cout << "parameter values for unweighted event:" << std::endl;
+      bool all_other_zero = true;
 
-      std::cout << param_values[x_param_number-1] << std::endl;
-      std::cout << param_values[y_param_number-1] << std::endl;
+      for (int j = 1; j <= 20; j++)
+	if (j != x_param_number && param_values[j] != 0) all_other_zero = false;
 
-      stringstream x_param_ss;
-      x_param_ss << x_param_number;
-      stringstream y_param_ss;
-      y_param_ss << y_param_number;
-
-      stringstream x_param_numerical_ss;
-      stringstream y_param_numerical_ss;
-
-      float x_param_numerical;
-      float y_param_numerical;
-
-      x_param_numerical_ss << param_values[x_param_number-1].substr(param_values[x_param_number-1].find(x_param_ss.str())+x_param_ss.str().size(),param_values[x_param_number-1].find("#")-param_values[x_param_number-1].find(x_param_ss.str())-x_param_ss.str().size());
-      y_param_numerical_ss << param_values[y_param_number-1].substr(param_values[y_param_number-1].find(y_param_ss.str())+y_param_ss.str().size(),param_values[y_param_number-1].find("#")-param_values[y_param_number-1].find(y_param_ss.str())-y_param_ss.str().size());
-
-      x_param_numerical_ss >> x_param_numerical;
-      y_param_numerical_ss >> y_param_numerical;
-
-      grid_points.push_back(pair<float,float>(x_param_numerical,y_param_numerical));
-      histo_grid.push_back(0);
-      lhe_weight_index.push_back(0);
-
-      //these should be the same as the strings printed out above
-      std::cout << "x_param = " << x_param_numerical << std::endl;
-      std::cout << "y_param = " << y_param_numerical << std::endl;
+      if (all_other_zero){
+	oneD_grid_points.push_back(param_values[x_param_number]);
+	histo_grid.push_back(0);
+	lhe_weight_index.push_back(0);
+      }
 
     }
 
     if(line=="<initrwgt>\0"){
-
-      //make sure that the parameter values for the unweighted events were already added
-      assert(grid_points.size() == 1 && histo_grid.size() == 1 && lhe_weight_index.size() ==1);
 
       getline(infile,line);
       assert(line=="<weightgroup type='mg_reweighting'>");
@@ -1898,7 +1924,12 @@ void parse_grid(string lhe_filename){
       int i = 1;
 
       while(true){
+
+	std::vector<float> param_values_copy = param_values;
+
 	getline(infile,line);
+
+	assert(line == "</initrwgt>\0" || line == "</weight>\0" || line=="</weightgroup>\0" || line.find("<weight id=") != string::npos );
 
 	if(line=="</initrwgt>\0")
 	  return;
@@ -1906,60 +1937,40 @@ void parse_grid(string lhe_filename){
 	if (line == "</weight>\0" || line=="</weightgroup>\0")
 	  continue;
 
-	int param_number1 = -1;
-	int param_number2 = -1;
-	float param1 = grid_points[0].first;
-	float param2 = grid_points[0].second;
-
-	assert(line.find("set param_card anoinputs") != string::npos);
-	std::string paraminfo1=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
-	stringstream ss1;
-	ss1 << paraminfo1;
-	ss1 >> param_number1;
-	if(param_number1 == x_param_number)
-	  ss1 >> param1;
-	else if (param_number1==y_param_number)
-	  ss1 >> param2;
-	//else
-	//  assert(0);
-
-	getline(infile,line);
-
-	if (line != "</weight>\0"){
-
-	  assert(line.find("set param_card anoinputs") != string::npos);
-	  std::string paraminfo2=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
-	  stringstream ss2;
-	  ss2 << paraminfo2;
-	  ss2 >> param_number2;
-	  if(param_number2 == x_param_number)
-	    ss2 >> param1;
-	  else if (param_number2==y_param_number)
-	    ss2 >> param2;
-	  //else
-	  //  assert(0);
-
-	  assert(param_number1 != param_number2);
-
-	}
-	if((param_number1 == x_param_number && param_number2 == y_param_number) || (param_number2 == x_param_number && param_number1 == y_param_number)|| ( param_number1 == x_param_number && param_number2 == -1) || (param_number1 == y_param_number && param_number2 == -1)) {
+	while(line.find("set param_card anoinputs") != string::npos){
+	  std::string paraminfo=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
+	  stringstream ss;
+	  int param_number = -9999999;
+	  float param = -9999999;
+	  ss << paraminfo;
+	  ss >> param_number;
+	  ss >> param;
 	  
-	  //the same grid point may happen multiple times
-	  //make sure to only add each grid point once
-	  bool found =false;
-	  for(unsigned int j = 0; j < grid_points.size(); j++){
-	    if (grid_points[j] == pair<float,float>(param1,param2)){
-	      found = true;
-	      //std::cout << "i = " << i << std::endl;
-	      //std::cout << "found j = " << j << std::endl;
-	    }
-	  }
+	  param_values_copy[param_number]=param;
 
-	  if(!found && i <= end_weight && i >= begin_weight){
-	    grid_points.push_back(pair<float,float>(param1,param2));
-	    histo_grid.push_back(0);
-	    lhe_weight_index.push_back(i);
+	  getline(infile,line);
+	}
+
+	bool all_others_zero = true;
+	
+	for (int j = 1; j <= 20; j++)
+	  if (j != x_param_number && param_values_copy[j] != 0) all_others_zero = false;
+
+	//the same grid point may happen multiple times
+	//make sure to only add each grid point once
+	bool found_duplicate = false;
+	for(unsigned int j = 0; j < oneD_grid_points.size(); j++){
+	  if (oneD_grid_points[j] == param_values_copy[x_param_number]){
+	    found_duplicate = true;
+	    //std::cout << "i = " << i << std::endl;
+	    //std::cout << "found j = " << j << std::endl;
 	  }
+	}
+	
+	if (all_others_zero && !found_duplicate && i <= end_weight && i >= begin_weight){
+	  oneD_grid_points.push_back(param_values_copy[x_param_number]);
+	  histo_grid.push_back(i);
+	  lhe_weight_index.push_back(i);
 	}
 
 	i++;
