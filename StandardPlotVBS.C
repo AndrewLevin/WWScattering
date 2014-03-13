@@ -147,10 +147,24 @@ class StandardPlot {
 	    TH1D* hSum = (TH1D*)_data->Clone();
 	    hSum->Rebin(rebin);
 	    hSum->Scale(0.0);
+	    TAxis *xa;
             for (int i=0; i<nSamples; i++) {
 
                 // in case the user doesn't set it
                 if( !_hist[i] ) continue;
+  	    	bool modifyXAxis = false;
+		if(modifyXAxis == true){
+		  xa =_hist[i]->GetXaxis();
+   	          xa->SetLabelSize(0.001);
+	          xa->SetLabelColor(4);
+  	    	  for(Int_t k=1;k<=_hist[i]->GetNbinsX();++k){
+  	    	    xa->SetBinLabel(1 ,"m_{ll}< 250&m_{jj}< 750");
+  	    	    xa->SetBinLabel(2 ,"m_{ll}>=250&m_{jj}< 750");
+  	    	    xa->SetBinLabel(3 ,"m_{ll}< 250&m_{jj}>=750");
+  	    	    xa->SetBinLabel(4 ,"m_{ll}>=250&m_{jj}>=750");
+  	    	    xa->SetRangeUser(1,4);
+  	    	  }
+		}
                 _hist[i]->Rebin(rebin);
                 _hist[i]->SetLineColor(_sampleColor[i]);
 
@@ -285,7 +299,7 @@ class StandardPlot {
             if     (_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0 && _isHWWOverlaid) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "f" ); j++; }
             else if(_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0)		     { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "l" ); j++; }
             if(_hist[iVV    ] &&_hist[iVV    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVV    ], " VV+VVV",      "f" ); j++; }
-            if(_hist[iWWQCD ] &&_hist[iWWQCD ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWQCD ], " WW QCD",      "f" ); j++; }
+            if(_hist[iWWQCD ] &&_hist[iWWQCD ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWQCD ], " WW DPS",      "f" ); j++; }
             if(_hist[iWJets ] &&_hist[iWJets ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWJets ], " W+jets",      "f" ); j++; }
             if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Wrong sign"  ,"f" ); j++; }
 
