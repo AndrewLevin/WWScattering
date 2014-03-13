@@ -352,6 +352,8 @@ void vbs_ana
   }
 
   unsigned int patternTopVeto = SmurfTree::TopVeto;
+  float ewkMVA = -999.;
+  bgdEvent.tree_->SetBranchAddress("ewkMVA", &ewkMVA );
 
   int nBgd=bgdEvent.tree_->GetEntries();
   for (int evt=0; evt<nBgd; ++evt) {
@@ -758,6 +760,7 @@ void vbs_ana
 	else if(thePlot ==17) myVar = bgdEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
 	else if(thePlot ==19) myVar = MVAVar[0];
+	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((ewkMVA,0.999),-0.999);
 	else assert(0);
 
       	if     (fDecay == 31){
@@ -1145,6 +1148,7 @@ void vbs_ana
   } // if want to use it at all
   
   if(run_over_data){
+  dataEvent.tree_->SetBranchAddress("ewkMVA", &ewkMVA );
   int nData=dataEvent.tree_->GetEntries();
   for (int evt=0; evt<nData; ++evt) {
 
@@ -1258,6 +1262,7 @@ void vbs_ana
 	else if(thePlot ==17) myVar = dataEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
 	else if(thePlot ==19) myVar = MVAVar[0];
+	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((ewkMVA,0.999),-0.999);
 	else assert(0);
       	histo5->Fill(myVar,1.0);
       } // end making plots
