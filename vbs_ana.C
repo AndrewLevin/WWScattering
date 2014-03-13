@@ -252,6 +252,7 @@ void vbs_ana
   else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
   else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
   else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
+  else if(thePlot >= 20 && thePlot <= 20) {nBinPlot = 10; xminPlot = -1.0; xmaxPlot = 1.0;}
   else assert(0);
 
   TH1D* histo0;
@@ -760,7 +761,7 @@ void vbs_ana
 	else if(thePlot ==17) myVar = bgdEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
 	else if(thePlot ==19) myVar = MVAVar[0];
-	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((ewkMVA,0.999),-0.999);
+	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
 	else assert(0);
 
       	if     (fDecay == 31){
@@ -1262,7 +1263,7 @@ void vbs_ana
 	else if(thePlot ==17) myVar = dataEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
 	else if(thePlot ==19) myVar = MVAVar[0];
-	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((ewkMVA,0.999),-0.999);
+	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
 	else assert(0);
       	histo5->Fill(myVar,1.0);
       } // end making plots
