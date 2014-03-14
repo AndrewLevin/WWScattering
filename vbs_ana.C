@@ -37,7 +37,7 @@ bool UseDyttDataDriven = true; // if true, then remove em events in dyll MC
 SmurfTree systEvent;
 const unsigned int nSelTypes = 3;
 const unsigned int nSelTypesSyst = 7;
-const bool showSignalOnly = true;
+const bool showSignalOnly = false;
 
 enum selType {WWSEL, BTAGSEL, WZSEL};
 TString selTypeName[nSelTypes*2] = {"WWSEL-OS", "BTAGSEL-OS", "WZSEL-OS",
