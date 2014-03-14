@@ -1,5 +1,4 @@
 
-
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Core/SmurfTree.h"
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Analysis/HWWlvlv/factors.h"
 #include "/home/ceballos/releases/CMSSW_5_3_14/src/Smurf/Core/LeptonScaleLookup.h"
@@ -22,9 +21,9 @@
 #include "TCanvas.h"
 #include "TSystem.h"
 #include "TLorentzVector.h"
-//root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,4)';
-//root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,14)';
-//root -l -q -b vbs_ana.C+'(0,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3,24)'
+//root -l -q -b vbs_ana.C+'(0,4,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,14,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)'
 
 std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
 //std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
@@ -49,31 +48,31 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
 bool run_over_data = false;
-bool doAQGCsAna = true;
-bool use_anom_sample = false;
-int sm_lhe_weight = -1;
+bool doAQGCsAna = true; //makes the histograms of yield/SM yield used to set limits on AQGC parameters
+int sm_lhe_weight = -1; //do not change this, it is set automatically
+bool use_anom_sample = false; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
+int which_lhe_weight_ww = 61;
+int which_lhe_weight_wz = 9;
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
 void parse_reweight_info(string lhe_filename);
 
-// thePlot == 0 (mjj), 9 (mll), anything else (mlljj)
+// thePlot == 0 (mjj), 9 (mll), 19 (2D mll-mjj), anything else (mlljj)
 
 void vbs_ana
 (
  int thePlot = 0,
- int which_lhe_weight = 0,
- //TString bgdInputFile    = "ntuples_53x/wwss_qed_4_qcd_99_lt012_sm.root",
- TString bgdInputFile    = "ntuples_53x/wwss_qed_4_qcd_99_lt012.root",
- //TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_lt012.root",
- //TString bgdInputFile = "ntuples_53x/wz3l_ewk_sm.root",
- //TString bgdInputFile = "ntuples_53x/wz3l_ewk_lt012.root",
+ int lSel = 4,
+ TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_lt012.root",
  TString dataInputFile   = "ntuples_53x/data_skim8.root",
  TString systInputFile   = "ntuples_53x/hww_syst_skim8.root",
- int period = 3,
- int lSel = 4
+ int period = 3
  )
 {
+
+  //only one of these at a time makes sense
+  assert(!(doAQGCsAna && use_anom_sample));
 
   if(doAQGCsAna == true){
     parse_reweight_info(file_for_grid);
@@ -209,6 +208,7 @@ void vbs_ana
   Float_t xbins[nBin+1] = {700, 1100, 1500, 2000, 3000};
   if     (thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
   else if(thePlot == 9) {xbins[0] =   0; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
+  else if(thePlot ==19) {xbins[0] =-0.5; xbins[1] = 0.5; xbins[2] =  1.5; xbins[3] =  2.5; xbins[4] =  3.5;}
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
@@ -255,11 +255,13 @@ void vbs_ana
   else if(thePlot >= 16 && thePlot <= 16) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
   else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
+  else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
+  else if(thePlot >= 20 && thePlot <= 20) {nBinPlot = 10; xminPlot = -1.0; xmaxPlot = 1.0;}
   else assert(0);
 
   TH1D* histo0;
-  if(thePlot != 0 && thePlot != 1 && thePlot != 9) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
-  else                                             histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
+  if(thePlot != 0 && thePlot != 1 && thePlot != 9 && thePlot != 19) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
+  else                                                              histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
   histo0->Sumw2();
   TH1D* histo1 = (TH1D*) histo0->Clone("histo1");
   TH1D* histo2 = (TH1D*) histo0->Clone("histo2");
@@ -355,6 +357,8 @@ void vbs_ana
   }
 
   unsigned int patternTopVeto = SmurfTree::TopVeto;
+  float ewkMVA = -999.;
+  bgdEvent.tree_->SetBranchAddress("ewkMVA", &ewkMVA );
 
   int nBgd=bgdEvent.tree_->GetEntries();
   for (int evt=0; evt<nBgd; ++evt) {
@@ -362,6 +366,8 @@ void vbs_ana
     if (evt%100000 == 0 && verboseLevel > 0)
       printf("--- reading event %5d of %5d\n",evt,nBgd);
     bgdEvent.tree_->GetEntry(evt);
+
+    if(bgdEvent.lep1_.Pt() < 1.0) continue;
 
     if(!(((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) == SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection) ||
          ((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) == SmurfTree::Lep2FullSelection) ||
@@ -391,6 +397,7 @@ void vbs_ana
     else if(bgdEvent.dstype_ == SmurfTree::ggzz  	   ) fDecay = 29;
     else if(bgdEvent.dstype_ == SmurfTree::ggww  	   ) fDecay = 30;
     else if(bgdEvent.dstype_ == SmurfTree::wwewk  	   ) fDecay = 31;
+    else if(bgdEvent.dstype_ == SmurfTree::wzewk  	   ) fDecay = 31;
     else if(bgdEvent.dstype_ == SmurfTree::other           ) fDecay = 40;
     else if(bgdEvent.processId_==121 ||
             bgdEvent.processId_==122)   fDecay = 41;
@@ -443,11 +450,10 @@ void vbs_ana
     // trackSel[2] == reject events with isolated reconstructed leptons with pt>10 and iso/pt<0.1
     // trackSel[3] == reject events with isolated tracks with pt>10 and iso/pt<0.1 (not used by default)
     int newId=int(bgdEvent.jet1McId_);
-    //double wzId=bgdEvent.jet1McId_%10;
-    //int tauId=int((bgdEvent.jet1McId_%100-bgdEvent.jet1McId_%10)/10)+int((bgdEvent.jet2McId_%100-bgdEvent.jet2McId_%10)/10)+int((bgdEvent.jet3McId_%100-bgdEvent.jet3McId_%10)/10)+int((bgdEvent.jet4McId_%100-bgdEvent.jet4McId_%10)/10);
+    //int tauId=int((bgdEvent.jet1McId_%100-bgdEvent.jet1McId_%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((bgdEvent.jet2McId_%1000-bgdEvent.jet2McId_%100)/10),int((bgdEvent.jet2McId_%10000-bgdEvent.jet2McId_%1000)/10),int((bgdEvent.jet2McId_%100000-bgdEvent.jet2McId_%10000)/10),int(bgdEvent.jet2McId_/100000)};
+    int trackSel[4] = {int((bgdEvent.jet2McId_%100-bgdEvent.jet2McId_%10)/10),int((bgdEvent.jet2McId_%1000-bgdEvent.jet2McId_%100)/10),int((bgdEvent.jet2McId_%10000-bgdEvent.jet2McId_%1000)/10),int(bgdEvent.jet2McId_/10000)};
 
     bool passNjets         = bgdEvent.njets_ >= 2;
     bool passMET           = TMath::Min(bgdEvent.pmet_,bgdEvent.pTrackMet_) > metMin;
@@ -504,6 +510,13 @@ void vbs_ana
     double MVAVar[6] = {outputVar[13],outputVarJESP[13],outputVarJESM[13],outputVarLepP[13],outputVarLepM[13],outputVarMET[13]};
     if     (thePlot == 0) {MVAVar[0]=outputVar[14];MVAVar[1]=outputVarJESP[14];MVAVar[2]=outputVarJESM[14];MVAVar[3]=outputVarLepP[14];MVAVar[4]=outputVarLepM[14];MVAVar[5]=outputVarMET[14];}
     else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];MVAVar[1]=outputVarJESP[ 2];MVAVar[2]=outputVarJESM[ 2];MVAVar[3]=outputVarLepP[ 2];MVAVar[4]=outputVarLepM[ 2];MVAVar[5]=outputVarMET[ 2];}
+    else if(thePlot ==19) {if(outputVar[2]    < 250&&outputVar[14]    <  750) MVAVar[0]=0.0; else if(outputVar[2]    >=250&&outputVar[14]    <  750) MVAVar[0]=1.0; else if(outputVar[2]    < 250&&outputVar[14]    >= 750) MVAVar[0]=2.0; else if(outputVar[2]    >=250&&outputVar[14]    >= 750) MVAVar[0]=3.0; else assert(0);
+                           if(outputVarJESP[2]< 250&&outputVarJESP[14]<  750) MVAVar[1]=0.0; else if(outputVarJESP[2]>=250&&outputVarJESP[14]<  750) MVAVar[1]=1.0; else if(outputVarJESP[2]< 250&&outputVarJESP[14]>= 750) MVAVar[1]=2.0; else if(outputVarJESP[2]>=250&&outputVarJESP[14]>= 750) MVAVar[1]=3.0; else assert(0);
+                           if(outputVarJESM[2]< 250&&outputVarJESM[14]<  750) MVAVar[2]=0.0; else if(outputVarJESM[2]>=250&&outputVarJESM[14]<  750) MVAVar[2]=1.0; else if(outputVarJESM[2]< 250&&outputVarJESM[14]>= 750) MVAVar[2]=2.0; else if(outputVarJESM[2]>=250&&outputVarJESM[14]>= 750) MVAVar[2]=3.0; else assert(0);
+                           if(outputVarLepP[2]< 250&&outputVarLepP[14]<  750) MVAVar[3]=0.0; else if(outputVarLepP[2]>=250&&outputVarLepP[14]<  750) MVAVar[3]=1.0; else if(outputVarLepP[2]< 250&&outputVarLepP[14]>= 750) MVAVar[3]=2.0; else if(outputVarLepP[2]>=250&&outputVarLepP[14]>= 750) MVAVar[3]=3.0; else assert(0);
+                           if(outputVarLepM[2]< 250&&outputVarLepM[14]<  750) MVAVar[4]=0.0; else if(outputVarLepM[2]>=250&&outputVarLepM[14]<  750) MVAVar[4]=1.0; else if(outputVarLepM[2]< 250&&outputVarLepM[14]>= 750) MVAVar[4]=2.0; else if(outputVarLepM[2]>=250&&outputVarLepM[14]>= 750) MVAVar[4]=3.0; else assert(0);
+                           if(outputVarMET[2] < 250&&outputVarMET[14] <  750) MVAVar[5]=0.0; else if(outputVarMET[2] >=250&&outputVarMET[14] <  750) MVAVar[5]=1.0; else if(outputVarMET[2] < 250&&outputVarMET[14] >= 750) MVAVar[5]=2.0; else if(outputVarMET[2] >=250&&outputVarMET[14] >= 750) MVAVar[5]=3.0; else assert(0);}
+
     for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
     double addLepEff	 = 1.0; double addLepEffUp   = 1.0; double addLepEffDown = 1.0;
 
@@ -734,6 +747,22 @@ void vbs_ana
       if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.07841;
       if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.07841;
 
+      if(bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto){
+        if(bgdEvent.dstype_ == SmurfTree::wz    ) theWeight = theWeight * 1.20;
+	if(bgdEvent.dstype_ == SmurfTree::wgstar) theWeight = 0.0;
+      }
+
+      if(fDecay == 31 && use_anom_sample == true){
+	if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight_ww]/bgdEvent.lheWeights_[0];
+	else if(bgdEvent.dstype_ == SmurfTree::wzewk) theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight_wz]/bgdEvent.lheWeights_[0];
+	else
+	  assert(0);
+      }
+      else if (fDecay == 31 && doAQGCsAna == true){
+	if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[lhe_weight_index[sm_lhe_weight]]/bgdEvent.lheWeights_[0];
+	else theWeight = theWeight * bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0];
+      }
+
       if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
@@ -755,18 +784,12 @@ void vbs_ana
 	else if(thePlot ==16) myVar = bgdEvent.type_;
 	else if(thePlot ==17) myVar = bgdEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
+	else if(thePlot ==19) myVar = MVAVar[0];
+	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
 	else assert(0);
 
-
-
       	if     (fDecay == 31){
-	  if(use_anom_sample && bgdEvent.scale1fb_ > 0){
-	    histo0->Fill(myVar,theWeight*bgdEvent.lheWeights_[which_lhe_weight]/bgdEvent.lheWeights_[0]);
-	    //histo0->Fill(myVar,1);
-	  } else {
-      	    histo0->Fill(myVar,theWeight);
-      	    //histo0->Fill(myVar,1);
-      	  }
+	    histo0->Fill(myVar,theWeight);
 	}
       	else if(fDecay == 21){
       	  histo1->Fill(myVar,theWeight);
@@ -841,18 +864,19 @@ void vbs_ana
 
 
 	  //the qcd WW that we subtract from the signal is not reweighted
-	  if(bgdEvent.scale1fb_ > 0 && bgdEvent.scale1fb_ > 0.00018239){
+	  if(bgdEvent.dstype_ == SmurfTree::wwewk){
 	    assert(bgdEvent.lheWeights_.size() >= oneD_grid_points.size());
 	    assert(oneD_grid_points.size() == histo_grid.size());
 	    assert(lhe_weight_index.size() == histo_grid.size());
 	  }
 
 	  for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
-	    if(bgdEvent.scale1fb_ > 0 && bgdEvent.scale1fb_ > 0.00018239)
+	    if(bgdEvent.dstype_ == SmurfTree::wwewk)
 	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
-	    
+	    else if (bgdEvent.dstype_ == SmurfTree::wzewk)
+	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight);  //we are not considering the effect of the AQGC on the wzewk for now
 	    else
-	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight);
+	      assert(0);
 	  }
 	}
       }
@@ -916,6 +940,8 @@ void vbs_ana
       printf("--- reading event %5d of %5d\n",evt,nSyst);
     systEvent.tree_->GetEntry(evt);
 
+    if(systEvent.lep1_.Pt() < 1.0) continue;
+
     if(systEvent.dstype_ == SmurfTree::data &&
       (systEvent.cuts_ & SmurfTree::Trigger) != SmurfTree::Trigger) continue;
     if(systEvent.dstype_ == SmurfTree::data && systEvent.run_ <  minRun) continue;
@@ -968,11 +994,10 @@ void vbs_ana
     if(lType == 0) if(systEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
     int newId=int(systEvent.jet1McId_);
-    //double wzId=systEvent.jet1McId_%10;
-    //int tauId=int((systEvent.jet1McId_%100-systEvent.jet1McId_%10)/10)+int((systEvent.jet2McId_%100-systEvent.jet2McId_%10)/10)+int((systEvent.jet3McId_%100-systEvent.jet3McId_%10)/10)+int((systEvent.jet4McId_%100-systEvent.jet4McId_%10)/10);
+    //int tauId=int((systEvent.jet1McId_%100-systEvent.jet1McId_%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((systEvent.jet2McId_%1000-systEvent.jet2McId_%100)/10),int((systEvent.jet2McId_%10000-systEvent.jet2McId_%1000)/10),int((systEvent.jet2McId_%100000-systEvent.jet2McId_%10000)/10),int(systEvent.jet2McId_/100000)};
+    int trackSel[4] = {int((systEvent.jet2McId_%100-systEvent.jet2McId_%10)/10),int((systEvent.jet2McId_%1000-systEvent.jet2McId_%100)/10),int((systEvent.jet2McId_%10000-systEvent.jet2McId_%1000)/10),int(systEvent.jet2McId_/10000)};
 
     bool passNjets         = systEvent.njets_ >= 2;
     bool passMET           = TMath::Min(systEvent.pmet_,systEvent.pTrackMet_) > metMin;
@@ -1141,6 +1166,8 @@ void vbs_ana
       double MVAVar[6] = {outputVar[13],0,0,0,0,0};
       if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
       else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
+      else if(thePlot ==19) {if(outputVar[2]< 250&&outputVar[14]<  750) MVAVar[0]=0.0; else if(outputVar[2]>=250&&outputVar[14]<  750) MVAVar[0]=1.0; else if(outputVar[2]< 250&&outputVar[14]>= 750) MVAVar[0]=2.0; else if(outputVar[2]>=250&&outputVar[14]>= 750) MVAVar[0]=3.0; else assert(0);
+                            }
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	if     (fDecay == 27){
@@ -1153,12 +1180,15 @@ void vbs_ana
   } // if want to use it at all
   
   if(run_over_data){
+  dataEvent.tree_->SetBranchAddress("ewkMVA", &ewkMVA );
   int nData=dataEvent.tree_->GetEntries();
   for (int evt=0; evt<nData; ++evt) {
 
     if (evt%100000 == 0 && verboseLevel > 0)
       printf("--- reading event %5d of %5d\n",evt,nData);
     dataEvent.tree_->GetEntry(evt);
+
+    if(dataEvent.lep1_.Pt() < 1.0) continue;
 
     bool lId = (dataEvent.cuts_ & SmurfTree::Lep1FullSelection) == SmurfTree::Lep1FullSelection && (dataEvent.cuts_ & SmurfTree::Lep2FullSelection) == SmurfTree::Lep2FullSelection;
 
@@ -1190,11 +1220,10 @@ void vbs_ana
     if(lType == 0) if(dataEvent.type_ == SmurfTree::mm) metMin = 40.0;
 
     int newId=int(dataEvent.jet1McId_);
-    //double wzId=dataEvent.jet1McId_%10;
-    //int tauId=int((dataEvent.jet1McId_%100-dataEvent.jet1McId_%10)/10)+int((dataEvent.jet2McId_%100-dataEvent.jet2McId_%10)/10)+int((dataEvent.jet3McId_%100-dataEvent.jet3McId_%10)/10)+int((dataEvent.jet4McId_%100-dataEvent.jet4McId_%10)/10);
+    //int tauId=int((dataEvent.jet1McId_%100-dataEvent.jet1McId_%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((dataEvent.jet2McId_%1000-dataEvent.jet2McId_%100)/10),int((dataEvent.jet2McId_%10000-dataEvent.jet2McId_%1000)/10),int((dataEvent.jet2McId_%100000-dataEvent.jet2McId_%10000)/10),int(dataEvent.jet2McId_/100000)};
+    int trackSel[4] = {int((dataEvent.jet2McId_%100-dataEvent.jet2McId_%10)/10),int((dataEvent.jet2McId_%1000-dataEvent.jet2McId_%100)/10),int((dataEvent.jet2McId_%10000-dataEvent.jet2McId_%1000)/10),int(dataEvent.jet2McId_/10000)};
 
     bool passNjets         = dataEvent.njets_ >= 2;
     bool passMET           = TMath::Min(dataEvent.pmet_,dataEvent.pTrackMet_) > metMin;
@@ -1231,6 +1260,19 @@ void vbs_ana
     if(passNjets  == true && passMET == true &&  passLSel == true &&
        preselCuts == true && dataEvent.dilep_.M() > 15.0) {
 
+      double outputVar[15];
+      makeSystematicEffects(dataEvent.lid1_, dataEvent.lid2_, dataEvent.lep1_, dataEvent.lep2_, dataEvent.dilep_, 
+                            dataEvent.mt_, theMET, theMETPHI, 
+                            dataEvent.trackMet_, dataEvent.trackMetPhi_, 
+			    dataEvent.njets_, dataEvent.jet1_, dataEvent.jet2_, 
+			    year, 3, outputVar);
+      double MVAVar[6] = {outputVar[13],0,0,0,0,0};
+      if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
+      else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
+      else if(thePlot ==19) {if(outputVar[2]< 250&&outputVar[14]<  750) MVAVar[0]=0.0; else if(outputVar[2]>=250&&outputVar[14]<  750) MVAVar[0]=1.0; else if(outputVar[2]< 250&&outputVar[14]>= 750) MVAVar[0]=2.0; else if(outputVar[2]>=250&&outputVar[14]>= 750) MVAVar[0]=3.0; else assert(0);
+                            }
+      for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
+
       if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((dataEvent.jet1_+dataEvent.jet2_).M(),1999.999),500.001);
@@ -1251,20 +1293,12 @@ void vbs_ana
 	else if(thePlot ==16) myVar = dataEvent.type_;
 	else if(thePlot ==17) myVar = dataEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
+	else if(thePlot ==19) myVar = MVAVar[0];
+	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
 	else assert(0);
       	histo5->Fill(myVar,1.0);
       } // end making plots
 
-      double outputVar[15];
-      makeSystematicEffects(dataEvent.lid1_, dataEvent.lid2_, dataEvent.lep1_, dataEvent.lep2_, dataEvent.dilep_, 
-                            dataEvent.mt_, theMET, theMETPHI, 
-                            dataEvent.trackMet_, dataEvent.trackMetPhi_, 
-			    dataEvent.njets_, dataEvent.jet1_, dataEvent.jet2_, 
-			    year, 3, outputVar);
-      double MVAVar[6] = {outputVar[13],0,0,0,0,0};
-      if(thePlot == 0) {MVAVar[0]=outputVar[14];}
-      else if(thePlot == 9) {MVAVar[0]=outputVar[2];}
-      for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	histo_Data->Fill(MVAVar[0], 1.0);
       }
@@ -1421,7 +1455,7 @@ void vbs_ana
   }
   if(showSignalOnly == false) printf("WjetsSyst: %f --> %f\n",bgdCombined[WWSEL+nSelTypes][5],WjetsSyst);
   double pdf_qqbar[3] = {1.073,1.068,1.069};
-  double syst_WZ3l = 1.010;
+  double syst_WZ3l = sqrt(1.010*1.010+1.200*1.200);
 
   double nOldWjets = TMath::Max(histo_Wjets->GetSumOfWeights(),0.000001);
   for(int i=1; i<=histo_Wjets->GetNbinsX(); i++){
