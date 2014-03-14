@@ -92,6 +92,8 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
     hSumBck->Add(hWWQCD  );
     hSumBck->Add(hWJets  );
     hSumBck->Add(hWW     );
+    hSignal->Rebin(ReBin);
+    hSumBck->Rebin(ReBin);
     printf("S/B(%f/%f) = %f\n",hSignal->GetSumOfWeights(),hSumBck->GetSumOfWeights(),hSignal->GetSumOfWeights()/hSumBck->GetSumOfWeights());
     //hSignal->Divide(hSumBck);
     hSignal->Draw("e");
