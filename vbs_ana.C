@@ -25,9 +25,9 @@
 //root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)'
 
 //std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
-std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/unweighted_events_9.lhe";
-int x_param_number = 12;
-int y_param_number = 13;
+std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_ls_lm_lt.lhe";
+int x_param_number = 0;
+int y_param_number = 100;
 std::vector<float > oneD_grid_points;
 std::vector<float> histo_grid;
 std::vector<int> lhe_weight_index;
@@ -63,13 +63,12 @@ void vbs_ana
 (
  int thePlot = 0,
  int lSel = 4,
- TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_lt012.root",
+ TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_ls_lm_lt.root",
  TString dataInputFile   = "ntuples_53x/data_skim8.root",
  TString systInputFile   = "ntuples_53x/hww_syst_skim8.root",
  int period = 3
  )
 {
-
   //only one of these at a time makes sense
   assert(!(doAQGCsAna && use_anom_sample));
 
@@ -365,6 +364,7 @@ void vbs_ana
     if (evt%100000 == 0 && verboseLevel > 0)
       printf("--- reading event %5d of %5d\n",evt,nBgd);
     bgdEvent.tree_->GetEntry(evt);
+
 
     if(bgdEvent.lep1_.Pt() < 1.0) continue;
 
@@ -735,6 +735,8 @@ void vbs_ana
 	if(bgdEvent.dstype_ == SmurfTree::wgstar) theWeight = 0.0;
       }
 
+      float theWeight_unweighted = theWeight; 
+
       if(fDecay == 31 && use_anom_sample == true){
 	if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight_ww]/bgdEvent.lheWeights_[0];
 	else if(bgdEvent.dstype_ == SmurfTree::wzewk) theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight_wz]/bgdEvent.lheWeights_[0];
@@ -850,9 +852,9 @@ void vbs_ana
 
 	  for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
 	    if(bgdEvent.dstype_ == SmurfTree::wwewk)
-	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
+	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight_unweighted*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
 	    else if (bgdEvent.dstype_ == SmurfTree::wzewk)
-	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight);  //we are not considering the effect of the AQGC on the wzewk for now
+	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight_unweighted*bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0]);  //we are not considering the effect of the AQGC on the wzewk for now
 	    else
 	      assert(0);
 	  }
@@ -1718,9 +1720,29 @@ void vbs_ana
       stringstream ss;
       ss << nb;
     
-      TH1D *th1d  = new TH1D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),11,-1.375,1.375);
+      //this assumes that the points in the grid are equally spaced
+
+      //find the minimum and the maximum of the grid
+      float grid_min = std::numeric_limits<float>::max();
+      float grid_max = -std::numeric_limits<float>::max();
+      for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
+	if (grid_min > oneD_grid_points[a])
+	  grid_min = oneD_grid_points[a];
+	if (grid_max < oneD_grid_points[a])
+	  grid_max = oneD_grid_points[a];
+      }
+
+      assert(grid_max > grid_min);
+      assert(grid_max < std::numeric_limits<float>::max());
+      assert(grid_min > -std::numeric_limits<float>::max());
+
+      float histo_max = grid_max + (grid_max - grid_min)/(oneD_grid_points.size()-1)/2; 
+      float histo_min = grid_min - (grid_max - grid_min)/(oneD_grid_points.size()-1)/2; 
+
+      TH1D *th1d  = new TH1D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),oneD_grid_points.size(),histo_min,histo_max);
 
       for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
+
         //histo_grid[nb][a] = histo_WWewk_anom[a]->GetBinContent(nb);
         assert(histo_WWewk_anom[0]->GetBinContent(nb) > 0);
         //assert(histo_grid[nb][0]>0);
@@ -1852,7 +1874,7 @@ void scaleFactor_WS(LorentzVector l,int lq, int ld, int mcld, double val[2]){
   }
 }
 
-int begin_weight=0;
+int begin_weight=1;
 int end_weight=120;
 
 //this only handles the case where there are 0, 1, or 2 parameters different from 0 in a given event
@@ -1918,7 +1940,7 @@ void parse_reweight_info(string lhe_filename){
       for (int j = 1; j <= 20; j++)
 	if (j != x_param_number && param_values[j] != 0) all_other_zero = false;
 
-      if (all_other_zero){
+      if (all_other_zero && 0 >= begin_weight){
 	oneD_grid_points.push_back(param_values[x_param_number]);
 	histo_grid.push_back(0);
 	lhe_weight_index.push_back(0);
