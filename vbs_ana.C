@@ -25,9 +25,9 @@
 //root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundA_skim8_lt012.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)'
 
 //std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
-std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_ls_lm_lt.lhe";
-int x_param_number = 0;
-int y_param_number = 100;
+std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/ls_lm_lt_unmerged_1.lhe";
+int x_param_number = 12;
+int y_param_number = 13;
 std::vector<float > oneD_grid_points;
 std::vector<float> histo_grid;
 std::vector<int> lhe_weight_index;
@@ -49,8 +49,8 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
 bool run_over_data = false;
 bool doAQGCsAna = false; //makes the histograms of yield/SM yield used to set limits on AQGC parameters
 int sm_lhe_weight = -1; //do not change this, it is set automatically
-bool use_anom_sample = false; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
-int which_lhe_weight_ww = 61;
+bool use_anom_sample = true; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
+int which_lhe_weight_ww = 61; // 61 for wwss_qed_4_qcd_99_lt012.root and 6 for wwss_qed_4_qcd_99_ls_lm_lt.root
 int which_lhe_weight_wz = 9;
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
