@@ -730,11 +730,6 @@ void vbs_ana
       if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.07841;
       if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.07841;
 
-      if(bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto){
-        if(bgdEvent.dstype_ == SmurfTree::wz    ) theWeight = theWeight * 1.20;
-	if(bgdEvent.dstype_ == SmurfTree::wgstar) theWeight = 0.0;
-      }
-
       float theWeight_unweighted = theWeight; 
 
       if(fDecay == 31 && use_anom_sample == true){
@@ -1434,8 +1429,8 @@ void vbs_ana
     WjetsSyst = 1.0+WjetsSyst/(bgdCombined[WWSEL+nSelTypes][5]);
   }
   if(showSignalOnly == false) printf("WjetsSyst: %f --> %f\n",bgdCombined[WWSEL+nSelTypes][5],WjetsSyst);
-  double pdf_qqbar[3] = {1.073,1.068,1.069};
-  double syst_WZ3l = sqrt(1.010*1.010+1.200*1.200);
+  double pdf_qqbar[3] = {1.077,1.070,1.071};
+  double syst_WZ3l = 1.010;
 
   double nOldWjets = TMath::Max(histo_Wjets->GetSumOfWeights(),0.000001);
   for(int i=1; i<=histo_Wjets->GetNbinsX(); i++){
