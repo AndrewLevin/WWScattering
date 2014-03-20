@@ -737,8 +737,13 @@ void vbs_ana
       }
       theWeight = weightWS[0];
       
-      if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.07841;
-      if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.07841;
+      if(passBtagVeto) {
+        if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.07841;
+        if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.07841;
+      } else {
+        if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight / 1.07841;
+        if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight / 1.07841;
+      }
 
       float theWeight_unweighted = theWeight; 
 
