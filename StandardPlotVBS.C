@@ -15,7 +15,7 @@
 #include "TPaveText.h"
 #endif
 
-enum samp { iWWEWK,iVV,iWWQCD,iWJets,iWW,nSamples};
+enum samp { iVV,iWWQCD,iWJets,iWW,iWWEWK,nSamples};
 
 float xPos[nSamples+1] = {0.19,0.19,0.19,0.41,0.41,0.41}; 
 float yOff[nSamples+1] = {0,1,2,0,1,2};
