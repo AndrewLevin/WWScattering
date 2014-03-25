@@ -15,10 +15,10 @@
 #include "TPaveText.h"
 #endif
 
-enum samp { iVV,iWWQCD,iWJets,iWW,iWWEWK,nSamples};
+enum samp { iVV,iWWQCD,iWJets,iWW,iVVV,iWWEWK,nSamples};
 
-float xPos[nSamples+1] = {0.19,0.19,0.19,0.41,0.41,0.41}; 
-float yOff[nSamples+1] = {0,1,2,0,1,2};
+float xPos[nSamples+1] = {0.19,0.19,0.19,0.41,0.41,0.41,0.41}; 
+float yOff[nSamples+1] = {0,1,2,0,1,2,0};
 
 const Float_t _tsize   = 0.033;
 const Float_t _xoffset = 0.20;
@@ -142,6 +142,7 @@ class StandardPlot {
             _sampleColor[iWWQCD  ] = kGreen+2;
             _sampleColor[iWJets  ] = kGray+1;
             _sampleColor[iWW 	 ] = kAzure-9;
+            _sampleColor[iVVV 	 ] = kBlue-1;
 
             THStack* hstack = new THStack();
 	    TH1D* hSum = (TH1D*)_data->Clone();
@@ -303,6 +304,7 @@ class StandardPlot {
             if(_hist[iWJets ] &&_hist[iWJets ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWJets ], " W+jets",      "f" ); j++; }
             if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Wrong sign"  ,"f" ); j++; }
             //if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Top-quark+WW"  ,"f" ); j++; }
+            if(_hist[iVVV   ] &&_hist[iVVV   ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVVV   ], " VVV"  ,       "f" ); j++; }
 
             TLatex* luminosity = new TLatex(0.9, 0.8, TString::Format("L = %.1f fb^{-1}",_lumi));
             luminosity->SetNDC();

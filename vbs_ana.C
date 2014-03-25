@@ -276,12 +276,14 @@ void vbs_ana
   TH1D* histo3 = (TH1D*) histo0->Clone("histo3");
   TH1D* histo4 = (TH1D*) histo0->Clone("histo4");
   TH1D* histo5 = (TH1D*) histo0->Clone("histo5");
+  TH1D* histo6 = (TH1D*) histo0->Clone("histo6");
   histo0->Scale(0.0);
   histo1->Scale(0.0);
   histo2->Scale(0.0);
   histo3->Scale(0.0);
   histo4->Scale(0.0);
   histo5->Scale(0.0);
+  histo6->Scale(0.0);
 
   TH1D* histo_WWewk_WWewkStatUp   = new TH1D( Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatUp  ->Sumw2();
   TH1D* histo_WWewk_WWewkStatDown = new TH1D( Form("histo_WWewk_CMS_wwss%s_MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatDown->Sumw2();
@@ -786,9 +788,6 @@ void vbs_ana
       	if     (fDecay == 31){
           histo0->Fill(myVar,theWeight);
 	}
-      	else if(fDecay == 21){
-      	  histo1->Fill(myVar,theWeight);
-      	}
       	else if(fDecay == 27){
       	  histo1->Fill(myVar,theWeight);
       	}
@@ -802,6 +801,9 @@ void vbs_ana
                 fDecay ==  5 || fDecay == 13 || fDecay == 20 || 
 		fDecay == 10 || fDecay ==  9 || fDecay == 19){
       	  histo4->Fill(myVar,theWeight);
+      	}
+      	else if(fDecay == 21){
+      	  histo5->Fill(myVar,theWeight);
       	}
       	else if(fDecay == 41 || fDecay == 42 || fDecay == 43){
       	}
@@ -1286,7 +1288,7 @@ void vbs_ana
 	else if(thePlot ==19) myVar = MVAVar[0];
 	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
 	else assert(0);
-      	histo5->Fill(myVar,1.0);
+      	histo6->Fill(myVar,1.0);
       } // end making plots
 
       if(passCuts[1][WWSEL]){
@@ -1315,23 +1317,25 @@ void vbs_ana
   }
 
   outFilePlotsNote->cd();
-    double nOldH[5] = {histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights()};
+    double nOldH[6] = {histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights(),histo5->GetSumOfWeights()};
     for(int i=1; i<=histo0->GetNbinsX(); i++){
       if(histo0->GetBinContent(i) < 0) {histo0->SetBinContent(i,0.000001);histo0->SetBinError(i,0.000001);}
       if(histo1->GetBinContent(i) < 0) {histo1->SetBinContent(i,0.000001);histo1->SetBinError(i,0.000001);}
       if(histo2->GetBinContent(i) < 0) {histo2->SetBinContent(i,0.000001);histo2->SetBinError(i,0.000001);}
       if(histo3->GetBinContent(i) < 0) {histo3->SetBinContent(i,0.000001);histo3->SetBinError(i,0.000001);}
       if(histo4->GetBinContent(i) < 0) {histo4->SetBinContent(i,0.000001);histo4->SetBinError(i,0.000001);}
+      if(histo5->GetBinContent(i) < 0) {histo5->SetBinContent(i,0.000001);histo5->SetBinError(i,0.000001);}
     }
     if(nOldH[0] > 0) histo0->Scale(nOldH[0]/histo0->GetSumOfWeights());
     if(nOldH[1] > 0) histo1->Scale(nOldH[1]/histo1->GetSumOfWeights());
     if(nOldH[2] > 0) histo2->Scale(nOldH[2]/histo2->GetSumOfWeights());
     if(nOldH[3] > 0) histo3->Scale(nOldH[3]/histo3->GetSumOfWeights());
     if(nOldH[4] > 0) histo4->Scale(nOldH[4]/histo4->GetSumOfWeights());
+    if(nOldH[5] > 0) histo5->Scale(nOldH[5]/histo5->GetSumOfWeights());
 
-    printf("histo -> d: %8.2f b: %8.2f | %8.2f %8.2f %8.2f %8.2f %8.2f\n",histo5->GetSumOfWeights(),
-    histo0->GetSumOfWeights()+histo1->GetSumOfWeights()+histo2->GetSumOfWeights()+histo3->GetSumOfWeights()+histo4->GetSumOfWeights(),
-    histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights());
+    printf("histo -> d: %8.2f b: %8.2f | %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f\n",histo6->GetSumOfWeights(),
+    histo0->GetSumOfWeights()+histo1->GetSumOfWeights()+histo2->GetSumOfWeights()+histo3->GetSumOfWeights()+histo4->GetSumOfWeights()+histo5->GetSumOfWeights(),
+    histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights(),histo5->GetSumOfWeights());
 
     histo0->Write();
     histo1->Write();
@@ -1339,6 +1343,7 @@ void vbs_ana
     histo3->Write();
     histo4->Write();
     histo5->Write();
+    histo6->Write();
 
   outFilePlotsNote->Close();
   
