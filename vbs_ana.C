@@ -742,11 +742,11 @@ void vbs_ana
       theWeight = weightWS[0];
       
       if(passBtagVeto) {
-        if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.07841;
-        if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.07841;
+        if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.08767;
+        if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.08767;
       } else {
-        if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight / 1.07841;
-        if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight / 1.07841;
+        if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight / 1.08767;
+        if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight / 1.08767;
       }
 
       float theWeight_unweighted = theWeight; 
