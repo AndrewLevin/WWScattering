@@ -59,7 +59,7 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
 bool run_over_data = false;
 bool doAQGCsAna = false; //makes the histograms of yield/SM yield used to set limits on AQGC parameters
 int sm_lhe_weight = -1; //do not change this, it is set automatically
-bool use_anom_sample = true; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
+bool use_anom_sample = false; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
 int which_lhe_weight_ww = 61; // 61 for wwss_qed_4_qcd_99_lt012.root and 6/17/28/.../61 for wwss_qed_4_qcd_99_ls_lm_lt.root
 int which_lhe_weight_wz = 9;
 
@@ -750,15 +750,19 @@ void vbs_ana
 
       float theWeight_unweighted = theWeight; 
 
-      if(fDecay == 31 && use_anom_sample == true){
-	if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight_ww]/bgdEvent.lheWeights_[0];
-	else if(bgdEvent.dstype_ == SmurfTree::wzewk) theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight_wz]/bgdEvent.lheWeights_[0];
-	else
-	  assert(0);
-      }
-      else if (fDecay == 31 && doAQGCsAna == true){
-	if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[lhe_weight_index[sm_lhe_weight]]/bgdEvent.lheWeights_[0];
-	else theWeight = theWeight * bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0];
+      if(bgdEvent.dstype_ == SmurfTree::wwewk || bgdEvent.dstype_ == SmurfTree::wzewk){
+
+        if      (use_anom_sample == true){
+	  if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight_ww]/bgdEvent.lheWeights_[0];
+	  else if(bgdEvent.dstype_ == SmurfTree::wzewk) theWeight = theWeight * bgdEvent.lheWeights_[which_lhe_weight_wz]/bgdEvent.lheWeights_[0];
+	  else
+	    assert(0);
+        }
+        else if (doAQGCsAna == true){
+	  if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[lhe_weight_index[sm_lhe_weight]]/bgdEvent.lheWeights_[0];
+	  else theWeight = theWeight * bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0];
+        }
+
       }
 
       if(passCuts[1][WWSEL]){ // begin making plots
