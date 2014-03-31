@@ -59,7 +59,7 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
 bool run_over_data = false;
 bool doAQGCsAna = false; //makes the histograms of yield/SM yield used to set limits on AQGC parameters
 int sm_lhe_weight = -1; //do not change this, it is set automatically
-bool use_anom_sample = true; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
+bool use_anom_sample = false; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
 int which_lhe_weight_ww = 61; // 61 for wwss_qed_4_qcd_99_lt012.root and 6/17/28/.../61 for wwss_qed_4_qcd_99_ls_lm_lt.root
 int which_lhe_weight_wz = 9;
 
