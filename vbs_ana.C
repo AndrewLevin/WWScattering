@@ -20,9 +20,9 @@
 #include "TCanvas.h"
 #include "TSystem.h"
 #include "TLorentzVector.h"
-//root -l -q -b vbs_ana.C+'(0,4,"ntuples_53x/backgroundA_skim8_ls_lm_lt.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
-//root -l -q -b vbs_ana.C+'(0,14,"ntuples_53x/backgroundA_skim8_ls_lm_lt.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
-//root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundA_skim8_ls_lm_lt.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,4,"ntuples_53x/backgroundA_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,14,"ntuples_53x/backgroundA_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundA_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
 
 // x_param_number values
 //FS0 = 1
@@ -472,7 +472,7 @@ void vbs_ana
     bool passBtagVeto = (bgdEvent.cuts_ & patternTopVeto) == patternTopVeto;
     bool pass3rLVeto  = (bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && hasZCand == 0 && trackSel[0]+trackSel[1]+trackSel[2] == 0;
     bool passMass     = bgdEvent.dilep_.M() > 50.0 && (TMath::Abs(bgdEvent.dilep_.M()-91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee);
-    bool passVBFSel   = (bgdEvent.jet1_+bgdEvent.jet2_).M() > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 2.5;
+    bool passVBFSel   = (bgdEvent.jet1_+bgdEvent.jet2_).M() > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 3.5;
     // quick way to accept W+W+ (1) or W-W- (2)
     bool passNsignSel = true;
     if(signSel == 1 && bgdEvent.lq1_+bgdEvent.lq2_ == -2) passNsignSel = false;
@@ -1001,7 +1001,7 @@ void vbs_ana
     bool passBtagVeto = (systEvent.cuts_ & patternTopVeto) == patternTopVeto;
     bool pass3rLVeto  = (systEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && hasZCand == 0 && trackSel[0]+trackSel[1]+trackSel[2] == 0;
     bool passMass     = systEvent.dilep_.M() > 50.0 && (TMath::Abs(systEvent.dilep_.M()-91.1876) > 15 || systEvent.type_ != SmurfTree::ee);
-    bool passVBFSel   = (systEvent.jet1_+systEvent.jet2_).M() > 500 && TMath::Abs(systEvent.jet1_.Eta()-systEvent.jet2_.Eta()) > 2.5;
+    bool passVBFSel   = (systEvent.jet1_+systEvent.jet2_).M() > 500 && TMath::Abs(systEvent.jet1_.Eta()-systEvent.jet2_.Eta()) > 3.5;
     // quick way to accept W+W+ (1) or W-W- (2)
     bool passNsignSel = true;
     if(signSel == 1 && systEvent.lq1_+systEvent.lq2_ == -2) passNsignSel = false;
@@ -1227,7 +1227,7 @@ void vbs_ana
     bool passBtagVeto = (dataEvent.cuts_ & patternTopVeto) == patternTopVeto;
     bool pass3rLVeto  = (dataEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && hasZCand == 0 && trackSel[0]+trackSel[1]+trackSel[2] == 0;
     bool passMass     = dataEvent.dilep_.M() > 50.0 && (TMath::Abs(dataEvent.dilep_.M()-91.1876) > 15 || dataEvent.type_ != SmurfTree::ee);
-    bool passVBFSel   = (dataEvent.jet1_+dataEvent.jet2_).M() > 500 && TMath::Abs(dataEvent.jet1_.Eta()-dataEvent.jet2_.Eta()) > 2.5;
+    bool passVBFSel   = (dataEvent.jet1_+dataEvent.jet2_).M() > 500 && TMath::Abs(dataEvent.jet1_.Eta()-dataEvent.jet2_.Eta()) > 3.5;
     // quick way to accept W+W+ (1) or W-W- (2)
     bool passNsignSel = true;
     if(signSel == 1 && dataEvent.lq1_+dataEvent.lq2_ == -2) passNsignSel = false;
