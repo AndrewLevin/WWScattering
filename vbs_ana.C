@@ -56,7 +56,7 @@ enum selTypeSyst {JESUP=0, JESDOWN, LEPP, LEPM, MET, EFFP, EFFM};
 TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS", "LEPM-OS", "MET-OS", "EFFP-OS", "EFFM-OS",
                                             "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
 
-bool run_over_data = false;
+bool run_over_data = true;
 bool doAQGCsAna = false; //makes the histograms of yield/SM yield used to set limits on AQGC parameters
 int sm_lhe_weight = -1; //do not change this, it is set automatically
 bool use_anom_sample = false; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
@@ -266,6 +266,7 @@ void vbs_ana
   else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
   else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 20 && thePlot <= 20) {nBinPlot = 10; xminPlot = -1.0; xmaxPlot = 1.0;}
+  else if(thePlot >= 21 && thePlot <= 21) {nBinPlot =100; xminPlot =  0.0; xmaxPlot = 100.0;}
   else assert(0);
 
   TH1D* histo0;
@@ -437,11 +438,23 @@ void vbs_ana
     bool passCuts[2][nSelTypes] = {{false, false, false},
                                    {false, false, false}};
     bool isRealLepton = false;
-    if((TMath::Abs(bgdEvent.lep1McId_) == 11 || TMath::Abs(bgdEvent.lep1McId_) == 13) &&
-       (TMath::Abs(bgdEvent.lep2McId_) == 11 || TMath::Abs(bgdEvent.lep2McId_) == 13)) isRealLepton = true;
+    if(bgdEvent.lid3_ == 0) {
+      if((TMath::Abs(bgdEvent.lep1McId_) == 11 || TMath::Abs(bgdEvent.lep1McId_) == 13) &&
+         (TMath::Abs(bgdEvent.lep2McId_) == 11 || TMath::Abs(bgdEvent.lep2McId_) == 13)) isRealLepton = true;
+    }
+    else {
+      if((TMath::Abs(bgdEvent.lep1McId_) == 11 || TMath::Abs(bgdEvent.lep1McId_) == 13) &&
+         (TMath::Abs(bgdEvent.lep2McId_) == 11 || TMath::Abs(bgdEvent.lep2McId_) == 13) &&
+         (TMath::Abs(bgdEvent.lep3McId_) == 11 || TMath::Abs(bgdEvent.lep3McId_) == 13)) isRealLepton = true;
+    }
 
     double theMET = bgdEvent.met_; double theMETPHI = bgdEvent.metPhi_; 
     
+    double massZMin = trilepton_info(0,bgdEvent.lep1_,bgdEvent.lep2_,bgdEvent.lep3_,
+                                       bgdEvent.lq1_ ,bgdEvent.lq2_ ,bgdEvent.lq3_,
+		                       bgdEvent.lid1_,bgdEvent.lid2_,bgdEvent.lid3_,
+				       bgdEvent.mt1_ ,bgdEvent.mt2_ ,bgdEvent.mt3_);
+
     int lType = 1;
     if     (bgdEvent.lq1_ * bgdEvent.lq2_ < 0) lType = 0;
 
@@ -570,7 +583,7 @@ void vbs_ana
        
        if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
        if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
-       if(passNsignSel &&  passBtagVeto && passVBFSel == true                      && !pass3rLVeto && bgdEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true                      && bgdEvent.lid3_ != 0 && massZMin < 15.0 && bgdEvent.lep3_.Pt() > 10.) passCuts[lType][WZSEL] = true;
 
       if(isRealLepton == false &&
          (bgdEvent.dstype_ == SmurfTree::ttbar  || bgdEvent.dstype_ == SmurfTree::tw   || bgdEvent.dstype_ == SmurfTree::dyee || bgdEvent.dstype_ == SmurfTree::dymm ||
@@ -739,7 +752,7 @@ void vbs_ana
         scaleFactor_WS(bgdEvent.lep3_,bgdEvent.lq3_,bgdEvent.lid3_,bgdEvent.lep3McId_,weightWS);
       }
       theWeight = weightWS[0];
-      
+
       if(passBtagVeto) {
         if(bgdEvent.dstype_ == SmurfTree::ttbar) theWeight = theWeight * 1.08767;
         if(bgdEvent.dstype_ == SmurfTree::tw)    theWeight = theWeight * 1.08767;
@@ -765,7 +778,7 @@ void vbs_ana
 
       }
 
-      if(passCuts[1][WWSEL]){ // begin making plots
+      if(passCuts[1][WZSEL]||passCuts[0][WZSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
 	else if(thePlot == 1) myVar = TMath::Max(TMath::Min((bgdEvent.lep1_+bgdEvent.lep2_+bgdEvent.jet1_+bgdEvent.jet2_).M(),2999.999),700.001);
@@ -788,6 +801,7 @@ void vbs_ana
 	else if(thePlot ==18) myVar = zeppenfeld;
 	else if(thePlot ==19) myVar = MVAVar[0];
 	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
+	else if(thePlot ==21) myVar = TMath::Min(massZMin,99.999);
 	else assert(0);
 
       	if     (fDecay == 31){
@@ -1203,6 +1217,11 @@ void vbs_ana
 
     double theMET = dataEvent.met_; double theMETPHI = dataEvent.metPhi_; 
 
+    
+    double massZMin = trilepton_info(0,dataEvent.lep1_,dataEvent.lep2_,dataEvent.lep3_,
+                                       dataEvent.lq1_ ,dataEvent.lq2_ ,dataEvent.lq3_,
+		                       dataEvent.lid1_,dataEvent.lid2_,dataEvent.lid3_,
+				       dataEvent.mt1_ ,dataEvent.mt2_ ,dataEvent.mt3_);
     int lType = 1;
     if     (dataEvent.lq1_ * dataEvent.lq2_ < 0) lType = 0;
 
@@ -1249,7 +1268,7 @@ void vbs_ana
        
        if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
        if(passNsignSel && !passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][BTAGSEL] = true;
-       if(passNsignSel &&  passBtagVeto && passVBFSel == true                      && !pass3rLVeto && dataEvent.lep3_.Pt() > 20.) passCuts[lType][WZSEL] = true;
+       if(passNsignSel &&  passBtagVeto && passVBFSel == true                      &&  dataEvent.lid3_ != 0 && (dataEvent.cuts_ & SmurfTree::Lep3FullSelection) == SmurfTree::Lep3FullSelection && massZMin < 15.0 && dataEvent.lep3_.Pt() > 10.) passCuts[lType][WZSEL] = true;
 
     }
 
@@ -1270,7 +1289,7 @@ void vbs_ana
                             }
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
 
-      if(passCuts[1][WWSEL]){ // begin making plots
+      if(passCuts[1][WZSEL]||passCuts[0][WZSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((dataEvent.jet1_+dataEvent.jet2_).M(),1999.999),500.001);
 	else if(thePlot == 1) myVar = TMath::Max(TMath::Min((dataEvent.lep1_+dataEvent.lep2_+dataEvent.jet1_+dataEvent.jet2_).M(),2999.999),700.001);
@@ -1293,6 +1312,7 @@ void vbs_ana
 	else if(thePlot ==18) myVar = zeppenfeld;
 	else if(thePlot ==19) myVar = MVAVar[0];
 	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
+	else if(thePlot ==21) myVar = TMath::Min(massZMin,99.999);
 	else assert(0);
       	histo6->Fill(myVar,1.0);
       } // end making plots
