@@ -111,6 +111,7 @@ void vbs_ana
   double frCorr = 0.78;
   double lumi = 1.0;
   double ptJetMin = 30.0;
+  double wzCorr = 0.80;
 
   bool fCheckProblem = true;
 
@@ -410,7 +411,7 @@ void vbs_ana
     else if(bgdEvent.dstype_ == SmurfTree::ggzz  	   ) fDecay = 29;
     else if(bgdEvent.dstype_ == SmurfTree::ggww  	   ) fDecay = 30;
     else if(bgdEvent.dstype_ == SmurfTree::wwewk  	   ) fDecay = 31;
-    else if(bgdEvent.dstype_ == SmurfTree::wzewk  	   ) fDecay = 31;
+    else if(bgdEvent.dstype_ == SmurfTree::wzewk  	   ) fDecay = 27;
     else if(bgdEvent.dstype_ == SmurfTree::other           ) fDecay = 40;
     else if(bgdEvent.processId_==121 ||
             bgdEvent.processId_==122)   fDecay = 41;
@@ -773,12 +774,16 @@ void vbs_ana
         }
         else if (doAQGCsAna == true){
 	  if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[lhe_weight_index[sm_lhe_weight]]/bgdEvent.lheWeights_[0];
-	  else theWeight = theWeight * bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0];
+	  else                                          theWeight = theWeight * bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0];
         }
 
       }
 
-      if(passCuts[1][WZSEL]||passCuts[0][WZSEL]){ // begin making plots
+      if(!(passCuts[0][WZSEL]||passCuts[1][WZSEL])){
+        if(fDecay == 27) theWeight = theWeight * wzCorr;
+      }
+
+      if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
 	else if(thePlot == 1) myVar = TMath::Max(TMath::Min((bgdEvent.lep1_+bgdEvent.lep2_+bgdEvent.jet1_+bgdEvent.jet2_).M(),2999.999),700.001);
@@ -884,8 +889,8 @@ void vbs_ana
 	  for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
 	    if(bgdEvent.dstype_ == SmurfTree::wwewk)
 	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight_unweighted*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
-	    else if (bgdEvent.dstype_ == SmurfTree::wzewk)
-	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight_unweighted*bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0]);  //we are not considering the effect of the AQGC on the wzewk for now
+	    //else if (bgdEvent.dstype_ == SmurfTree::wzewk)
+	    //  histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight_unweighted*bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0]);  //we are not considering the effect of the AQGC on the wzewk for now
 	    else
 	      assert(0);
 	  }
@@ -1289,7 +1294,7 @@ void vbs_ana
                             }
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
 
-      if(passCuts[1][WZSEL]||passCuts[0][WZSEL]){ // begin making plots
+      if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((dataEvent.jet1_+dataEvent.jet2_).M(),1999.999),500.001);
 	else if(thePlot == 1) myVar = TMath::Max(TMath::Min((dataEvent.lep1_+dataEvent.lep2_+dataEvent.jet1_+dataEvent.jet2_).M(),2999.999),700.001);
@@ -1794,8 +1799,9 @@ void vbs_ana
     }
 
     double systNLO[3] = {1.0,1.0,1.0}; // WZ, WS, Wjets
-    if     (histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
-    else if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLODown  ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ   ->GetBinContent(nb)/histo_WZ_CMS_WZNLODown  ->GetBinContent(nb);
+    //if     (histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
+    //else if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLODown  ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ   ->GetBinContent(nb)/histo_WZ_CMS_WZNLODown  ->GetBinContent(nb);
+    systNLO[0] = 1.35;
     if     (histo_WS   ->GetBinContent(nb) > 0 && histo_WS_WSUp    ->GetBinContent(nb) > 0) systNLO[1] = histo_WS_WSUp    ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
     else if(histo_WS   ->GetBinContent(nb) > 0 && histo_WS_WSDown  ->GetBinContent(nb) > 0) systNLO[1] = histo_WS   ->GetBinContent(nb)/histo_WS_WSDown  ->GetBinContent(nb);
     if     (histo_Wjets->GetBinContent(nb) > 0 && histo_Wjets_WUp  ->GetBinContent(nb) > 0) systNLO[2] = histo_Wjets_WUp  ->GetBinContent(nb)/histo_Wjets->GetBinContent(nb);
@@ -1804,9 +1810,9 @@ void vbs_ana
     double systEff[5] = {1.0,1.0,1.0,1.0,1.0};
     if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_LepEffUp->GetBinContent(nb) > 0) systEff[0] =  histo_WWewk_LepEffUp->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
     if(histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_LepEffUp->GetBinContent(nb) > 0) systEff[1] =  histo_WWqcd_LepEffUp->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
-    if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_LepEffUp	->GetBinContent(nb) > 0) systEff[2] =  histo_WZ_LepEffUp   ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
-    if(histo_WS   ->GetBinContent(nb) > 0 && histo_WS_LepEffUp	->GetBinContent(nb) > 0) systEff[3] =  histo_WS_LepEffUp   ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
-    if(histo_VVV  ->GetBinContent(nb) > 0 && histo_VVV_LepEffUp	->GetBinContent(nb) > 0) systEff[4] =  histo_VVV_LepEffUp  ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
+    if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_LepEffUp	->GetBinContent(nb) > 0)  systEff[2] =  histo_WZ_LepEffUp   ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
+    if(histo_WS   ->GetBinContent(nb) > 0 && histo_WS_LepEffUp	->GetBinContent(nb) > 0)  systEff[3] =  histo_WS_LepEffUp   ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
+    if(histo_VVV  ->GetBinContent(nb) > 0 && histo_VVV_LepEffUp	->GetBinContent(nb) > 0)  systEff[4] =  histo_VVV_LepEffUp  ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
 
     double systLep[5] = {1.0,1.0,1.0,1.0,1.0};
     if     (histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_LepResUp  ->GetBinContent(nb) > 0) systLep[0] =  histo_WWewk_LepResUp  ->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
@@ -1864,25 +1870,25 @@ void vbs_ana
     newcardShape << Form("pdf_qqbar                                lnN %5.3f %5.3f %5.3f   -     -    -  \n",pdf_qqbar[0],pdf_qqbar[1],pdf_qqbar[2]);
     newcardShape << Form("QCDscale_WWewk		           lnN %5.3f   -     -	   -     -    -  \n",QCDscale_WWewk);	  
     newcardShape << Form("QCDscale_WWqcd		           lnN   -   %5.3f   -	   -     -    -  \n",QCDscale_WWqcd);	  
-    newcardShape << Form("QCDscale_VV		                   lnN   -     -   1.100   -     -    -  \n");  	
+    //newcardShape << Form("QCDscale_VV		                   lnN   -     -   1.100   -     -    -  \n");  	
     newcardShape << Form("CMS_wwss_WZ3l                            lnN   -     -   %5.3f   -     -    -  \n",syst_WZ3l);		
     newcardShape << Form("CMS_wwss_WZNLO                           lnN   -     -   %5.3f   -     -    -  \n",systNLO[0]);
     newcardShape << Form("CMS_wwss_MVAWS                           lnN   -     -    -    %5.3f   -    -  \n",systNLO[1]);		
-    newcardShape << Form("QCDscale_VVV		                   lnN   -     -    -	  -   1.500   -  \n");  	   
-    newcardShape << Form("CMS_FakeRate                             lnN   -     -    -	  -	-   %5.3f\n",WjetsSyst);  
-    newcardShape << Form("CMS_wwss_MVAW                            lnN   -     -    -	  -	-   %5.3f\n",systNLO[2]);
+    newcardShape << Form("QCDscale_VVV		                   lnN   -     -    -	   -   1.500  -  \n");  	   
+    newcardShape << Form("CMS_FakeRate                             lnN   -     -    -	   -	 -   %5.3f\n",WjetsSyst);  
+    newcardShape << Form("CMS_wwss_MVAW                            lnN   -     -    -	   -	 -   %5.3f\n",systNLO[2]);
     if(histo_WWewk->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWWewkStat_%s_Bin%d         lnN  %5.3f  -    -     -     -      - \n",finalStateName,ECMsb.Data(),nb-1,histo_WWewk_WWewkStatUp->GetBinContent(nb)/histo_WWewk->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWWewkStat_%s_Bin%d         lnN  %5.3f  -    -      -     -    - \n",finalStateName,ECMsb.Data(),nb-1,histo_WWewk_WWewkStatUp->GetBinContent(nb)/histo_WWewk->GetBinContent(nb));
     if(histo_WWqcd->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWWqcdStat_%s_Bin%d         lnN    -   %5.3f -	  -     -      - \n",finalStateName,ECMsb.Data(),nb-1,histo_WWqcd_WWqcdStatUp->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWWqcdStat_%s_Bin%d         lnN   -    %5.3f -	   -	 -    - \n",finalStateName,ECMsb.Data(),nb-1,histo_WWqcd_WWqcdStatUp->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb));
     if(histo_WZ->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWZStat_%s_Bin%d            lnN    -    -   %5.3f  -     -      - \n",finalStateName,ECMsb.Data(),nb-1,histo_WZ_WZStatUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWZStat_%s_Bin%d            lnN   -     -   %5.3f   -	 -    - \n",finalStateName,ECMsb.Data(),nb-1,histo_WZ_WZStatUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb));
     if(histo_WS->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWSStat_%s_Bin%d            lnN    -    -    -	%5.3f   -      - \n",finalStateName,ECMsb.Data(),nb-1,histo_WS_WSStatUp    ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWSStat_%s_Bin%d            lnN   -     -    -	 %5.3f   -    - \n",finalStateName,ECMsb.Data(),nb-1,histo_WS_WSStatUp    ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb));
     if(histo_VVV->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAVVVStat_%s_Bin%d           lnN    -    -    -	  -   %5.3f    - \n",finalStateName,ECMsb.Data(),nb-1,histo_VVV_VVVStatUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAVVVStat_%s_Bin%d           lnN   -     -    -	   -   %5.3f  - \n",finalStateName,ECMsb.Data(),nb-1,histo_VVV_VVVStatUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb));
     if(histo_Wjets->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWjetsStat_%s_Bin%d         lnN    -    -    -	  -     -   %5.3f\n",finalStateName,ECMsb.Data(),nb-1,histo_Wjets_WjetsStatUp->GetBinContent(nb)/histo_Wjets->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWjetsStat_%s_Bin%d         lnN   -     -    -	   -	 -   %5.3f\n",finalStateName,ECMsb.Data(),nb-1,histo_Wjets_WjetsStatUp->GetBinContent(nb)/histo_Wjets->GetBinContent(nb));
     newcardShape.close();
   }
   } // if showSignalOnly == true
