@@ -15,7 +15,7 @@
 
 void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TString units = "", 
                   TString plotName = "histo_nice.root", TString outputName = "njets",
-                  bool isLogY = false, double lumi = 19.4) {
+                  bool isLogY = false, double lumi = 19.4, bool blindedData = false) {
   // nsel == 0 --> WW EWK not overlaid with SM background
   // nsel == 1 --> WW EWK overlaid with SM background
 
@@ -38,6 +38,7 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   TH1F* hWW      = (TH1F*)file->Get("histo4");
   TH1F* hVVV     = (TH1F*)file->Get("histo5");
   TH1F *hData    = (TH1F*)file->Get("histo6");
+  if(blindedData == true) hData->Scale(0);
 
   double scale = 1;
   hWWEWK  ->Scale(scale);
@@ -87,9 +88,9 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   sprintf(myOutputFile,"plots/%s.pdf",outputName.Data());
   c1->SaveAs(myOutputFile);
 
-  TCanvas* c2 = new TCanvas("c2", "c2",700,50,500,500);
-  c2->cd(1);
   if(nsel == 0 || nsel == 10){
+    TCanvas* c2 = new TCanvas("c2", "c2",700,50,500,500);
+    c2->cd(1);
     TH1F* hSignal = (TH1F*)file->Get("histo0");
     TH1F* hSumBck = (TH1F*)file->Get("histo1");
     hSumBck->Add(hWWQCD  );
@@ -99,7 +100,7 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
     hSignal->Rebin(ReBin);
     hSumBck->Rebin(ReBin);
     printf("S/B(%f/%f) = %f\n",hSignal->GetSumOfWeights(),hSumBck->GetSumOfWeights(),hSignal->GetSumOfWeights()/hSumBck->GetSumOfWeights());
-    //hSignal->Divide(hSumBck);
+    hSignal->Divide(hSumBck);
     hSignal->Draw("e");
   }
 }

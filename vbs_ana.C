@@ -268,6 +268,7 @@ void vbs_ana
   else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 20 && thePlot <= 20) {nBinPlot = 10; xminPlot = -1.0; xmaxPlot = 1.0;}
   else if(thePlot >= 21 && thePlot <= 21) {nBinPlot =100; xminPlot =  0.0; xmaxPlot = 100.0;}
+  else if(thePlot >= 22 && thePlot <= 22) {nBinPlot =40; xminPlot =  0.0; xmaxPlot = 200.0;}
   else assert(0);
 
   TH1D* histo0;
@@ -466,7 +467,7 @@ void vbs_ana
     //    (bgdEvent.jet2_.Eta()-bgdEvent.lep1_.Eta()+0.1 > 0 && bgdEvent.jet1_.Eta()-bgdEvent.lep1_.Eta() < 0)) &&
     //   ((bgdEvent.jet1_.Eta()-bgdEvent.lep2_.Eta()+0.1 > 0 && bgdEvent.jet2_.Eta()-bgdEvent.lep2_.Eta() < 0) ||
     //    (bgdEvent.jet2_.Eta()-bgdEvent.lep2_.Eta()+0.1 > 0 && bgdEvent.jet1_.Eta()-bgdEvent.lep2_.Eta() < 0))) centrality = 1; 
-    double metMin = 40.0;
+    double metMin = 40.0; if(bgdEvent.type_ != SmurfTree::ee) metMin = 40.0;
 
     // jet1McId and jet2McId actually provide lepton rejection information
     // hasZCand = reject events with |mll-mZ|<15
@@ -807,6 +808,7 @@ void vbs_ana
 	else if(thePlot ==19) myVar = MVAVar[0];
 	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
 	else if(thePlot ==21) myVar = TMath::Min(massZMin,99.999);
+	else if(thePlot ==22) myVar = TMath::Min((double)bgdEvent.met_,199.999);
 	else assert(0);
 
       	if     (fDecay == 31){
@@ -1006,7 +1008,7 @@ void vbs_ana
     //    (systEvent.jet2_.Eta()-systEvent.lep1_.Eta()+0.1 > 0 && systEvent.jet1_.Eta()-systEvent.lep1_.Eta() < 0)) &&
     //   ((systEvent.jet1_.Eta()-systEvent.lep2_.Eta()+0.1 > 0 && systEvent.jet2_.Eta()-systEvent.lep2_.Eta() < 0) ||
     //    (systEvent.jet2_.Eta()-systEvent.lep2_.Eta()+0.1 > 0 && systEvent.jet1_.Eta()-systEvent.lep2_.Eta() < 0))) centrality = 1; 
-    double metMin = 40.0;
+    double metMin = 40.0; if(systEvent.type_ != SmurfTree::ee) metMin = 40.0;
 
     int newId=int(systEvent.jet1McId_);
     //int tauId=int((systEvent.jet1McId_%100-systEvent.jet1McId_%10)/10);
@@ -1237,7 +1239,7 @@ void vbs_ana
     //    (dataEvent.jet2_.Eta()-dataEvent.lep1_.Eta()+0.1 > 0 && dataEvent.jet1_.Eta()-dataEvent.lep1_.Eta() < 0)) &&
     //   ((dataEvent.jet1_.Eta()-dataEvent.lep2_.Eta()+0.1 > 0 && dataEvent.jet2_.Eta()-dataEvent.lep2_.Eta() < 0) ||
     //    (dataEvent.jet2_.Eta()-dataEvent.lep2_.Eta()+0.1 > 0 && dataEvent.jet1_.Eta()-dataEvent.lep2_.Eta() < 0))) centrality = 1; 
-    double metMin = 40.0;
+    double metMin = 40.0; if(dataEvent.type_ != SmurfTree::ee) metMin = 40.0;
 
     int newId=int(dataEvent.jet1McId_);
     //int tauId=int((dataEvent.jet1McId_%100-dataEvent.jet1McId_%10)/10);
@@ -1318,6 +1320,7 @@ void vbs_ana
 	else if(thePlot ==19) myVar = MVAVar[0];
 	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
 	else if(thePlot ==21) myVar = TMath::Min(massZMin,99.999);
+	else if(thePlot ==22) myVar = TMath::Min((double)dataEvent.met_,199.999);
 	else assert(0);
       	histo6->Fill(myVar,1.0);
       } // end making plots
