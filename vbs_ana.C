@@ -801,7 +801,7 @@ void vbs_ana
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
 	else if(thePlot == 1) myVar = TMath::Max(TMath::Min((bgdEvent.lep1_+bgdEvent.lep2_+bgdEvent.jet1_+bgdEvent.jet2_).M(),2999.999),700.001);
-	else if(thePlot == 2) myVar = bgdEvent.lep1_.Pt();
+	else if(thePlot == 2) myVar = TMath::Min(bgdEvent.lep1_.Pt(),499.999);
 	else if(thePlot == 3) myVar = bgdEvent.lep2_.Pt();
 	else if(thePlot == 4) myVar = bgdEvent.jet1_.Pt();
 	else if(thePlot == 5) myVar = bgdEvent.jet2_.Pt();
@@ -1324,7 +1324,7 @@ void vbs_ana
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((dataEvent.jet1_+dataEvent.jet2_).M(),1999.999),500.001);
 	else if(thePlot == 1) myVar = TMath::Max(TMath::Min((dataEvent.lep1_+dataEvent.lep2_+dataEvent.jet1_+dataEvent.jet2_).M(),2999.999),700.001);
-	else if(thePlot == 2) myVar = dataEvent.lep1_.Pt();
+	else if(thePlot == 2) myVar = TMath::Min(dataEvent.lep1_.Pt(),499.999);
 	else if(thePlot == 3) myVar = dataEvent.lep2_.Pt();
 	else if(thePlot == 4) myVar = dataEvent.jet1_.Pt();
 	else if(thePlot == 5) myVar = dataEvent.jet2_.Pt();
