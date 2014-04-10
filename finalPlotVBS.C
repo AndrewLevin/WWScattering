@@ -37,6 +37,7 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   TH1F* hWJets   = (TH1F*)file->Get("histo3");
   TH1F* hWW      = (TH1F*)file->Get("histo4");
   TH1F* hVVV     = (TH1F*)file->Get("histo5");
+  TH1F* hHiggs   = (TH1F*)file->Get("histo7");
   TH1F *hData    = (TH1F*)file->Get("histo6");
   if(blindedData == true) hData->Scale(0);
 
@@ -47,13 +48,15 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   hWJets  ->Scale(scale);
   hWW	  ->Scale(scale);
   hVVV	  ->Scale(scale);
+  hHiggs  ->Scale(scale*10);
 
   if(nsel == 0 || nsel == 1){
     myPlot.setMCHist(iWWEWK,(TH1F*)hWWEWK->Clone("hWWEWK"));
     myPlot._mass = 0;
-    if(nsel == 1) myPlot.setHWWOverlaid(true);
+    if(nsel == 1 || hHiggs->GetSumOfWeights() > 0) myPlot.setHWWOverlaid(true);
     myPlot.setUnits(units);
     myPlot.setBreakdown(true);
+    myPlot.setMass(800);
   } else assert(0);
 
   myPlot.setMCHist(iVV,     (TH1F*)hVV     ->Clone("hVV"));
@@ -61,14 +64,15 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   myPlot.setMCHist(iWJets,  (TH1F*)hWJets  ->Clone("hWJets")); 
   myPlot.setMCHist(iWW,     (TH1F*)hWW	   ->Clone("hWW"));
   myPlot.setMCHist(iVVV,    (TH1F*)hVVV    ->Clone("hVVV"));
+  myPlot.setMCHist(iHiggs,  (TH1F*)hHiggs  ->Clone("hHiggs"));
   myPlot.setDataHist((TH1F*)hData->Clone("data"));
 
-  printf("%f + %f + %f + %f + %f + %f = %f - %f\n",
+  printf("%f + %f + %f + %f + %f + %f = %f - %f - %f\n",
           hWWEWK->GetSumOfWeights(),hVV->GetSumOfWeights(),hWWQCD->GetSumOfWeights(),
   	  hWJets->GetSumOfWeights(),hWW->GetSumOfWeights(),hVVV->GetSumOfWeights(),
 	  hWWEWK->GetSumOfWeights()+hVV->GetSumOfWeights()+hWWQCD->GetSumOfWeights()+
 	  hWJets->GetSumOfWeights()+hWW->GetSumOfWeights()+hVVV->GetSumOfWeights(),
-	  hData->GetSumOfWeights());
+	  hData->GetSumOfWeights(),hHiggs->GetSumOfWeights());
 
   TCanvas* c1 = new TCanvas("c1", "c1",5,50,500,500);
 

@@ -228,6 +228,7 @@ void vbs_ana
   TH1D *histo_WS        = (TH1D*) histoMVA->Clone("histo_WS");
   TH1D *histo_VVV       = (TH1D*) histoMVA->Clone("histo_VVV");
   TH1D *histo_Wjets     = (TH1D*) histoMVA->Clone("histo_Wjets");
+  TH1D *histo_Higgs     = (TH1D*) histoMVA->Clone("histo_Higgs");
 
   std::vector<TH1D *> histo_WWewk_anom;
 
@@ -281,6 +282,7 @@ void vbs_ana
   TH1D* histo4 = (TH1D*) histo0->Clone("histo4");
   TH1D* histo5 = (TH1D*) histo0->Clone("histo5");
   TH1D* histo6 = (TH1D*) histo0->Clone("histo6");
+  TH1D* histo7 = (TH1D*) histo0->Clone("histo7");
   histo0->Scale(0.0);
   histo1->Scale(0.0);
   histo2->Scale(0.0);
@@ -288,6 +290,7 @@ void vbs_ana
   histo4->Scale(0.0);
   histo5->Scale(0.0);
   histo6->Scale(0.0);
+  histo7->Scale(0.0);
 
   TH1D* histo_WWewk_WWewkStatUp   = new TH1D( Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatUp  ->Sumw2();
   TH1D* histo_WWewk_WWewkStatDown = new TH1D( Form("histo_WWewk_CMS_wwss%s_MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatDown->Sumw2();
@@ -301,6 +304,8 @@ void vbs_ana
   TH1D* histo_VVV_VVVStatDown     = new TH1D( Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_VVV_CMS_wwss%s_MVAVVVStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_VVV_VVVStatDown->Sumw2();
   TH1D* histo_Wjets_WjetsStatUp   = new TH1D( Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_Wjets_WjetsStatUp  ->Sumw2();
   TH1D* histo_Wjets_WjetsStatDown = new TH1D( Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_Wjets_CMS_wwss%s_MVAWjetsStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_Wjets_WjetsStatDown->Sumw2();
+  TH1D* histo_Higgs_HiggsStatUp   = new TH1D( Form("histo_Higgs_CMS_wwss%s__MVAHiggsStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_Higgs_CMS_wwss%s__MVAHiggsStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_Higgs_HiggsStatUp  ->Sumw2();
+  TH1D* histo_Higgs_HiggsStatDown = new TH1D( Form("histo_Higgs_CMS_wwss%s_MVAHiggsStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_Higgs_CMS_wwss%s__MVAHiggsStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_Higgs_HiggsStatDown->Sumw2();
 
   TH1D* histo_WWewk_LepEffUp      = new TH1D( Form("histo_WWewk_%sUp",effName)  , Form("histo_WWewk_%sUp",effName)  , nBin, xbins); histo_WWewk_LepEffUp  ->Sumw2();
   TH1D* histo_WWewk_LepEffDown    = new TH1D( Form("histo_WWewk_%sDown",effName), Form("histo_WWewk_%sDown",effName), nBin, xbins); histo_WWewk_LepEffDown->Sumw2();
@@ -312,6 +317,8 @@ void vbs_ana
   TH1D* histo_WS_LepEffDown       = new TH1D( Form("histo_WS_%sDown",effName), Form("histo_WS_%sDown",effName), nBin, xbins); histo_WS_LepEffDown->Sumw2();
   TH1D* histo_VVV_LepEffUp        = new TH1D( Form("histo_VVV_%sUp",effName)  , Form("histo_VVV_%sUp",effName)  , nBin, xbins); histo_VVV_LepEffUp  ->Sumw2();
   TH1D* histo_VVV_LepEffDown      = new TH1D( Form("histo_VVV_%sDown",effName), Form("histo_VVV_%sDown",effName), nBin, xbins); histo_VVV_LepEffDown->Sumw2();
+  TH1D* histo_Higgs_LepEffUp      = new TH1D( Form("histo_Higgs_%sUp",effName)  , Form("histo_Higgs_%sUp",effName)  , nBin, xbins); histo_Higgs_LepEffUp  ->Sumw2();
+  TH1D* histo_Higgs_LepEffDown    = new TH1D( Form("histo_Higgs_%sDown",effName), Form("histo_Higgs_%sDown",effName), nBin, xbins); histo_Higgs_LepEffDown->Sumw2();
 
   TH1D* histo_WWewk_LepResUp      = new TH1D( Form("histo_WWewk_%sUp",momName)  , Form("histo_WWewk_%sUp",momName)  , nBin, xbins); histo_WWewk_LepResUp  ->Sumw2();
   TH1D* histo_WWewk_LepResDown    = new TH1D( Form("histo_WWewk_%sDown",momName), Form("histo_WWewk_%sDown",momName), nBin, xbins); histo_WWewk_LepResDown->Sumw2();
@@ -323,6 +330,8 @@ void vbs_ana
   TH1D* histo_WS_LepResDown       = new TH1D( Form("histo_WS_%sDown",momName), Form("histo_WS_%sDown",momName), nBin, xbins); histo_WS_LepResDown->Sumw2();
   TH1D* histo_VVV_LepResUp        = new TH1D( Form("histo_VVV_%sUp",momName)  , Form("histo_VVV_%sUp",momName)  , nBin, xbins); histo_VVV_LepResUp  ->Sumw2();
   TH1D* histo_VVV_LepResDown      = new TH1D( Form("histo_VVV_%sDown",momName), Form("histo_VVV_%sDown",momName), nBin, xbins); histo_VVV_LepResDown->Sumw2();
+  TH1D* histo_Higgs_LepResUp      = new TH1D( Form("histo_Higgs_%sUp",momName)  , Form("histo_Higgs_%sUp",momName)  , nBin, xbins); histo_Higgs_LepResUp  ->Sumw2();
+  TH1D* histo_Higgs_LepResDown    = new TH1D( Form("histo_Higgs_%sDown",momName), Form("histo_Higgs_%sDown",momName), nBin, xbins); histo_Higgs_LepResDown->Sumw2();
 
   TH1D* histo_WWewk_METResUp      = new TH1D( Form("histo_WWewk_%sUp","CMS_scale_met")  , Form("histo_WWewk_%sUp","CMS_scale_met")  , nBin, xbins); histo_WWewk_METResUp  ->Sumw2();
   TH1D* histo_WWewk_METResDown    = new TH1D( Form("histo_WWewk_%sDown","CMS_scale_met"), Form("histo_WWewk_%sDown","CMS_scale_met"), nBin, xbins); histo_WWewk_METResDown->Sumw2();
@@ -334,6 +343,8 @@ void vbs_ana
   TH1D* histo_WS_METResDown       = new TH1D( Form("histo_WS_%sDown","CMS_scale_met"), Form("histo_WS_%sDown","CMS_scale_met"), nBin, xbins); histo_WS_METResDown->Sumw2();
   TH1D* histo_VVV_METResUp        = new TH1D( Form("histo_VVV_%sUp","CMS_scale_met")  , Form("histo_VVV_%sUp","CMS_scale_met")  , nBin, xbins); histo_VVV_METResUp  ->Sumw2();
   TH1D* histo_VVV_METResDown      = new TH1D( Form("histo_VVV_%sDown","CMS_scale_met"), Form("histo_VVV_%sDown","CMS_scale_met"), nBin, xbins); histo_VVV_METResDown->Sumw2();
+  TH1D* histo_Higgs_METResUp      = new TH1D( Form("histo_Higgs_%sUp","CMS_scale_met")  , Form("histo_Higgs_%sUp","CMS_scale_met")  , nBin, xbins); histo_Higgs_METResUp  ->Sumw2();
+  TH1D* histo_Higgs_METResDown    = new TH1D( Form("histo_Higgs_%sDown","CMS_scale_met"), Form("histo_Higgs_%sDown","CMS_scale_met"), nBin, xbins); histo_Higgs_METResDown->Sumw2();
 
   TH1D* histo_WWewk_JESUp         = new TH1D( Form("histo_WWewk_%sUp","CMS_scale_j")  , Form("histo_WWewk_%sUp","CMS_scale_j")  , nBin, xbins); histo_WWewk_JESUp  ->Sumw2();
   TH1D* histo_WWewk_JESDown       = new TH1D( Form("histo_WWewk_%sDown","CMS_scale_j"), Form("histo_WWewk_%sDown","CMS_scale_j"), nBin, xbins); histo_WWewk_JESDown->Sumw2();
@@ -345,6 +356,8 @@ void vbs_ana
   TH1D* histo_WS_JESDown          = new TH1D( Form("histo_WS_%sDown","CMS_scale_j"), Form("histo_WS_%sDown","CMS_scale_j"), nBin, xbins); histo_WS_JESDown->Sumw2();
   TH1D* histo_VVV_JESUp           = new TH1D( Form("histo_VVV_%sUp","CMS_scale_j")  , Form("histo_VVV_%sUp","CMS_scale_j")  , nBin, xbins); histo_VVV_JESUp  ->Sumw2();
   TH1D* histo_VVV_JESDown         = new TH1D( Form("histo_VVV_%sDown","CMS_scale_j"), Form("histo_VVV_%sDown","CMS_scale_j"), nBin, xbins); histo_VVV_JESDown->Sumw2();
+  TH1D* histo_Higgs_JESUp         = new TH1D( Form("histo_Higgs_%sUp","CMS_scale_j")  , Form("histo_Higgs_%sUp","CMS_scale_j")  , nBin, xbins); histo_Higgs_JESUp  ->Sumw2();
+  TH1D* histo_Higgs_JESDown       = new TH1D( Form("histo_Higgs_%sDown","CMS_scale_j"), Form("histo_Higgs_%sDown","CMS_scale_j"), nBin, xbins); histo_Higgs_JESDown->Sumw2();
 
   TH1D* histo_WZ_CMS_WZNLOUp      = new TH1D( Form("histo_WZ_CMS_wwss_WZNLOUp"),   Form("histo_WZ_CMS_wwss_WZNLOUp"),	nBin, xbins); histo_WZ_CMS_WZNLOUp  ->Sumw2();
   TH1D* histo_WZ_CMS_WZNLODown    = new TH1D( Form("histo_WZ_CMS_wwss_WZNLODown"), Form("histo_WZ_CMS_wwss_WZNLODown"), nBin, xbins); histo_WZ_CMS_WZNLODown->Sumw2();
@@ -674,7 +687,7 @@ void vbs_ana
          }
 	  
 	  add = add*trigEff;
-	  if(fCheckProblem == true && (bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && TMath::Abs((bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_)+add)/add>0.0001)
+	  if(fCheckProblem == true && fDecay != 44 && (bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && TMath::Abs((bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_)+add)/add>0.0001)
 	    printf("PROBLEMB: %f - %f %f %f %f %f = %f\n",add,bgdEvent.sfWeightFR_,bgdEvent.sfWeightPU_,bgdEvent.sfWeightEff_,bgdEvent.sfWeightTrig_,bgdEvent.sfWeightHPt_,bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_);
 	  fDecay                 = 1;
 
@@ -734,7 +747,7 @@ void vbs_ana
         }
         add = add1*add2*trigEff;
 
-        if(fCheckProblem == true && (bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) && add != 0 && TMath::Abs((bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_)-add)/add>0.0001)
+        if(fCheckProblem == true && fDecay != 44 && (bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) && add != 0 && TMath::Abs((bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_)-add)/add>0.0001)
 	 printf("PROBLEMCB(%d): %f %f %f = %f - %f %f %f %f %f = %f\n",bgdEvent.event_,add1,add2,trigEff,add,bgdEvent.sfWeightFR_,bgdEvent.sfWeightPU_,bgdEvent.sfWeightEff_,bgdEvent.sfWeightTrig_,bgdEvent.sfWeightHPt_,bgdEvent.sfWeightFR_*bgdEvent.sfWeightPU_*bgdEvent.sfWeightEff_*bgdEvent.sfWeightTrig_*bgdEvent.sfWeightHPt_);
 
 	if(bgdEvent.dstype_ == SmurfTree::wgstar) add = add*WGstarScaleFactor(bgdEvent.type_,theMET);
@@ -831,7 +844,8 @@ void vbs_ana
       	else if(fDecay == 21){
       	  histo5->Fill(myVar,theWeight);
       	}
-      	else if(fDecay == 41 || fDecay == 42 || fDecay == 43){
+      	else if(fDecay == 41 || fDecay == 42 || fDecay == 43 || fDecay == 44){
+      	  histo7->Fill(myVar,theWeight);
       	}
       	else {
       	  printf("NOOOOOOOOOOOOOOOOOOOO %d\n",fDecay);
@@ -869,6 +883,16 @@ void vbs_ana
         if(passSystCuts[1][LEPP]    == true) histo_VVV_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_VVV_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_VVV_METResUp  ->Fill(MVAVar[5], theWeight);;
+      }
+      else if(fDecay == 44){
+        if(passCuts[1][WWSEL])  	     histo_Higgs           ->Fill(MVAVar[0], theWeight);
+        if(passCuts[1][WWSEL])  	     histo_Higgs_LepEffUp  ->Fill(MVAVar[0], theWeight*addLepEffUp  /addLepEff);
+        if(passCuts[1][WWSEL])  	     histo_Higgs_LepEffDown->Fill(MVAVar[0], theWeight*addLepEffDown/addLepEff);
+        if(passSystCuts[1][JESUP  ] == true) histo_Higgs_JESUp	   ->Fill(MVAVar[1], theWeight);
+        if(passSystCuts[1][JESDOWN] == true) histo_Higgs_JESDown   ->Fill(MVAVar[2], theWeight);
+        if(passSystCuts[1][LEPP]    == true) histo_Higgs_LepResUp  ->Fill(MVAVar[3], theWeight);
+        if(passSystCuts[1][LEPM]    == true) histo_Higgs_LepResDown->Fill(MVAVar[4], theWeight);
+        if(passSystCuts[1][MET]     == true) histo_Higgs_METResUp  ->Fill(MVAVar[5], theWeight);;
       }
       else if(fDecay == 31){
         if(passCuts[1][WWSEL])  	     histo_WWewk           ->Fill(MVAVar[0], theWeight);
@@ -1367,9 +1391,10 @@ void vbs_ana
     if(nOldH[4] > 0) histo4->Scale(nOldH[4]/histo4->GetSumOfWeights());
     if(nOldH[5] > 0) histo5->Scale(nOldH[5]/histo5->GetSumOfWeights());
 
-    printf("histo -> d: %8.2f b: %8.2f | %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f\n",histo6->GetSumOfWeights(),
+    printf("histo -> d: %8.2f b: %8.2f | %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f | h: %8.2f\n",histo6->GetSumOfWeights(),
     histo0->GetSumOfWeights()+histo1->GetSumOfWeights()+histo2->GetSumOfWeights()+histo3->GetSumOfWeights()+histo4->GetSumOfWeights()+histo5->GetSumOfWeights(),
-    histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights(),histo5->GetSumOfWeights());
+    histo0->GetSumOfWeights(),histo1->GetSumOfWeights(),histo2->GetSumOfWeights(),histo3->GetSumOfWeights(),histo4->GetSumOfWeights(),histo5->GetSumOfWeights(),
+    histo7->GetSumOfWeights());
 
     histo0->Write();
     histo1->Write();
@@ -1378,6 +1403,7 @@ void vbs_ana
     histo4->Write();
     histo5->Write();
     histo6->Write();
+    histo7->Write();
 
   outFilePlotsNote->Close();
   
@@ -1394,6 +1420,8 @@ void vbs_ana
       if(j == 29 && bgdDecay[i][j] < 0) {printf("negative(29,%d) = %f +/- %f\n",i,bgdDecay[i][j],sqrt(weiDecay[i][j]));bgdDecay[i][j] = 0; weiDecay[i][j] = 0;}
 
       if(showSignalOnly == false || i%nSelTypes == WWSEL) if(bgdDecay[i][j] != 0) printf("bdg(%2d,%2d) = %11.3f +/- %8.3f\n",i,j,bgdDecay[i][j],sqrt(weiDecay[i][j]));
+
+      if(j == 44) continue;
 
       nTot[i]  += bgdDecay[i][j];
       nETot[i] += weiDecay[i][j];
@@ -1429,6 +1457,9 @@ void vbs_ana
     nTotSyst[i] = 0.0; nETotSyst[i] = 0.0;
     for(int j=0; j<45; j++){
       if(showSignalOnly == false) if(bgdDecaySyst[i][j] != 0) printf("bdgSyst(%2d,%2d) = %11.3f +/- %8.3f\n",i,j,bgdDecaySyst[i][j],sqrt(weiDecaySyst[i][j]));
+      
+      if(j == 44) continue;
+
       nTotSyst[i]  += bgdDecaySyst[i][j];
       nETotSyst[i] += weiDecaySyst[i][j];
 
@@ -1483,7 +1514,7 @@ void vbs_ana
     WjetsSyst = 1.0+WjetsSyst/(bgdCombined[WWSEL+nSelTypes][5]);
   }
   if(showSignalOnly == false) printf("WjetsSyst: %f --> %f\n",bgdCombined[WWSEL+nSelTypes][5],WjetsSyst);
-  double pdf_qqbar[3] = {1.077,1.070,1.071};
+  double pdf_qqbar[4] = {1.077,1.070,1.071,1.065};
   double syst_WZ3l = 1.010;
 
   double nOldWjets = TMath::Max(histo_Wjets->GetSumOfWeights(),0.000001);
@@ -1511,7 +1542,7 @@ void vbs_ana
       if(histo_WWqcd_LepResDown->GetBinContent(i) < 0) {histo_WWqcd_LepResDown->SetBinContent(i,0.000001);histo_WWqcd_LepResDown->SetBinError(i,0.000001);}
       if(histo_WWqcd_METResUp  ->GetBinContent(i) < 0) {histo_WWqcd_METResUp  ->SetBinContent(i,0.000001);histo_WWqcd_METResUp  ->SetBinError(i,0.000001);}
     }
-    histo_WWqcd			         ->Scale(nOldWWQCD[0]/histo_WWqcd			         ->GetSumOfWeights());
+    histo_WWqcd           ->Scale(nOldWWQCD[0]/histo_WWqcd           ->GetSumOfWeights());
     histo_WWqcd_LepEffUp  ->Scale(nOldWWQCD[1]/histo_WWqcd_LepEffUp  ->GetSumOfWeights());
     histo_WWqcd_LepEffDown->Scale(nOldWWQCD[2]/histo_WWqcd_LepEffDown->GetSumOfWeights());
     histo_WWqcd_JESUp     ->Scale(nOldWWQCD[3]/histo_WWqcd_JESUp     ->GetSumOfWeights());
@@ -1526,9 +1557,9 @@ void vbs_ana
   for(int i=1; i<=histo_WWewk->GetNbinsX(); i++){
     double factorUp = +1.0; double factorDown = -1.0;
     histo_WWewk_WWewkStatUp	    ->SetBinContent(i,TMath::Max(histo_WWewk    ->GetBinContent(i)+factorUp  *histo_WWewk	 ->GetBinError(i),0.000001));
-    histo_WWewk_WWewkStatDown        ->SetBinContent(i,TMath::Max(histo_WWewk    ->GetBinContent(i)+factorDown*histo_WWewk	 ->GetBinError(i),0.000001));
+    histo_WWewk_WWewkStatDown       ->SetBinContent(i,TMath::Max(histo_WWewk    ->GetBinContent(i)+factorDown*histo_WWewk	 ->GetBinError(i),0.000001));
     histo_WWqcd_WWqcdStatUp	    ->SetBinContent(i,TMath::Max(histo_WWqcd    ->GetBinContent(i)+factorUp  *histo_WWqcd	 ->GetBinError(i),0.000001));
-    histo_WWqcd_WWqcdStatDown        ->SetBinContent(i,TMath::Max(histo_WWqcd    ->GetBinContent(i)+factorDown*histo_WWqcd	 ->GetBinError(i),0.000001));
+    histo_WWqcd_WWqcdStatDown       ->SetBinContent(i,TMath::Max(histo_WWqcd    ->GetBinContent(i)+factorDown*histo_WWqcd	 ->GetBinError(i),0.000001));
     histo_WZ_WZStatUp	      	    ->SetBinContent(i,TMath::Max(histo_WZ    	->GetBinContent(i)+factorUp  *histo_WZ   	 ->GetBinError(i),0.000001));
     histo_WZ_WZStatDown        	    ->SetBinContent(i,TMath::Max(histo_WZ    	->GetBinContent(i)+factorDown*histo_WZ   	 ->GetBinError(i),0.000001));
     histo_WS_WSStatUp	      	    ->SetBinContent(i,TMath::Max(histo_WS    	->GetBinContent(i)+factorUp  *histo_WS   	 ->GetBinError(i),0.000001));
@@ -1537,6 +1568,8 @@ void vbs_ana
     histo_VVV_VVVStatDown      	    ->SetBinContent(i,TMath::Max(histo_VVV   	->GetBinContent(i)+factorDown*histo_VVV  	 ->GetBinError(i),0.000001));
     histo_Wjets_WjetsStatUp    	    ->SetBinContent(i,TMath::Max(histo_Wjets    ->GetBinContent(i)+factorUp  *histo_Wjets        ->GetBinError(i),0.000001));
     histo_Wjets_WjetsStatDown  	    ->SetBinContent(i,TMath::Max(histo_Wjets    ->GetBinContent(i)+factorDown*histo_Wjets        ->GetBinError(i),0.000001));
+    histo_Higgs_HiggsStatUp	    ->SetBinContent(i,TMath::Max(histo_Higgs    ->GetBinContent(i)+factorUp  *histo_Higgs	 ->GetBinError(i),0.000001));
+    histo_Higgs_HiggsStatDown       ->SetBinContent(i,TMath::Max(histo_Higgs    ->GetBinContent(i)+factorDown*histo_Higgs	 ->GetBinError(i),0.000001));
   }
   double mean,up,diff;
 
@@ -1585,6 +1618,12 @@ void vbs_ana
     if     (mean-up >0) histo_VVV_METResDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
     else		histo_VVV_METResDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
 
+    mean = histo_Higgs			      ->GetBinContent(i);
+    up   = histo_Higgs_METResUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_Higgs_METResDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_Higgs_METResDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
     // LepRes
     mean = histo_WWewk			      ->GetBinContent(i);
     up   = histo_WWewk_LepResUp->GetBinContent(i);
@@ -1621,6 +1660,12 @@ void vbs_ana
     diff = TMath::Abs(mean-up);
     if     (mean-up >0) histo_VVV_LepResDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
     else		histo_VVV_LepResDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
+    mean = histo_Higgs			      ->GetBinContent(i);
+    up   = histo_Higgs_LepResUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_Higgs_LepResDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_Higgs_LepResDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
 
     // JES
     mean = histo_WWewk			   ->GetBinContent(i);
@@ -1659,6 +1704,12 @@ void vbs_ana
     if     (mean-up >0) histo_VVV_JESDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
     else		histo_VVV_JESDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
 
+    mean = histo_Higgs			   ->GetBinContent(i);
+    up   = histo_Higgs_JESUp->GetBinContent(i);
+    diff = TMath::Abs(mean-up);
+    if     (mean-up >0) histo_Higgs_JESDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
+    else		histo_Higgs_JESDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
+
     // GEN
     mean = histo_Wjets 		         ->GetBinContent(i);
     up   = histo_Wjets_WUp->GetBinContent(i);
@@ -1690,6 +1741,7 @@ void vbs_ana
   histo_WS	 ->Write();
   histo_VVV	 ->Write();
   histo_Wjets	 ->Write();
+  histo_Higgs	 ->Write();
 
   cout << histo_Data	 ->GetSumOfWeights() << " ";
   cout << histo_WWewk	 ->GetSumOfWeights() << " ";
@@ -1698,6 +1750,7 @@ void vbs_ana
   cout << histo_WS	 ->GetSumOfWeights() << " ";
   cout << histo_VVV	 ->GetSumOfWeights() << " ";
   cout << histo_Wjets	 ->GetSumOfWeights() << " ";
+  cout << histo_Higgs	 ->GetSumOfWeights() << " ";
   cout << endl;
   printf("uncertainties Stat\n");
   histo_WWewk_WWewkStatUp	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk	->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_WWewkStatUp	     ->GetBinContent(i)/histo_WWewk   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
@@ -1712,6 +1765,8 @@ void vbs_ana
   histo_VVV_VVVStatDown   	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_VVVStatDown	->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_Wjets_WjetsStatUp  	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_Wjets->GetBinContent(i)>0)printf("%5.1f ",histo_Wjets_WjetsStatUp  ->GetBinContent(i)/histo_Wjets->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_Wjets_WjetsStatDown	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_Wjets->GetBinContent(i)>0)printf("%5.1f ",histo_Wjets_WjetsStatDown->GetBinContent(i)/histo_Wjets->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_HiggsStatUp	  ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_HiggsStatUp  ->GetBinContent(i)/histo_Higgs->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_HiggsStatDown	  ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_HiggsStatDown->GetBinContent(i)/histo_Higgs->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   printf("uncertainties LepEff\n");
   histo_WWewk_LepEffUp        ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk  ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_LepEffUp	  ->GetBinContent(i)/histo_WWewk	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_WWewk_LepEffDown      ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk  ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_LepEffDown   ->GetBinContent(i)/histo_WWewk	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
@@ -1723,6 +1778,8 @@ void vbs_ana
   histo_WS_LepEffDown         ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WS	   ->GetBinContent(i)>0)printf("%5.1f ",histo_WS_LepEffDown   ->GetBinContent(i)/histo_WS   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_VVV_LepEffUp          ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_LepEffUp	->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_VVV_LepEffDown        ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_LepEffDown  ->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_LepEffUp        ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_LepEffUp	  ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_LepEffDown      ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_LepEffDown   ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   printf("uncertainties LetRes\n");
   histo_WWewk_LepResUp        ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk  ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_LepResUp	  ->GetBinContent(i)/histo_WWewk	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_WWewk_LepResDown      ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk  ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_LepResDown   ->GetBinContent(i)/histo_WWewk	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
@@ -1734,6 +1791,8 @@ void vbs_ana
   histo_WS_LepResDown         ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WS	   ->GetBinContent(i)>0)printf("%5.1f ",histo_WS_LepResDown   ->GetBinContent(i)/histo_WS   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_VVV_LepResUp          ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_LepResUp	->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_VVV_LepResDown        ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_LepResDown  ->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_LepResUp        ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_LepResUp	  ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_LepResDown      ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_LepResDown   ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   printf("uncertainties METRes\n");
   histo_WWewk_METResUp        ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk     ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_METResUp	     ->GetBinContent(i)/histo_WWewk	   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_WWewk_METResDown      ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk     ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_METResDown	->GetBinContent(i)/histo_WWewk     ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
@@ -1745,6 +1804,8 @@ void vbs_ana
   histo_WS_METResDown         ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WS	   ->GetBinContent(i)>0)printf("%5.1f ",histo_WS_METResDown   ->GetBinContent(i)/histo_WS   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_VVV_METResUp          ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_METResUp	->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_VVV_METResDown        ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_METResDown  ->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_METResUp        ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs     ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_METResUp	     ->GetBinContent(i)/histo_Higgs	   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_METResDown      ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs     ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_METResDown	->GetBinContent(i)/histo_Higgs     ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   printf("uncertainties JES\n");
   histo_WWewk_JESUp           ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk  ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_JESUp	  ->GetBinContent(i)/histo_WWewk	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_WWewk_JESDown         ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk  ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_JESDown   ->GetBinContent(i)/histo_WWewk	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
@@ -1756,6 +1817,8 @@ void vbs_ana
   histo_WS_JESDown            ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WS	   ->GetBinContent(i)>0)printf("%5.1f ",histo_WS_JESDown      ->GetBinContent(i)/histo_WS   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_VVV_JESUp             ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_JESUp    ->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_VVV_JESDown           ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_JESDown	     ->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_JESUp           ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_JESUp	  ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_JESDown         ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_JESDown   ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   printf("uncertainties GEN\n");
   histo_Wjets_WUp	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_Wjets->GetBinContent(i)>0)printf("%5.1f ",histo_Wjets_WUp       ->GetBinContent(i)/histo_Wjets->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_Wjets_WDown	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_Wjets->GetBinContent(i)>0)printf("%5.1f ",histo_Wjets_WDown     ->GetBinContent(i)/histo_Wjets->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
@@ -1810,14 +1873,15 @@ void vbs_ana
     if     (histo_Wjets->GetBinContent(nb) > 0 && histo_Wjets_WUp  ->GetBinContent(nb) > 0) systNLO[2] = histo_Wjets_WUp  ->GetBinContent(nb)/histo_Wjets->GetBinContent(nb);
     else if(histo_Wjets->GetBinContent(nb) > 0 && histo_Wjets_WDown->GetBinContent(nb) > 0) systNLO[2] = histo_Wjets->GetBinContent(nb)/histo_Wjets_WDown->GetBinContent(nb);
 
-    double systEff[5] = {1.0,1.0,1.0,1.0,1.0};
+    double systEff[6] = {1.0,1.0,1.0,1.0,1.0,1.0};
     if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_LepEffUp->GetBinContent(nb) > 0) systEff[0] =  histo_WWewk_LepEffUp->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
     if(histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_LepEffUp->GetBinContent(nb) > 0) systEff[1] =  histo_WWqcd_LepEffUp->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
     if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_LepEffUp	->GetBinContent(nb) > 0)  systEff[2] =  histo_WZ_LepEffUp   ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
     if(histo_WS   ->GetBinContent(nb) > 0 && histo_WS_LepEffUp	->GetBinContent(nb) > 0)  systEff[3] =  histo_WS_LepEffUp   ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
     if(histo_VVV  ->GetBinContent(nb) > 0 && histo_VVV_LepEffUp	->GetBinContent(nb) > 0)  systEff[4] =  histo_VVV_LepEffUp  ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
+    if(histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_LepEffUp->GetBinContent(nb) > 0) systEff[5] =  histo_Higgs_LepEffUp->GetBinContent(nb)/histo_Higgs->GetBinContent(nb);
 
-    double systLep[5] = {1.0,1.0,1.0,1.0,1.0};
+    double systLep[6] = {1.0,1.0,1.0,1.0,1.0,1.0};
     if     (histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_LepResUp  ->GetBinContent(nb) > 0) systLep[0] =  histo_WWewk_LepResUp  ->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
     else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_LepResDown->GetBinContent(nb) > 0) systLep[0] =  histo_WWewk->GetBinContent(nb)/histo_WWewk_LepResDown->GetBinContent(nb);
     if     (histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_LepResUp  ->GetBinContent(nb) > 0) systLep[1] =  histo_WWqcd_LepResUp  ->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
@@ -1828,8 +1892,10 @@ void vbs_ana
     else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_LepResDown   ->GetBinContent(nb) > 0) systLep[3] =  histo_WS   ->GetBinContent(nb)/histo_WS_LepResDown   ->GetBinContent(nb);
     if     (histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_LepResUp    ->GetBinContent(nb) > 0) systLep[4] =  histo_VVV_LepResUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
     else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_LepResDown  ->GetBinContent(nb) > 0) systLep[4] =  histo_VVV  ->GetBinContent(nb)/histo_VVV_LepResDown  ->GetBinContent(nb);
+    if     (histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_LepResUp  ->GetBinContent(nb) > 0) systLep[5] =  histo_Higgs_LepResUp  ->GetBinContent(nb)/histo_Higgs->GetBinContent(nb);
+    else if(histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_LepResDown->GetBinContent(nb) > 0) systLep[5] =  histo_Higgs->GetBinContent(nb)/histo_Higgs_LepResDown->GetBinContent(nb);
 
-    double systMet[5] = {1.0,1.0,1.0,1.0,1.0};
+    double systMet[6] = {1.0,1.0,1.0,1.0,1.0,1.0};
     if     (histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_METResUp  ->GetBinContent(nb) > 0) systMet[0] =  histo_WWewk_METResUp  ->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
     else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_METResDown->GetBinContent(nb) > 0) systMet[0] =  histo_WWewk->GetBinContent(nb)/histo_WWewk_METResDown->GetBinContent(nb);
     if     (histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_METResUp  ->GetBinContent(nb) > 0) systMet[1] =  histo_WWqcd_METResUp  ->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
@@ -1840,8 +1906,10 @@ void vbs_ana
     else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_METResDown   ->GetBinContent(nb) > 0) systMet[3] =  histo_WS   ->GetBinContent(nb)/histo_WS_METResDown   ->GetBinContent(nb);
     if     (histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_METResUp    ->GetBinContent(nb) > 0) systMet[4] =  histo_VVV_METResUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
     else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_METResDown  ->GetBinContent(nb) > 0) systMet[4] =  histo_VVV  ->GetBinContent(nb)/histo_VVV_METResDown  ->GetBinContent(nb);
+    if     (histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_METResUp  ->GetBinContent(nb) > 0) systMet[5] =  histo_Higgs_METResUp  ->GetBinContent(nb)/histo_Higgs->GetBinContent(nb);
+    else if(histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_METResDown->GetBinContent(nb) > 0) systMet[5] =  histo_Higgs->GetBinContent(nb)/histo_Higgs_METResDown->GetBinContent(nb);
 
-    double systJes[5] = {1.0,1.0,1.0,1.0,1.0};
+    double systJes[6] = {1.0,1.0,1.0,1.0,1.0,1.0};
     if     (histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_JESUp  ->GetBinContent(nb) > 0) systJes[0] =  histo_WWewk_JESUp  ->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
     else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_JESDown->GetBinContent(nb) > 0) systJes[0] =  histo_WWewk->GetBinContent(nb)/histo_WWewk_JESDown->GetBinContent(nb);
     if     (histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_JESUp  ->GetBinContent(nb) > 0) systJes[1] =  histo_WWqcd_JESUp  ->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
@@ -1852,6 +1920,8 @@ void vbs_ana
     else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_JESDown   ->GetBinContent(nb) > 0) systJes[3] =  histo_WS   ->GetBinContent(nb)/histo_WS_JESDown   ->GetBinContent(nb);
     if     (histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_JESUp    ->GetBinContent(nb) > 0) systJes[4] =  histo_VVV_JESUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
     else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_JESDown  ->GetBinContent(nb) > 0) systJes[4] =  histo_VVV  ->GetBinContent(nb)/histo_VVV_JESDown  ->GetBinContent(nb);
+    if     (histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_JESUp  ->GetBinContent(nb) > 0) systJes[5] =  histo_Higgs_JESUp  ->GetBinContent(nb)/histo_Higgs->GetBinContent(nb);
+    else if(histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_JESDown->GetBinContent(nb) > 0) systJes[5] =  histo_Higgs->GetBinContent(nb)/histo_Higgs_JESDown->GetBinContent(nb);
 
     char outputLimitsShape[200];
     sprintf(outputLimitsShape,"histo_limits_wwss%2s_nsign%1d_shape_%4s_Bin%d.txt",finalStateName,signSel,ECMsb.Data(),nb-1);
@@ -1861,37 +1931,42 @@ void vbs_ana
     newcardShape << Form("jmax * number of background\n");
     newcardShape << Form("kmax * number of nuisance parameters\n");
     newcardShape << Form("Observation %d\n",(int)histo_Data->GetBinContent(nb));
-    newcardShape << Form("bin wwss%2s%4s%d wwss%2s%4s%d wwss%2s%4s%d wwss%2s%4s%d wwss%2s%4s%d wwss%2s%4s%d\n",finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1);
-    newcardShape << Form("process WWewk WWqcd WZ WS VVV Wjets\n");
-    newcardShape << Form("process 0 1 2 3 4 5\n");
-    newcardShape << Form("rate %6.3f  %6.3f  %6.3f  %6.3f  %6.3f  %6.3f\n",histo_WWewk->GetBinContent(nb),histo_WWqcd->GetBinContent(nb),histo_WZ->GetBinContent(nb),histo_WS->GetBinContent(nb),histo_VVV->GetBinContent(nb),histo_Wjets->GetBinContent(nb));
-    newcardShape << Form("lumi_%4s                                 lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",ECMsb.Data(),lumiE,lumiE,lumiE,lumiE,lumiE);		     
-    newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",effName,systEff[0],systEff[1],systEff[2],systEff[3],systEff[4]);
-    newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",momName,systLep[0],systLep[1],systLep[2],systLep[3],systLep[4]);
-    newcardShape << Form("CMS_scale_met                            lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",systMet[0],systMet[1],systMet[2],systMet[3],systMet[4]);
-    newcardShape << Form("CMS_scale_j                              lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -  \n",systJes[0],systJes[1],systJes[2],systJes[3],systJes[4]);		      
-    newcardShape << Form("pdf_qqbar                                lnN %5.3f %5.3f %5.3f   -     -    -  \n",pdf_qqbar[0],pdf_qqbar[1],pdf_qqbar[2]);
-    newcardShape << Form("QCDscale_WWewk		           lnN %5.3f   -     -	   -     -    -  \n",QCDscale_WWewk);	  
-    newcardShape << Form("QCDscale_WWqcd		           lnN   -   %5.3f   -	   -     -    -  \n",QCDscale_WWqcd);	  
-    //newcardShape << Form("QCDscale_VV		                   lnN   -     -   1.100   -     -    -  \n");  	
-    newcardShape << Form("CMS_wwss_WZ3l                            lnN   -     -   %5.3f   -     -    -  \n",syst_WZ3l);		
-    newcardShape << Form("CMS_wwss_WZNLO                           lnN   -     -   %5.3f   -     -    -  \n",systNLO[0]);
-    newcardShape << Form("CMS_wwss_MVAWS                           lnN   -     -    -    %5.3f   -    -  \n",systNLO[1]);		
-    newcardShape << Form("QCDscale_VVV		                   lnN   -     -    -	   -   1.500  -  \n");  	   
-    newcardShape << Form("CMS_FakeRate                             lnN   -     -    -	   -	 -   %5.3f\n",WjetsSyst);  
-    newcardShape << Form("CMS_wwss_MVAW                            lnN   -     -    -	   -	 -   %5.3f\n",systNLO[2]);
+    newcardShape << Form("bin wwss%2s%4s%d wwss%2s%4s%d wwss%2s%4s%d wwss%2s%4s%d wwss%2s%4s%d wwss%2s%4s%d wwss%2s%4s%d\n",finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1,finalStateName,ECMsb.Data(),nb-1);
+    newcardShape << Form("process WWewk WWqcd WZ WS VVV Wjets Higgs\n");
+    if(histo_Higgs->GetSumOfWeights() <=0)
+    newcardShape << Form("process 0 1 2 3 4 5 6\n");
+    else
+    newcardShape << Form("process 1 2 3 4 5 6 0\n");
+    newcardShape << Form("rate %6.3f  %6.3f  %6.3f  %6.3f  %6.3f  %6.3f  %6.3f\n",histo_WWewk->GetBinContent(nb),histo_WWqcd->GetBinContent(nb),histo_WZ->GetBinContent(nb),histo_WS->GetBinContent(nb),histo_VVV->GetBinContent(nb),histo_Wjets->GetBinContent(nb),histo_Higgs->GetBinContent(nb));
+    newcardShape << Form("lumi_%4s                                 lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",ECMsb.Data(),lumiE,lumiE,lumiE,lumiE,lumiE,lumiE);		     
+    newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",effName,systEff[0],systEff[1],systEff[2],systEff[3],systEff[4],systEff[5]);
+    newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",momName,systLep[0],systLep[1],systLep[2],systLep[3],systLep[4],systLep[5]);
+    newcardShape << Form("CMS_scale_met                            lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",systMet[0],systMet[1],systMet[2],systMet[3],systMet[4],systMet[5]);
+    newcardShape << Form("CMS_scale_j                              lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",systJes[0],systJes[1],systJes[2],systJes[3],systJes[4],systJes[5]);		      
+    newcardShape << Form("pdf_qqbar                                lnN %5.3f %5.3f %5.3f   -     -    -   %5.3f\n",pdf_qqbar[0],pdf_qqbar[1],pdf_qqbar[2],pdf_qqbar[3]);
+    newcardShape << Form("QCDscale_WWewk		           lnN %5.3f   -     -	   -     -    -     -  \n",QCDscale_WWewk);	  
+    newcardShape << Form("QCDscale_WWqcd		           lnN   -   %5.3f   -	   -     -    -     -  \n",QCDscale_WWqcd);	  
+    newcardShape << Form("QCDscale_Higgs                           lnN   -     -     -     -     -    -    1.03\n");  	
+    newcardShape << Form("CMS_wwss_WZ3l                            lnN   -     -   %5.3f   -     -    -     -  \n",syst_WZ3l);		
+    newcardShape << Form("CMS_wwss_WZNLO                           lnN   -     -   %5.3f   -     -    -     -  \n",systNLO[0]);
+    newcardShape << Form("CMS_wwss_MVAWS                           lnN   -     -    -    %5.3f   -    -     -  \n",systNLO[1]);		
+    newcardShape << Form("QCDscale_VVV		                   lnN   -     -    -	   -   1.500  -     -  \n");  	   
+    newcardShape << Form("CMS_FakeRate                             lnN   -     -    -	   -	 -   %5.3f  -  \n",WjetsSyst);  
+    newcardShape << Form("CMS_wwss_MVAW                            lnN   -     -    -	   -	 -   %5.3f  -  \n",systNLO[2]);
     if(histo_WWewk->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWWewkStat_%s_Bin%d         lnN  %5.3f  -    -      -     -    - \n",finalStateName,ECMsb.Data(),nb-1,histo_WWewk_WWewkStatUp->GetBinContent(nb)/histo_WWewk->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWWewkStat_%s_Bin%d         lnN  %5.3f  -    -      -     -    -     -  \n",finalStateName,ECMsb.Data(),nb-1,histo_WWewk_WWewkStatUp->GetBinContent(nb)/histo_WWewk->GetBinContent(nb));
     if(histo_WWqcd->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWWqcdStat_%s_Bin%d         lnN   -    %5.3f -	   -	 -    - \n",finalStateName,ECMsb.Data(),nb-1,histo_WWqcd_WWqcdStatUp->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWWqcdStat_%s_Bin%d         lnN   -    %5.3f -	   -	 -    -     -  \n",finalStateName,ECMsb.Data(),nb-1,histo_WWqcd_WWqcdStatUp->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb));
     if(histo_WZ->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWZStat_%s_Bin%d            lnN   -     -   %5.3f   -	 -    - \n",finalStateName,ECMsb.Data(),nb-1,histo_WZ_WZStatUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWZStat_%s_Bin%d            lnN   -     -   %5.3f   -	 -    -     -  \n",finalStateName,ECMsb.Data(),nb-1,histo_WZ_WZStatUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb));
     if(histo_WS->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWSStat_%s_Bin%d            lnN   -     -    -	 %5.3f   -    - \n",finalStateName,ECMsb.Data(),nb-1,histo_WS_WSStatUp    ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWSStat_%s_Bin%d            lnN   -     -    -	 %5.3f   -    -     -  \n",finalStateName,ECMsb.Data(),nb-1,histo_WS_WSStatUp    ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb));
     if(histo_VVV->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAVVVStat_%s_Bin%d           lnN   -     -    -	   -   %5.3f  - \n",finalStateName,ECMsb.Data(),nb-1,histo_VVV_VVVStatUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAVVVStat_%s_Bin%d           lnN   -     -    -	   -   %5.3f  -     -  \n",finalStateName,ECMsb.Data(),nb-1,histo_VVV_VVVStatUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb));
     if(histo_Wjets->GetBinContent(nb) > 0)
-    newcardShape << Form("CMS_wwss%s_MVAWjetsStat_%s_Bin%d         lnN   -     -    -	   -	 -   %5.3f\n",finalStateName,ECMsb.Data(),nb-1,histo_Wjets_WjetsStatUp->GetBinContent(nb)/histo_Wjets->GetBinContent(nb));
+    newcardShape << Form("CMS_wwss%s_MVAWjetsStat_%s_Bin%d         lnN   -     -    -	   -	 -   %5.3f  -  \n",finalStateName,ECMsb.Data(),nb-1,histo_Wjets_WjetsStatUp->GetBinContent(nb)/histo_Wjets->GetBinContent(nb));
+    if(histo_Higgs->GetBinContent(nb) > 0)
+    newcardShape << Form("CMS_wwss%s_MVAHiggsStat_%s_Bin%d         lnN   -     -    -	   -	 -    -   %5.3f\n",finalStateName,ECMsb.Data(),nb-1,histo_Higgs_HiggsStatUp->GetBinContent(nb)/histo_Higgs->GetBinContent(nb));
     newcardShape.close();
   }
   } // if showSignalOnly == true

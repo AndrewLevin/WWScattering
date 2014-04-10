@@ -15,10 +15,10 @@
 #include "TPaveText.h"
 #endif
 
-enum samp { iVV,iWWQCD,iWJets,iWW,iVVV,iWWEWK,nSamples};
+enum samp { iVV,iWWQCD,iWJets,iWW,iVVV,iWWEWK,iHiggs,nSamples};
 
-float xPos[nSamples+1] = {0.19,0.19,0.19,0.41,0.41,0.41,0.41}; 
-float yOff[nSamples+1] = {0,1,2,0,1,2,0};
+float xPos[nSamples+1] = {0.19,0.19,0.19,0.19,0.41,0.41,0.41,0.41}; 
+float yOff[nSamples+1] = {0,1,2,3,0,1,2,3};
 
 const Float_t _tsize   = 0.033;
 const Float_t _xoffset = 0.20;
@@ -143,12 +143,16 @@ class StandardPlot {
             _sampleColor[iWJets  ] = kGray+1;
             _sampleColor[iWW 	 ] = kAzure-9;
             _sampleColor[iVVV 	 ] = kBlue-1;
+            _sampleColor[iHiggs  ] = kMagenta;
 
             THStack* hstack = new THStack();
 	    TH1D* hSum = (TH1D*)_data->Clone();
 	    hSum->Rebin(rebin);
 	    hSum->Scale(0.0);
 	    TAxis *xa;
+	    
+	    if(_hist[iHiggs] && _hist[iHiggs]->GetSumOfWeights() > 0) _isHWWOverlaid = true;
+ 
             for (int i=0; i<nSamples; i++) {
 
                 // in case the user doesn't set it
@@ -172,6 +176,8 @@ class StandardPlot {
                 // signal gets overlaid
                 if (i == iWWEWK && _isHWWOverlaid == false) continue;
 
+                if (i == iHiggs) continue;
+
                 _hist[i]->SetFillColor(_sampleColor[i]);
                 _hist[i]->SetFillStyle(1001);
 
@@ -180,6 +186,7 @@ class StandardPlot {
             }
 
             if(_hist[iWWEWK]) _hist[iWWEWK]->SetLineWidth(3);
+            if(_hist[iHiggs]) _hist[iHiggs]->SetLineWidth(3);
             if(_data) _data->Rebin(rebin);
             if(_data) _data->SetLineColor  (kBlack);
             if(_data) _data->SetMarkerStyle(kFullCircle);
@@ -216,7 +223,8 @@ class StandardPlot {
 	      gsyst->Draw("E2same");
 	    }
 
-            if(_hist[iWWEWK] && _isHWWOverlaid == false) _hist[iWWEWK]->Draw("hist,same");
+            if     (_hist[iWWEWK] && _isHWWOverlaid == false)              _hist[iWWEWK]->Draw("hist,same");
+	    else if(_hist[iHiggs] && _hist[iHiggs]->GetSumOfWeights() > 0) _hist[iHiggs]->Draw("hist,same");
 
             if(_data && _data->GetSumOfWeights()) {
 	      bool plotCorrectErrorBars = true;
@@ -305,6 +313,7 @@ class StandardPlot {
             if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Wrong sign"  ,"f" ); j++; }
             //if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Top-quark+WW"  ,"f" ); j++; }
             if(_hist[iVVV   ] &&_hist[iVVV   ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVVV   ], " VVV"  ,       "f" ); j++; }
+            if(_hist[iHiggs ] &&_hist[iHiggs ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iHiggs ], Form("H^{++}(%3d) #rightarrow W^{#pm}W^{#pm}",_mass)  ,       "f" ); j++; }
 
             TLatex* luminosity = new TLatex(0.9, 0.8, TString::Format("L = %.1f fb^{-1}",_lumi));
             luminosity->SetNDC();
