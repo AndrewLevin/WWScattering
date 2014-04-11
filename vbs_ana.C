@@ -111,7 +111,7 @@ void vbs_ana
   double frCorr = 0.78;
   double lumi = 1.0;
   double ptJetMin = 30.0;
-  double wzCorr = 0.80;
+  double wzCorr = 0.75;
 
   bool fCheckProblem = true;
 
@@ -1867,7 +1867,7 @@ void vbs_ana
     double systNLO[3] = {1.0,1.0,1.0}; // WZ, WS, Wjets
     //if     (histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
     //else if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLODown  ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ   ->GetBinContent(nb)/histo_WZ_CMS_WZNLODown  ->GetBinContent(nb);
-    systNLO[0] = 1.35;
+    systNLO[0] = 1.37;
     if     (histo_WS   ->GetBinContent(nb) > 0 && histo_WS_WSUp    ->GetBinContent(nb) > 0) systNLO[1] = histo_WS_WSUp    ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
     else if(histo_WS   ->GetBinContent(nb) > 0 && histo_WS_WSDown  ->GetBinContent(nb) > 0) systNLO[1] = histo_WS   ->GetBinContent(nb)/histo_WS_WSDown  ->GetBinContent(nb);
     if     (histo_Wjets->GetBinContent(nb) > 0 && histo_Wjets_WUp  ->GetBinContent(nb) > 0) systNLO[2] = histo_Wjets_WUp  ->GetBinContent(nb)/histo_Wjets->GetBinContent(nb);

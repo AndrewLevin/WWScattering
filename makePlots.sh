@@ -1,9 +1,9 @@
 // poor man macro to remind how to produce the plots
 
 // remove data while blinded
-.x finalPlotVBS.C+(1,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mjj.root","wwss_mjj",0,19.4)
-.x finalPlotVBS.C+(1,1,"m_{ll} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mll.root","wwss_mll",0,19.4)
-.x finalPlotVBS.C+(1,1,"p_{T}^{l max} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_ptlmax.root","wwss_ptlmax",0,19.4)
+.x finalPlotVBS.C+(1,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mjj.root","wwss_mjj",0,19.4,1)
+.x finalPlotVBS.C+(1,1,"m_{ll} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mll.root","wwss_mll",0,19.4,1)
+.x finalPlotVBS.C+(1,1,"p_{T}^{l max} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_ptlmax.root","wwss_ptlmax",0,19.4,1)
 
 // change wrong-sign legend
 .x finalPlotVBS.C+(1,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/toptag.root","toptag",0,19.4)
