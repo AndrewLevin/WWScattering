@@ -20,9 +20,9 @@
 #include "TCanvas.h"
 #include "TSystem.h"
 #include "TLorentzVector.h"
-//root -l -q -b vbs_ana.C+'(0,4,"ntuples_53x/backgroundA_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
-//root -l -q -b vbs_ana.C+'(0,14,"ntuples_53x/backgroundA_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
-//root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundA_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,4,"ntuples_53x/backgroundEWK_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,14,"ntuples_53x/backgroundEWK_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundEWK_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
 
 // x_param_number values
 //FS0 = 1
@@ -587,11 +587,11 @@ void vbs_ana
     else if(lSel == 5 && (bgdEvent.type_ == SmurfTree::mm || bgdEvent.type_ == SmurfTree::ee)) passLSel = true;
     else if(lSel == 6 && (bgdEvent.type_ == SmurfTree::me || bgdEvent.type_ == SmurfTree::em)) passLSel = true;
 
-    if(passNsignSel && qDisAgree == 0 && NjetSyst[0] >= 2	        && outputVarJESP[4] > metMin && outputVar[0]	 > 20.0 && outputVar[1]     > 20.0 && passBtagVeto && pass3rLVeto && outputVar[2]     > 50.0 && passVBFSel) passSystCuts[lType][JESUP] = true;
-    if(passNsignSel && qDisAgree == 0 && NjetSyst[1] >= 2	        && outputVarJESM[4] > metMin && outputVar[0]	 > 20.0 && outputVar[1]     > 20.0 && passBtagVeto && pass3rLVeto && outputVar[2]     > 50.0 && passVBFSel) passSystCuts[lType][JESDOWN] = true;
-    if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && outputVarLepP[4] > metMin && outputVarLepP[0] > 20.0 && outputVarLepP[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepP[2] > 50.0 && passVBFSel) passSystCuts[lType][LEPP] = true;
-    if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && outputVarLepM[4] > metMin && outputVarLepM[0] > 20.0 && outputVarLepM[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepM[2] > 50.0 && passVBFSel) passSystCuts[lType][LEPM] = true;
-    if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && outputVarMET[4]  > metMin && outputVarMET[0]  > 20.0 && outputVarMET[1]  > 20.0 && passBtagVeto && pass3rLVeto && outputVarMET[2]  > 50.0 && passVBFSel) passSystCuts[lType][MET] = true;
+    if(passNsignSel && qDisAgree == 0 && NjetSyst[0] >= 2	        && outputVarJESP[4] > metMin && outputVar[0]	 > 20.0 && outputVar[1]     > 20.0 && passBtagVeto && pass3rLVeto && outputVar[2]     > 50.0 && (TMath::Abs(outputVarJESP[2]-91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee) && outputVarJESP[14] > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 2.5) passSystCuts[lType][JESUP] = true;
+    if(passNsignSel && qDisAgree == 0 && NjetSyst[1] >= 2	        && outputVarJESM[4] > metMin && outputVar[0]	 > 20.0 && outputVar[1]     > 20.0 && passBtagVeto && pass3rLVeto && outputVar[2]     > 50.0 && (TMath::Abs(outputVarJESM[2]-91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee) && outputVarJESM[14] > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 2.5) passSystCuts[lType][JESDOWN] = true;
+    if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && outputVarLepP[4] > metMin && outputVarLepP[0] > 20.0 && outputVarLepP[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepP[2] > 50.0 && (TMath::Abs(outputVarLepP[2]-91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee) && outputVarLepP[14] > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 2.5) passSystCuts[lType][LEPP] = true;
+    if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && outputVarLepM[4] > metMin && outputVarLepM[0] > 20.0 && outputVarLepM[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepM[2] > 50.0 && (TMath::Abs(outputVarLepM[2]-91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee) && outputVarLepM[14] > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 2.5) passSystCuts[lType][LEPM] = true;
+    if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && outputVarMET[4]  > metMin && outputVarMET[0]  > 20.0 && outputVarMET[1]  > 20.0 && passBtagVeto && pass3rLVeto && outputVarMET[2]  > 50.0 && (TMath::Abs(outputVarMET[2] -91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee) && outputVarMET[14]  > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 2.5) passSystCuts[lType][MET] = true;
 
     if(passNjets  == true && passMET == true &&  passLSel == true &&
        preselCuts == true && bgdEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
@@ -604,7 +604,9 @@ void vbs_ana
          (bgdEvent.dstype_ == SmurfTree::ttbar  || bgdEvent.dstype_ == SmurfTree::tw   || bgdEvent.dstype_ == SmurfTree::dyee || bgdEvent.dstype_ == SmurfTree::dymm ||
           bgdEvent.dstype_ == SmurfTree::qqww	|| bgdEvent.dstype_ == SmurfTree::ggww || bgdEvent.dstype_ == SmurfTree::wz   || bgdEvent.dstype_ == SmurfTree::zz   ||
           bgdEvent.dstype_ == SmurfTree::wgstar || bgdEvent.dstype_ == SmurfTree::dytt || bgdEvent.dstype_ == SmurfTree::www)) 
-        {for(unsigned int i=0; i<nSelTypes; i++) passCuts[lType][i] = false;}
+        {for(unsigned int i=0; i<nSelTypes; i++) passCuts[lType][i] = false;
+	 for(unsigned int i=0; i<nSelTypesSyst-2; i++) passSystCuts[lType][i] = false;
+	}
     }
 
     if(1){
@@ -1938,7 +1940,7 @@ void vbs_ana
     else
     newcardShape << Form("process 1 2 3 4 5 6 0\n");
     newcardShape << Form("rate %6.3f  %6.3f  %6.3f  %6.3f  %6.3f  %6.3f  %6.3f\n",histo_WWewk->GetBinContent(nb),histo_WWqcd->GetBinContent(nb),histo_WZ->GetBinContent(nb),histo_WS->GetBinContent(nb),histo_VVV->GetBinContent(nb),histo_Wjets->GetBinContent(nb),histo_Higgs->GetBinContent(nb));
-    newcardShape << Form("lumi_%4s                                 lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",ECMsb.Data(),lumiE,lumiE,lumiE,lumiE,lumiE,lumiE);		     
+    newcardShape << Form("lumi_%4s                                 lnN %5.3f %5.3f   -   %5.3f %5.3f  -   %5.3f\n",ECMsb.Data(),lumiE,lumiE,lumiE,lumiE,lumiE);		     
     newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",effName,systEff[0],systEff[1],systEff[2],systEff[3],systEff[4],systEff[5]);
     newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",momName,systLep[0],systLep[1],systLep[2],systLep[3],systLep[4],systLep[5]);
     newcardShape << Form("CMS_scale_met                            lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",systMet[0],systMet[1],systMet[2],systMet[3],systMet[4],systMet[5]);
