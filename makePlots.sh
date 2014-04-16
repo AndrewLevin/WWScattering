@@ -16,4 +16,7 @@
 .x finalPlotVBS.C+(1,5,"|#eta^{j}|^{max}","","/data/smurf/ceballos/distributions/wwss/wwss_presel_jetetamax.root","wwss_presel_jetetamax",0,19.4)
 .x finalPlotVBS.C+(1,5,"|#eta^{j}|^{min}","","/data/smurf/ceballos/distributions/wwss/wwss_presel_jetetamin.root","wwss_presel_jetetamin",0,19.4)
 .x finalPlotVBS.C+(1,1,"m_{ll} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_presel_mll.root","wwss_presel_mll",0,19.4)
-.x finalPlotVBS.C+(1,1,"#Delta #eta_{jj}","","/data/smurf/ceballos/distributions/wwss/wwss_presel_detajj.root","wwss_presel_detajj",0,19.4)
+.x finalPlotVBS.C+(1,1,"|#Delta #eta_{jj}|","","/data/smurf/ceballos/distributions/wwss/wwss_presel_detajj.root","wwss_presel_detajj",0,19.4)
+
+// N-1
+.x finalPlotVBS.C+(1,1,"|#Delta #eta_{jj}|","","/data/smurf/ceballos/distributions/wwss/wwss_np1_detajj.root","wwss_np1_detajj",0,19.4)

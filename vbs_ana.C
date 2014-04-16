@@ -262,7 +262,7 @@ void vbs_ana
   else if(thePlot >= 11 && thePlot <= 11) {nBinPlot = 40; xminPlot = -0.5; xmaxPlot = 39.5;}
   else if(thePlot >= 12 && thePlot <= 12) {nBinPlot = 36; xminPlot = 0.0; xmaxPlot = 180.0;}
   else if(thePlot >= 13 && thePlot <= 14) {nBinPlot = 100; xminPlot = 0.0; xmaxPlot = 5.0;}
-  else if(thePlot >= 15 && thePlot <= 15) {nBinPlot = 9; xminPlot = 0.0; xmaxPlot =  8.75;} // detajjs
+  else if(thePlot >= 15 && thePlot <= 15) {nBinPlot = 7; xminPlot = 0.0; xmaxPlot =  8.75;} // detajjs
   else if(thePlot >= 16 && thePlot <= 16) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
   else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
