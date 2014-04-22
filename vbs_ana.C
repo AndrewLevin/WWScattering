@@ -492,7 +492,7 @@ void vbs_ana
     //int tauId=int((bgdEvent.jet1McId_%100-bgdEvent.jet1McId_%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((bgdEvent.jet2McId_%100-bgdEvent.jet2McId_%10)/10),int((bgdEvent.jet2McId_%1000-bgdEvent.jet2McId_%100)/10),int((bgdEvent.jet2McId_%10000-bgdEvent.jet2McId_%1000)/10),int(bgdEvent.jet2McId_/10000)};
+    int trackSel[4] = {int((bgdEvent.jet2McId_%100-bgdEvent.jet2McId_%10)/10),int((bgdEvent.jet2McId_%1000-bgdEvent.jet2McId_%100)/100),int((bgdEvent.jet2McId_%10000-bgdEvent.jet2McId_%1000)/1000),int(bgdEvent.jet2McId_/10000)};
 
     bool passNjets    = bgdEvent.njets_ >= 2;
     bool passMET      = bgdEvent.met_ > metMin;
@@ -1040,7 +1040,7 @@ void vbs_ana
     //int tauId=int((systEvent.jet1McId_%100-systEvent.jet1McId_%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((systEvent.jet2McId_%100-systEvent.jet2McId_%10)/10),int((systEvent.jet2McId_%1000-systEvent.jet2McId_%100)/10),int((systEvent.jet2McId_%10000-systEvent.jet2McId_%1000)/10),int(systEvent.jet2McId_/10000)};
+    int trackSel[4] = {int((systEvent.jet2McId_%100-systEvent.jet2McId_%10)/10),int((systEvent.jet2McId_%1000-systEvent.jet2McId_%100)/100),int((systEvent.jet2McId_%10000-systEvent.jet2McId_%1000)/1000),int(systEvent.jet2McId_/10000)};
 
     bool passNjets    = systEvent.njets_ >= 2;
     bool passMET      = systEvent.met_ > metMin;
@@ -1271,7 +1271,7 @@ void vbs_ana
     //int tauId=int((dataEvent.jet1McId_%100-dataEvent.jet1McId_%10)/10);
     int qDisAgree=int((newId%1000-newId%100)/100);
     int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((dataEvent.jet2McId_%100-dataEvent.jet2McId_%10)/10),int((dataEvent.jet2McId_%1000-dataEvent.jet2McId_%100)/10),int((dataEvent.jet2McId_%10000-dataEvent.jet2McId_%1000)/10),int(dataEvent.jet2McId_/10000)};
+    int trackSel[4] = {int((dataEvent.jet2McId_%100-dataEvent.jet2McId_%10)/10),int((dataEvent.jet2McId_%1000-dataEvent.jet2McId_%100)/100),int((dataEvent.jet2McId_%10000-dataEvent.jet2McId_%1000)/1000),int(dataEvent.jet2McId_/10000)};
 
     bool passNjets    = dataEvent.njets_ >= 2;
     bool passMET      = dataEvent.met_ > metMin;
