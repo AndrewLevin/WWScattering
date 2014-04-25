@@ -63,7 +63,7 @@ bool use_anom_sample = false; //for running a single analysis over a sample with
 int which_lhe_weight_ww = 61; // 61 for wwss_qed_4_qcd_99_lt012.root and 6/17/28/.../61 for wwss_qed_4_qcd_99_ls_lm_lt.root
 int which_lhe_weight_wz = 9;
 
-void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
+void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2], int opt);
 
 void parse_reweight_info(string lhe_filename);
 
@@ -291,6 +291,8 @@ void vbs_ana
   histo5->Scale(0.0);
   histo6->Scale(0.0);
   histo7->Scale(0.0);
+
+  TH1D* histo_WS_withOS = new TH1D( Form("histo_WS_withOS"), Form("histo_WS_withOS"), nBin, xbins); histo_WS_withOS->Sumw2();
 
   TH1D* histo_WWewk_WWewkStatUp   = new TH1D( Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sUp"  ,finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatUp  ->Sumw2();
   TH1D* histo_WWewk_WWewkStatDown = new TH1D( Form("histo_WWewk_CMS_wwss%s_MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), Form("histo_WWewk_CMS_wwss%s__MVAWWewkStat_%sDown",finalStateName,ECMsb.Data()), nBin, xbins); histo_WWewk_WWewkStatDown->Sumw2();
@@ -763,10 +765,10 @@ void vbs_ana
 
       // uncertainty related to wrong-sign leptons
       double weightWS[2] = {theWeight,theWeight};
-      scaleFactor_WS(bgdEvent.lep1_,bgdEvent.lq1_,bgdEvent.lid1_,bgdEvent.lep1McId_,weightWS);
-      scaleFactor_WS(bgdEvent.lep2_,bgdEvent.lq2_,bgdEvent.lid2_,bgdEvent.lep2McId_,weightWS);
+      scaleFactor_WS(bgdEvent.lep1_,bgdEvent.lq1_,bgdEvent.lid1_,bgdEvent.lep1McId_,weightWS,0);
+      scaleFactor_WS(bgdEvent.lep2_,bgdEvent.lq2_,bgdEvent.lid2_,bgdEvent.lep2McId_,weightWS,0);
       if((bgdEvent.cuts_ & SmurfTree::ExtraLeptonVeto) != SmurfTree::ExtraLeptonVeto) { 
-        scaleFactor_WS(bgdEvent.lep3_,bgdEvent.lq3_,bgdEvent.lid3_,bgdEvent.lep3McId_,weightWS);
+        scaleFactor_WS(bgdEvent.lep3_,bgdEvent.lq3_,bgdEvent.lid3_,bgdEvent.lep3McId_,weightWS,0);
       }
       theWeight = weightWS[0];
 
@@ -1322,6 +1324,13 @@ void vbs_ana
                             }
       for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
 
+      if(passCuts[0][WWSEL] && dataEvent.type_ != SmurfTree::mm){
+        double weightWS[2] = {1.0,1.0};
+        scaleFactor_WS(dataEvent.lep1_,dataEvent.lq1_,dataEvent.lid1_,dataEvent.lep1McId_,weightWS,1);
+        scaleFactor_WS(dataEvent.lep2_,dataEvent.lq2_,dataEvent.lid2_,dataEvent.lep2McId_,weightWS,1);
+        histo_WS_withOS->Fill(MVAVar[0], weightWS[0]);
+      }
+
       if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((dataEvent.jet1_+dataEvent.jet2_).M(),1999.999),500.001);
@@ -1745,6 +1754,9 @@ void vbs_ana
   histo_Wjets	 ->Write();
   histo_Higgs	 ->Write();
 
+  printf("WS_withOS: %f\n",histo_WS_withOS->GetSumOfWeights());
+  histo_WS_withOS->Write();
+
   cout << histo_Data	 ->GetSumOfWeights() << " ";
   cout << histo_WWewk	 ->GetSumOfWeights() << " ";
   cout << histo_WWqcd	 ->GetSumOfWeights() << " ";
@@ -1976,7 +1988,7 @@ void vbs_ana
   return;
 }
 
-void scaleFactor_WS(LorentzVector l,int lq, int ld, int mcld, double val[2]){
+void scaleFactor_WS(LorentzVector l,int lq, int ld, int mcld, double val[2], int opt){
 //---------------------------------------------------------------------
 // |eta|        data                  mc                    factor
 //---------------------------------------------------------------------
@@ -1986,17 +1998,29 @@ void scaleFactor_WS(LorentzVector l,int lq, int ld, int mcld, double val[2]){
 //1.5-2.0 0.003437 +/- 0.000193 | 0.002562 +/- 0.000193 ==> 1.342 +/- 0.075
 //2.0-2.5 0.003270 +/- 0.000241 | 0.002245 +/- 0.000240 ==> 1.456 +/- 0.107
 // additional 10% uncertainty for the overall normalization
-  double factor[5]  = {1.028,1.117,1.274,1.342,1.456};
-  double factorE[5] = {0.160,0.133,0.085,0.075,0.107};
+  if(opt == 0) {
+    double factor[5]  = {1.028,1.117,1.274,1.342,1.456};
+    double factorE[5] = {0.160,0.133,0.085,0.075,0.107};
 
-  if(abs(ld) == 11){
-    if((mcld ==  11 && lq > 0) || 
-       (mcld == -11 && lq < 0)){ // wrong charge
-      if     (abs(l.Eta()) >= 0.0 && abs(l.Eta()) < 0.5) {val[0] = val[0]*factor[0]; val[1] = val[1]*(factor[0]+sqrt(factorE[0]*factorE[0]+0.10*0.10));}
-      else if(abs(l.Eta()) >= 0.5 && abs(l.Eta()) < 1.0) {val[0] = val[0]*factor[1]; val[1] = val[1]*(factor[1]+sqrt(factorE[1]*factorE[1]+0.10*0.10));}
-      else if(abs(l.Eta()) >= 1.0 && abs(l.Eta()) < 1.5) {val[0] = val[0]*factor[2]; val[1] = val[1]*(factor[2]+sqrt(factorE[2]*factorE[2]+0.10*0.10));}
-      else if(abs(l.Eta()) >= 1.5 && abs(l.Eta()) < 2.0) {val[0] = val[0]*factor[3]; val[1] = val[1]*(factor[3]+sqrt(factorE[3]*factorE[3]+0.10*0.10));}
-      else if(abs(l.Eta()) >= 2.0 && abs(l.Eta()) < 2.5) {val[0] = val[0]*factor[4]; val[1] = val[1]*(factor[4]+sqrt(factorE[4]*factorE[4]+0.10*0.10));}
+    if(abs(ld) == 11){
+      if((mcld ==  11 && lq > 0) || 
+	 (mcld == -11 && lq < 0)){ // wrong charge
+	if     (abs(l.Eta()) >= 0.0 && abs(l.Eta()) < 0.5) {val[0] = val[0]*factor[0]; val[1] = val[1]*(factor[0]+sqrt(factorE[0]*factorE[0]+0.10*0.10));}
+	else if(abs(l.Eta()) >= 0.5 && abs(l.Eta()) < 1.0) {val[0] = val[0]*factor[1]; val[1] = val[1]*(factor[1]+sqrt(factorE[1]*factorE[1]+0.10*0.10));}
+	else if(abs(l.Eta()) >= 1.0 && abs(l.Eta()) < 1.5) {val[0] = val[0]*factor[2]; val[1] = val[1]*(factor[2]+sqrt(factorE[2]*factorE[2]+0.10*0.10));}
+	else if(abs(l.Eta()) >= 1.5 && abs(l.Eta()) < 2.0) {val[0] = val[0]*factor[3]; val[1] = val[1]*(factor[3]+sqrt(factorE[3]*factorE[3]+0.10*0.10));}
+	else if(abs(l.Eta()) >= 2.0 && abs(l.Eta()) < 2.5) {val[0] = val[0]*factor[4]; val[1] = val[1]*(factor[4]+sqrt(factorE[4]*factorE[4]+0.10*0.10));}
+      }
+    }
+  } else {
+    double factor[5]  = {0.000109,0.000210,0.001302,0.003437,0.003270};
+
+    if(abs(ld) == 11){
+	if     (abs(l.Eta()) >= 0.0 && abs(l.Eta()) < 0.5) {val[0] = val[0]*factor[0]; val[1] = 0.0;}
+	else if(abs(l.Eta()) >= 0.5 && abs(l.Eta()) < 1.0) {val[0] = val[0]*factor[1]; val[1] = 0.0;}
+	else if(abs(l.Eta()) >= 1.0 && abs(l.Eta()) < 1.5) {val[0] = val[0]*factor[2]; val[1] = 0.0;}
+	else if(abs(l.Eta()) >= 1.5 && abs(l.Eta()) < 2.0) {val[0] = val[0]*factor[3]; val[1] = 0.0;}
+	else if(abs(l.Eta()) >= 2.0 && abs(l.Eta()) < 2.5) {val[0] = val[0]*factor[4]; val[1] = 0.0;}
     }
   }
 }
