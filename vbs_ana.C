@@ -34,11 +34,12 @@
 //FM1 = 4
 //FM6 = 8
 //FM7 = 9
-//std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_lt012_grid.lhe";
-std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/ls_lm_lt_unmerged_1.lhe";
-int x_param_number = 12;
-int y_param_number = 13;
+std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_ls0ls1_grid.lhe";
+//std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/ls_lm_lt_unmerged_1.lhe";
+int x_param_number = 1;
+int y_param_number = 2;
 std::vector<float > oneD_grid_points;
+std::vector<pair<float,float> > twoD_grid_points;
 std::vector<float> histo_grid;
 std::vector<int> lhe_weight_index;
 
@@ -58,6 +59,7 @@ TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS",
 
 bool run_over_data = true;
 bool doAQGCsAna = false; //makes the histograms of yield/SM yield used to set limits on AQGC parameters
+bool doAQGCsAna2D = false; //makes the 2D histograms of yield/SM yield used to set limits on AQGC parameters
 int sm_lhe_weight = -1; //do not change this, it is set automatically
 bool use_anom_sample = false; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
 int which_lhe_weight_ww = 61; // 61 for wwss_qed_4_qcd_99_lt012.root and 6/17/28/.../61 for wwss_qed_4_qcd_99_ls_lm_lt.root
@@ -66,6 +68,7 @@ int which_lhe_weight_wz = 9;
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2]);
 
 void parse_reweight_info(string lhe_filename);
+void parse_reweight_info_2d(string lhe_filename);
 
 // thePlot == 0 (mjj), 2 (ptlmax), 9 (mll), 19 (2D mll-mjj), anything else (mlljj)
 
@@ -73,7 +76,7 @@ void vbs_ana
 (
  int thePlot = 0,
  int lSel = 4,
- TString bgdInputFile    = "ntuples_53x/backgroundA_skim8_ls_lm_lt.root",
+ TString bgdInputFile    = "ntuples_53x/backgroundEWK_skim8_sm.root",
  TString dataInputFile   = "ntuples_53x/data_skim8.root",
  TString systInputFile   = "ntuples_53x/hww_syst_skim8.root",
  int period = 3
@@ -81,6 +84,10 @@ void vbs_ana
 {
   //only one of these at a time makes sense
   assert(!(doAQGCsAna && use_anom_sample));
+
+  assert(!(doAQGCsAna2D && use_anom_sample ));
+
+  assert(!(doAQGCsAna2D && doAQGCsAna ));
 
   if(doAQGCsAna == true){
     parse_reweight_info(file_for_grid);
@@ -107,6 +114,34 @@ void vbs_ana
       std::cout << "lhe_weight_index[i] = " << lhe_weight_index[i] << std::endl;
     }
   }
+
+  else if(doAQGCsAna2D == true){
+    parse_reweight_info_2d(file_for_grid);
+    std::cout << "twoD_grid_points.size() = " << twoD_grid_points.size() << std::endl;
+    for(unsigned int i = 0; i < twoD_grid_points.size(); i++){
+      std::cout << twoD_grid_points[i].first << ", " << twoD_grid_points[i].second << std::endl;
+      if(twoD_grid_points[i].first==0 && twoD_grid_points[i].second==0){
+	assert(sm_lhe_weight==-1);
+	sm_lhe_weight=i;
+      }
+    }
+
+    assert(sm_lhe_weight!=-1);
+    std::cout << "sm_lhe_weight = " << sm_lhe_weight << std::endl;
+ 
+       //change to more convenient units  
+    for(unsigned int i = 0; i < twoD_grid_points.size(); i++){
+      twoD_grid_points[i].first = twoD_grid_points[i].first*pow(10.,11);
+      twoD_grid_points[i].second = twoD_grid_points[i].second*pow(10.,11);
+    }
+    for(unsigned int i = 0; i < twoD_grid_points.size(); i++){
+      std::cout << twoD_grid_points[i].first << ", " << twoD_grid_points[i].second << std::endl;
+    }
+    for(unsigned int i = 0; i < lhe_weight_index.size(); i++){
+      std::cout << "lhe_weight_index[i] = " << lhe_weight_index[i] << std::endl;
+    }
+  }
+
 
   double frCorr = 0.78;
   double lumi = 1.0;
@@ -231,12 +266,20 @@ void vbs_ana
   TH1D *histo_Higgs     = (TH1D*) histoMVA->Clone("histo_Higgs");
 
   std::vector<TH1D *> histo_WWewk_anom;
+  std::vector<TH2D *> histo_WWewk_anom_2D;
 
   if(doAQGCsAna == true){
     for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
       stringstream ss;
       ss << a;
       histo_WWewk_anom.push_back((TH1D*) histoMVA->Clone(TString("histo_WWewk_anom"+ss.str())));
+    }
+  }
+  else if(doAQGCsAna2D == true){
+    for(unsigned int a = 0; a < twoD_grid_points.size(); a++){
+      stringstream ss;
+      ss << a;
+      histo_WWewk_anom_2D.push_back((TH2D*) histoMVA->Clone(TString("histo_WWewk_anom"+ss.str())));
     }
   }
 
@@ -788,7 +831,7 @@ void vbs_ana
 	  else
 	    assert(0);
         }
-        else if (doAQGCsAna == true){
+        else if (doAQGCsAna == true || doAQGCsAna2D == true){
 	  if     (bgdEvent.dstype_ == SmurfTree::wwewk) theWeight = theWeight * bgdEvent.lheWeights_[lhe_weight_index[sm_lhe_weight]]/bgdEvent.lheWeights_[0];
 	  else                                          theWeight = theWeight * bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0];
         }
@@ -917,6 +960,23 @@ void vbs_ana
 	  for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
 	    if(bgdEvent.dstype_ == SmurfTree::wwewk)
 	      histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight_unweighted*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
+	    //else if (bgdEvent.dstype_ == SmurfTree::wzewk)
+	    //  histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight_unweighted*bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0]);  //we are not considering the effect of the AQGC on the wzewk for now
+	    else
+	      assert(0);
+	  }
+	}
+        else if(passCuts[1][WWSEL] && doAQGCsAna2D == true){
+	  //the qcd WW that we subtract from the signal is not reweighted
+	  if(bgdEvent.dstype_ == SmurfTree::wwewk){
+	    assert(bgdEvent.lheWeights_.size() >= twoD_grid_points.size());
+	    assert(twoD_grid_points.size() == histo_grid.size());
+	    assert(lhe_weight_index.size() == histo_grid.size());
+	  }
+
+	  for(unsigned int a = 0; a < twoD_grid_points.size(); a++){
+	    if(bgdEvent.dstype_ == SmurfTree::wwewk)
+	      histo_WWewk_anom_2D[a]->Fill(MVAVar[0],theWeight_unweighted*bgdEvent.lheWeights_[lhe_weight_index[a]]/bgdEvent.lheWeights_[0]);
 	    //else if (bgdEvent.dstype_ == SmurfTree::wzewk)
 	    //  histo_WWewk_anom[a]->Fill(MVAVar[0],theWeight_unweighted*bgdEvent.lheWeights_[9]/bgdEvent.lheWeights_[0]);  //we are not considering the effect of the AQGC on the wzewk for now
 	    else
@@ -1374,6 +1434,11 @@ void vbs_ana
   TFile *th1d_outfile;
   if(doAQGCsAna == true){
     th1d_outfile = new TFile("aQGC_grids.root","recreate");
+  }
+
+  TFile *th2d_outfile;
+  if(doAQGCsAna2D == true){
+    th2d_outfile = new TFile("aQGC_grids.root","recreate");
   }
 
   outFilePlotsNote->cd();
@@ -1865,6 +1930,58 @@ void vbs_ana
       th1d_outfile->cd();
       th1d->Write();
     }
+    else if(doAQGCsAna2D == true){
+      stringstream ss;
+      ss << nb;
+    
+      //this assumes that the points in the grid are equally spaced and that it is a rectangular grid
+
+      //find the minimum and the maximum of the grid
+      float grid_min_x = std::numeric_limits<float>::max();
+      float grid_max_x = -std::numeric_limits<float>::max();
+      for(unsigned int a = 0; a < twoD_grid_points.size(); a++){
+	if (grid_min_x > twoD_grid_points[a].first)
+	  grid_min_x = twoD_grid_points[a].first;
+	if (grid_max_x < twoD_grid_points[a].first)
+	  grid_max_x = twoD_grid_points[a].first;
+      }
+
+      assert(grid_max_x > grid_min_x);
+      assert(grid_max_x < std::numeric_limits<float>::max());
+      assert(grid_min_x > -std::numeric_limits<float>::max());
+
+      float histo_max_x = grid_max_x + (grid_max_x - grid_min_x)/(twoD_grid_points.size()-1)/2; 
+      float histo_min_x = grid_min_x - (grid_max_x - grid_min_x)/(twoD_grid_points.size()-1)/2; 
+
+      //find the minimum and the maximum of the grid
+      float grid_min_y = std::numeric_limits<float>::max();
+      float grid_max_y = -std::numeric_limits<float>::max();
+      for(unsigned int a = 0; a < twoD_grid_points.size(); a++){
+	if (grid_min_y > twoD_grid_points[a].second)
+	  grid_min_y = twoD_grid_points[a].second;
+	if (grid_max_y < twoD_grid_points[a].second)
+	  grid_max_y = twoD_grid_points[a].second;
+      }
+
+      assert(grid_max_y > grid_min_y);
+      assert(grid_max_y < std::numeric_limits<float>::max());
+      assert(grid_min_y > -std::numeric_limits<float>::max());
+
+      float histo_max_y = grid_max_y + (grid_max_y - grid_min_y)/(twoD_grid_points.size()-1)/2; 
+      float histo_min_y = grid_min_y - (grid_max_y - grid_min_y)/(twoD_grid_points.size()-1)/2; 
+
+      TH2D *th2d  = new TH2D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),twoD_grid_points.size(),histo_min_x,histo_max_x,twoD_grid_points.size(),histo_min_y,histo_max_y);
+
+      for(unsigned int a = 0; a < twoD_grid_points.size(); a++){
+
+        //histo_grid[nb][a] = histo_WWewk_anom[a]->GetBinContent(nb);
+        assert(histo_WWewk_anom_2D[0]->GetBinContent(nb) > 0);
+        //assert(histo_grid[nb][0]>0);
+        th2d->SetBinContent(th2d->GetXaxis()->FindFixBin(twoD_grid_points[a].first), th2d->GetYaxis()->FindFixBin(twoD_grid_points[a].second), histo_WWewk_anom_2D[a]->GetBinContent(nb)/histo_WWewk_anom_2D[sm_lhe_weight]->GetBinContent(nb));
+      }
+      th2d_outfile->cd();
+      th2d->Write();
+    }
 
     double systNLO[3] = {1.0,1.0,1.0}; // WZ, WS, Wjets
     //if     (histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
@@ -2002,7 +2119,7 @@ void scaleFactor_WS(LorentzVector l,int lq, int ld, int mcld, double val[2]){
 }
 
 int begin_weight=1;
-int end_weight=120;
+int end_weight=121;
 
 //this only handles the case where there are 0, 1, or 2 parameters different from 0 in a given event
 void parse_reweight_info(string lhe_filename){
@@ -2141,3 +2258,145 @@ void parse_reweight_info(string lhe_filename){
   std::cout << "reweight block not found, exiting" << std::endl;
   exit(1);
 }
+
+int begin_weight_2d=0;
+int end_weight_2d=120;
+
+//this only handles the case where there are 0, 1, or 2 parameters different from 0 in a given event
+void parse_reweight_info_2d(string lhe_filename){
+
+  ifstream infile(lhe_filename.c_str());
+  assert(infile.is_open());
+
+  std::vector <float> param_values;
+
+  while(!infile.eof()){
+    std::string line;
+    getline(infile,line);
+
+    //set the grid point for the original unweighted event
+    if(line=="<slha>\0"){
+      getline(infile,line);
+      assert(line=="######################################################################");
+      getline(infile,line);
+      assert(line=="## PARAM_CARD AUTOMATICALY GENERATED BY MG5 FOLLOWING UFO MODEL   ####");
+      getline(infile,line);
+      assert(line=="######################################################################");
+      getline(infile,line);
+      assert(line=="##                                                                  ##");
+      getline(infile,line);
+      assert(line=="##  Width set on Auto will be computed following the information    ##");
+      getline(infile,line);
+      assert(line=="##        present in the decay.py files of the model. By default,   ##");
+      getline(infile,line);
+      assert(line=="##        this is only 1->2 decay modes.                            ##");
+      getline(infile,line);
+      assert(line=="##                                                                  ##");
+      getline(infile,line);
+      assert(line=="######################################################################");
+      getline(infile,line);
+      assert(line=="###################################");
+      getline(infile,line);
+      assert(line=="## INFORMATION FOR ANOINPUTS");
+      getline(infile,line);
+      assert(line=="###################################");
+      getline(infile,line);
+      assert(line=="Block anoinputs ");
+
+      param_values.push_back(-1);
+      std::cout << "parameter values for unweighted event:" << std::endl;
+      for(int i = 1; i <= 20; i++){
+	getline(infile,line); 
+	std::cout << line << std::endl;
+	stringstream i_ss;
+	i_ss << i;
+	stringstream param_numerical_ss;
+	param_numerical_ss << line.substr(line.find(i_ss.str())+i_ss.str().size(),line.find("#")-line.find(i_ss.str())-i_ss.str().size());
+	float param_numerical;
+	param_numerical_ss >> param_numerical;
+	std::cout << "param_numerical = " << param_numerical << std::endl;
+	param_values.push_back(param_numerical);
+      }
+
+      assert(line == "   20 0.000000e+00 # FT9 ");
+
+      bool all_other_zero = true;
+
+      for (int j = 1; j <= 20; j++)
+	if (j != x_param_number && j != y_param_number && param_values[j] != 0) all_other_zero = false;
+
+      if (all_other_zero && 0 >= begin_weight){
+	twoD_grid_points.push_back(pair<float,float>(param_values[x_param_number],param_values[y_param_number]) );
+	histo_grid.push_back(0);
+	lhe_weight_index.push_back(0);
+      }
+
+    }
+
+    if(line=="<initrwgt>\0"){
+
+      getline(infile,line);
+      assert(line=="<weightgroup type='mg_reweighting'>");
+
+      int i = 1;
+
+      while(true){
+
+	std::vector<float> param_values_copy = param_values;
+
+	getline(infile,line);
+
+	assert(line == "</initrwgt>\0" || line == "</weight>\0" || line=="</weightgroup>\0" || line.find("<weight id=") != string::npos );
+
+	if(line=="</initrwgt>\0")
+	  return;
+
+	if (line == "</weight>\0" || line=="</weightgroup>\0")
+	  continue;
+
+	while(line.find("set param_card anoinputs") != string::npos){
+	  std::string paraminfo=line.substr(line.find("set param_card anoinputs ")+std::string("set param_card anoinputs ").size(),line.find("#")-line.find("set param_card anoinputs ")-std::string("set param_card anoinputs ").size());
+	  stringstream ss;
+	  int param_number = -9999999;
+	  float param = -9999999;
+	  ss << paraminfo;
+	  ss >> param_number;
+	  ss >> param;
+	  
+	  param_values_copy[param_number]=param;
+
+	  getline(infile,line);
+	}
+
+	bool all_others_zero = true;
+	
+	for (int j = 1; j <= 20; j++)
+	  if (j != x_param_number && j != y_param_number && param_values_copy[j] != 0) all_others_zero = false;
+
+	//the same grid point may happen multiple times
+	//make sure to only add each grid point once
+	bool found_duplicate = false;
+	for(unsigned int j = 0; j < twoD_grid_points.size(); j++){
+	  if (twoD_grid_points[j].first == param_values_copy[x_param_number] && twoD_grid_points[j].second == param_values_copy[y_param_number]){
+	    found_duplicate = true;
+	    //std::cout << "i = " << i << std::endl;
+	    //std::cout << "found j = " << j << std::endl;
+	  }
+	}
+	
+	if (all_others_zero && !found_duplicate && i <= end_weight && i >= begin_weight){
+	  twoD_grid_points.push_back(pair<float,float>(param_values_copy[x_param_number],param_values_copy[y_param_number] ));
+	  histo_grid.push_back(i);
+	  lhe_weight_index.push_back(i);
+	}
+
+	i++;
+
+      }
+    }
+  }
+
+  std::cout << "reweight block not found, exiting" << std::endl;
+  exit(1);
+}
+
