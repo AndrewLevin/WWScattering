@@ -142,6 +142,7 @@ void vbs_ana
     }
   }
 
+  double genLevelNorm[2] = {0.,0.};
 
   double frCorr = 0.78;
   double lumi = 1.0;
@@ -439,6 +440,19 @@ void vbs_ana
       printf("--- reading event %5d of %5d\n",evt,nBgd);
     bgdEvent.tree_->GetEntry(evt);
 
+    // generator level selection
+    bool minGenCuts = ((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) == SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection) ||
+                      ((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) == SmurfTree::Lep2FullSelection);
+    if(minGenCuts == false) {
+      genLevelNorm[0]++;
+      if(bgdEvent.genlep1_.Pt() > 10 && TMath::Abs(bgdEvent.genlep1_.Eta()) < 2.5 && 
+         bgdEvent.genlep2_.Pt() > 10 && TMath::Abs(bgdEvent.genlep2_.Eta()) < 2.5 &&
+	 bgdEvent.genjet1_.Pt() > 20 && TMath::Abs(bgdEvent.genjet1_.Eta()) < 5.0 &&
+         bgdEvent.genjet2_.Pt() > 20 && TMath::Abs(bgdEvent.genjet2_.Eta()) < 5.0 &&
+         TMath::Abs(bgdEvent.genjet1_.Eta()-bgdEvent.genjet2_.Eta()) > 2.5 && (bgdEvent.genjet1_+bgdEvent.genjet2_).M() > 300.) {
+        genLevelNorm[1]++;
+      }
+    }
 
     if(bgdEvent.lep1_.Pt() < 1.0) continue;
 
@@ -1439,6 +1453,8 @@ void vbs_ana
   char output[200];
   sprintf(output,Form("histo_nice%s.root",ECMsb.Data()));	 
   TFile* outFilePlotsNote = new TFile(output,"recreate");
+
+  printf("gen level efficiency: %f / %f = %f\n",genLevelNorm[1],genLevelNorm[0],genLevelNorm[1]/genLevelNorm[0]);
 
   TFile *th1d_outfile;
   if(doAQGCsAna == true){
