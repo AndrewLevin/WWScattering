@@ -302,7 +302,7 @@ class StandardPlot {
             // total mess to get it nice, should be redone
             size_t j=0;
             TString higgsLabel = " HWW";
-            higgsLabel.Form("WW EWK");
+            higgsLabel.Form("W^{#pm}W^{#pm}jj");
 
             if(_data->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _data,          " data",    "lp"); j++; }
             if     (_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0 && _isHWWOverlaid) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "f" ); j++; }
@@ -351,5 +351,3 @@ class StandardPlot {
         bool    _isHWWOverlaid;
 
 };
-
-

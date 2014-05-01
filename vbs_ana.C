@@ -47,15 +47,15 @@ const int verboseLevel =   1;
 bool UseDyttDataDriven = true; // if true, then remove em events in dyll MC
 SmurfTree systEvent;
 const unsigned int nSelTypes = 3;
-const unsigned int nSelTypesSyst = 7;
+const unsigned int nSelTypesSyst = 9;
 const bool showSignalOnly = false;
 
 enum selType {WWSEL, BTAGSEL, WZSEL};
 TString selTypeName[nSelTypes*2] = {"WWSEL-OS", "BTAGSEL-OS", "WZSEL-OS",
                                     "WWSEL-SS", "BTAGSEL-SS", "WZSEL-SS"};
-enum selTypeSyst {JESUP=0, JESDOWN, LEPP, LEPM, MET, EFFP, EFFM};
-TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS", "LEPM-OS", "MET-OS", "EFFP-OS", "EFFM-OS",
-                                            "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "EFFP-SS", "EFFM-SS"};
+enum selTypeSyst {JESUP=0, JESDOWN, LEPP, LEPM, MET, JERUP, JERDOWN, EFFP, EFFM};
+TString selTypeNameSyst[nSelTypesSyst*2] = {"JESUP-OS", "JESDOWN-OS", "LEPP-OS", "LEPM-OS", "MET-OS", "JERUP-OS", "JERDOWN-OS", "EFFP-OS", "EFFM-OS",
+                                            "JESUP-SS", "JESDOWN-SS", "LEPP-SS", "LEPM-SS", "MET-SS", "JERUP-SS", "JERDOWN-SS", "EFFP-SS", "EFFM-SS"};
 
 bool run_over_data = true;
 bool doAQGCsAna = false; //makes the histograms of yield/SM yield used to set limits on AQGC parameters
@@ -70,7 +70,7 @@ void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2], int 
 void parse_reweight_info(string lhe_filename);
 void parse_reweight_info_2d(string lhe_filename);
 
-// thePlot == 0 (mjj), 2 (ptlmax), 9 (mll), 19 (2D mll-mjj), anything else (mlljj)
+// thePlot == 0 (mjj), 2 (ptlmax), 9 (mll), anything else (mlljj)
 
 void vbs_ana
 (
@@ -249,12 +249,15 @@ void vbs_ana
   fhDPU->SetDirectory(0);
   delete fPUFile;
 
+  double JERVal[5]  = {1.052,1.057,1.096,1.134,1.288}; // 0.0.0.5, 0.5-1.1, 1.1-1.7, 1.7-2.3, 2.3-5.0
+  double JERDown[5] = {0.990,1.001,1.032,1.042,1.089}; 
+  double JERUp[5]   = {1.115,1.114,1.161,1.228,1.488};
+
   const int nBin = 4;
   Float_t xbins[nBin+1] = {700, 1100, 1500, 2000, 3000};
   if     (thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
   else if(thePlot == 2) {xbins[0] =   0; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
   else if(thePlot == 9) {xbins[0] =   0; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
-  else if(thePlot ==19) {xbins[0] =-0.5; xbins[1] = 0.5; xbins[2] =  1.5; xbins[3] =  2.5; xbins[4] =  3.5;}
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
@@ -310,15 +313,14 @@ void vbs_ana
   else if(thePlot >= 16 && thePlot <= 16) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
   else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
-  else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
-  else if(thePlot >= 20 && thePlot <= 20) {nBinPlot = 10; xminPlot = -1.0; xmaxPlot = 1.0;}
-  else if(thePlot >= 21 && thePlot <= 21) {nBinPlot =100; xminPlot =  0.0; xmaxPlot = 100.0;}
-  else if(thePlot >= 22 && thePlot <= 22) {nBinPlot =40; xminPlot =  0.0; xmaxPlot = 200.0;}
+  else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 10; xminPlot = -1.0; xmaxPlot = 1.0;}
+  else if(thePlot >= 20 && thePlot <= 20) {nBinPlot =100; xminPlot =  0.0; xmaxPlot = 100.0;}
+  else if(thePlot >= 21 && thePlot <= 21) {nBinPlot =40; xminPlot =  0.0; xmaxPlot = 200.0;}
   else assert(0);
 
   TH1D* histo0;
-  if(thePlot != 0 && thePlot != 1 && thePlot != 2 && thePlot != 9 && thePlot != 19) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
-  else                                                                              histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
+  if(thePlot != 0 && thePlot != 1 && thePlot != 2 && thePlot != 9) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
+  else                                                             histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
   histo0->Sumw2();
   TH1D* histo1 = (TH1D*) histo0->Clone("histo1");
   TH1D* histo2 = (TH1D*) histo0->Clone("histo2");
@@ -404,6 +406,19 @@ void vbs_ana
   TH1D* histo_VVV_JESDown         = new TH1D( Form("histo_VVV_%sDown","CMS_scale_j"), Form("histo_VVV_%sDown","CMS_scale_j"), nBin, xbins); histo_VVV_JESDown->Sumw2();
   TH1D* histo_Higgs_JESUp         = new TH1D( Form("histo_Higgs_%sUp","CMS_scale_j")  , Form("histo_Higgs_%sUp","CMS_scale_j")  , nBin, xbins); histo_Higgs_JESUp  ->Sumw2();
   TH1D* histo_Higgs_JESDown       = new TH1D( Form("histo_Higgs_%sDown","CMS_scale_j"), Form("histo_Higgs_%sDown","CMS_scale_j"), nBin, xbins); histo_Higgs_JESDown->Sumw2();
+
+  TH1D* histo_WWewk_JERUp         = new TH1D( Form("histo_WWewk_%sUp","CMS_res_j")  , Form("histo_WWewk_%sUp","CMS_res_j")  , nBin, xbins); histo_WWewk_JERUp  ->Sumw2();
+  TH1D* histo_WWewk_JERDown       = new TH1D( Form("histo_WWewk_%sDown","CMS_res_j"), Form("histo_WWewk_%sDown","CMS_res_j"), nBin, xbins); histo_WWewk_JERDown->Sumw2();
+  TH1D* histo_WWqcd_JERUp         = new TH1D( Form("histo_WWqcd_%sUp","CMS_res_j")  , Form("histo_WWqcd_%sUp","CMS_res_j")  , nBin, xbins); histo_WWqcd_JERUp  ->Sumw2();
+  TH1D* histo_WWqcd_JERDown       = new TH1D( Form("histo_WWqcd_%sDown","CMS_res_j"), Form("histo_WWqcd_%sDown","CMS_res_j"), nBin, xbins); histo_WWqcd_JERDown->Sumw2();
+  TH1D* histo_WZ_JERUp            = new TH1D( Form("histo_WZ_%sUp","CMS_res_j")  , Form("histo_WZ_%sUp","CMS_res_j")  , nBin, xbins); histo_WZ_JERUp  ->Sumw2();
+  TH1D* histo_WZ_JERDown          = new TH1D( Form("histo_WZ_%sDown","CMS_res_j"), Form("histo_WZ_%sDown","CMS_res_j"), nBin, xbins); histo_WZ_JERDown->Sumw2();
+  TH1D* histo_WS_JERUp            = new TH1D( Form("histo_WS_%sUp","CMS_res_j")  , Form("histo_WS_%sUp","CMS_res_j")  , nBin, xbins); histo_WS_JERUp  ->Sumw2();
+  TH1D* histo_WS_JERDown          = new TH1D( Form("histo_WS_%sDown","CMS_res_j"), Form("histo_WS_%sDown","CMS_res_j"), nBin, xbins); histo_WS_JERDown->Sumw2();
+  TH1D* histo_VVV_JERUp           = new TH1D( Form("histo_VVV_%sUp","CMS_res_j")  , Form("histo_VVV_%sUp","CMS_res_j")  , nBin, xbins); histo_VVV_JERUp  ->Sumw2();
+  TH1D* histo_VVV_JERDown         = new TH1D( Form("histo_VVV_%sDown","CMS_res_j"), Form("histo_VVV_%sDown","CMS_res_j"), nBin, xbins); histo_VVV_JERDown->Sumw2();
+  TH1D* histo_Higgs_JERUp         = new TH1D( Form("histo_Higgs_%sUp","CMS_res_j")  , Form("histo_Higgs_%sUp","CMS_res_j")  , nBin, xbins); histo_Higgs_JERUp  ->Sumw2();
+  TH1D* histo_Higgs_JERDown       = new TH1D( Form("histo_Higgs_%sDown","CMS_res_j"), Form("histo_Higgs_%sDown","CMS_res_j"), nBin, xbins); histo_Higgs_JERDown->Sumw2();
 
   TH1D* histo_WZ_CMS_WZNLOUp      = new TH1D( Form("histo_WZ_CMS_wwss_WZNLOUp"),   Form("histo_WZ_CMS_wwss_WZNLOUp"),	nBin, xbins); histo_WZ_CMS_WZNLOUp  ->Sumw2();
   TH1D* histo_WZ_CMS_WZNLODown    = new TH1D( Form("histo_WZ_CMS_wwss_WZNLODown"), Form("histo_WZ_CMS_wwss_WZNLODown"), nBin, xbins); histo_WZ_CMS_WZNLODown->Sumw2();
@@ -507,8 +522,8 @@ void vbs_ana
     if(fDecay == 29 && correctQ != 2) fDecay = 30;
     if(fDecay == 27 && correctQ  < 2) fDecay = 30;
 
-    bool passSystCuts[2][nSelTypesSyst-2] = {{false, false, false, false, false},
-			                     {false, false, false, false, false}};
+    bool passSystCuts[2][nSelTypesSyst-2] = {{false, false, false, false, false, false, false},
+			                     {false, false, false, false, false, false, false}};
     bool passCuts[2][nSelTypes] = {{false, false, false},
                                    {false, false, false}};
     bool isRealLepton = false;
@@ -567,6 +582,85 @@ void vbs_ana
 
     if(lType == 0) passMass = passMass && (TMath::Abs(bgdEvent.dilep_.M()-91.1876) > 15 || bgdEvent.type_ != SmurfTree::mm);
 
+    // JER
+    LorentzVector genjet_jer1;
+    LorentzVector genjet_jer2;
+    int jerbin[2] = {-1, -1};
+    if     (DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.genjet1_.Phi(),bgdEvent.genjet1_.Eta()) < 0.3) {
+      genjet_jer1 = bgdEvent.genjet1_;
+    }
+    else if(DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.genjet2_.Phi(),bgdEvent.genjet2_.Eta()) < 0.3) {
+      genjet_jer1 = bgdEvent.genjet2_;
+    }
+    else if(DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.genjet3_.Phi(),bgdEvent.genjet3_.Eta()) < 0.3) {
+      genjet_jer1 = bgdEvent.genjet3_;
+    }
+    else {
+      genjet_jer1 = bgdEvent.jet1_;
+    }
+    if     (DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.genjet1_.Phi(),bgdEvent.genjet1_.Eta()) < 0.3) {
+      genjet_jer2 = bgdEvent.genjet1_;
+    }
+    else if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.genjet2_.Phi(),bgdEvent.genjet2_.Eta()) < 0.3) {
+      genjet_jer2 = bgdEvent.genjet2_;
+    }
+    else if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.genjet3_.Phi(),bgdEvent.genjet3_.Eta()) < 0.3) {
+      genjet_jer2 = bgdEvent.genjet3_;
+    }
+    else {
+      genjet_jer2 = bgdEvent.jet2_;
+    }
+    if     (TMath::Abs(genjet_jer1.Eta()) < 0.5) jerbin[0] = 0;
+    else if(TMath::Abs(genjet_jer1.Eta()) < 1.1) jerbin[0] = 1;
+    else if(TMath::Abs(genjet_jer1.Eta()) < 1.7) jerbin[0] = 2;
+    else if(TMath::Abs(genjet_jer1.Eta()) < 2.3) jerbin[0] = 3;
+    else                                         jerbin[0] = 4;
+    if     (TMath::Abs(genjet_jer2.Eta()) < 0.5) jerbin[1] = 0;
+    else if(TMath::Abs(genjet_jer2.Eta()) < 1.1) jerbin[1] = 1;
+    else if(TMath::Abs(genjet_jer2.Eta()) < 1.7) jerbin[1] = 2;
+    else if(TMath::Abs(genjet_jer2.Eta()) < 2.3) jerbin[1] = 3;
+    else                                         jerbin[1] = 4;
+
+    LorentzVector genjetU_jer1 = genjet_jer1; 
+    LorentzVector genjetD_jer1 = genjet_jer1; 
+    LorentzVector genjetU_jer2 = genjet_jer2;
+    LorentzVector genjetD_jer2 = genjet_jer2;
+    double factJER[3]; // order is crucial
+    if(genjet_jer1.Pt()>0){
+      factJER[0] = TMath::Max(0.0,genjet_jer1.Pt()+JERVal [jerbin[0]]*(bgdEvent.jet1_.Pt()-genjet_jer1.Pt()))/genjet_jer1.Pt();
+      factJER[1] = TMath::Max(0.0,genjet_jer1.Pt()+JERUp  [jerbin[0]]*(bgdEvent.jet1_.Pt()-genjet_jer1.Pt()))/genjet_jer1.Pt();
+      factJER[2] = TMath::Max(0.0,genjet_jer1.Pt()+JERDown[jerbin[0]]*(bgdEvent.jet1_.Pt()-genjet_jer1.Pt()))/genjet_jer1.Pt();
+      genjetU_jer1.SetPx(genjet_jer1.Px()*factJER[1]);
+      genjetU_jer1.SetPy(genjet_jer1.Py()*factJER[1]);
+      genjetU_jer1.SetPz(genjet_jer1.Pz()*factJER[1]);
+      genjetU_jer1.SetE (genjet_jer1.E( )*factJER[1]);
+      genjetD_jer1.SetPx(genjet_jer1.Px()*factJER[2]);
+      genjetD_jer1.SetPy(genjet_jer1.Py()*factJER[2]);
+      genjetD_jer1.SetPz(genjet_jer1.Pz()*factJER[2]);
+      genjetD_jer1.SetE (genjet_jer1.E( )*factJER[2]);
+      genjet_jer1.SetPx (genjet_jer1.Px()*factJER[0]);
+      genjet_jer1.SetPy (genjet_jer1.Py()*factJER[0]);
+      genjet_jer1.SetPz (genjet_jer1.Pz()*factJER[0]);
+      genjet_jer1.SetE  (genjet_jer1.E( )*factJER[0]);
+    }
+    if(genjet_jer2.Pt()>0){
+      factJER[0] = TMath::Max(0.0,genjet_jer2.Pt()+JERVal [jerbin[1]]*(bgdEvent.jet2_.Pt()-genjet_jer2.Pt()))/genjet_jer2.Pt();
+      factJER[1] = TMath::Max(0.0,genjet_jer2.Pt()+JERUp  [jerbin[1]]*(bgdEvent.jet2_.Pt()-genjet_jer2.Pt()))/genjet_jer2.Pt();
+      factJER[2] = TMath::Max(0.0,genjet_jer2.Pt()+JERDown[jerbin[1]]*(bgdEvent.jet2_.Pt()-genjet_jer2.Pt()))/genjet_jer2.Pt();
+      genjetU_jer2.SetPx(genjet_jer2.Px()*factJER[1]);
+      genjetU_jer2.SetPy(genjet_jer2.Py()*factJER[1]);
+      genjetU_jer2.SetPz(genjet_jer2.Pz()*factJER[1]);
+      genjetU_jer2.SetE (genjet_jer2.E( )*factJER[1]);
+      genjetD_jer2.SetPx(genjet_jer2.Px()*factJER[2]);
+      genjetD_jer2.SetPy(genjet_jer2.Py()*factJER[2]);
+      genjetD_jer2.SetPz(genjet_jer2.Pz()*factJER[2]);
+      genjetD_jer2.SetE (genjet_jer2.E( )*factJER[2]);
+      genjet_jer2.SetPx (genjet_jer2.Px()*factJER[0]);
+      genjet_jer2.SetPy (genjet_jer2.Py()*factJER[0]);
+      genjet_jer2.SetPz (genjet_jer2.Pz()*factJER[0]);
+      genjet_jer2.SetE  (genjet_jer2.E( )*factJER[0]);
+    }
+
     // 0      1      2       3     4   5      6        7           8  9            10            11     12  13    14
     // lep1pt,lep2pt,dilmass,dilpt,met,metPhi,trackMet,trackMetPhi,mt,dPhiDiLepMET,dPhiMETTrkMET,pTFrac,mtZ,mlljj,mjj;
     double outputVarLepP[15];
@@ -578,7 +672,7 @@ void vbs_ana
     double outputVarLepM[15];
     makeSystematicEffects(bgdEvent.lid1_, bgdEvent.lid2_, bgdEvent.lep1_, bgdEvent.lep2_, bgdEvent.dilep_, 
                          bgdEvent.mt_, theMET, theMETPHI, 
-                         bgdEvent.trackMet_, bgdEvent.trackMetPhi_, 
+                         bgdEvent.trackMet_, bgdEvent.trackMetPhi_,
 			 bgdEvent.njets_, bgdEvent.jet1_, bgdEvent.jet2_,
 			 year, 1, outputVarLepM);
     double outputVarMET[15];
@@ -605,18 +699,12 @@ void vbs_ana
                          bgdEvent.trackMet_, bgdEvent.trackMetPhi_, 
 			 bgdEvent.njets_, bgdEvent.jet1_, bgdEvent.jet2_,
 			 year, 5, outputVarJESM);
-    double MVAVar[6] = {outputVar[13],outputVarJESP[13],outputVarJESM[13],outputVarLepP[13],outputVarLepM[13],outputVarMET[13]};
-    if     (thePlot == 0) {MVAVar[0]=outputVar[14];MVAVar[1]=outputVarJESP[14];MVAVar[2]=outputVarJESM[14];MVAVar[3]=outputVarLepP[14];MVAVar[4]=outputVarLepM[14];MVAVar[5]=outputVarMET[14];}
-    else if(thePlot == 2) {MVAVar[0]=outputVar[ 0];MVAVar[1]=outputVarJESP[ 0];MVAVar[2]=outputVarJESM[ 0];MVAVar[3]=outputVarLepP[ 0];MVAVar[4]=outputVarLepM[ 0];MVAVar[5]=outputVarMET[ 0];}
-    else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];MVAVar[1]=outputVarJESP[ 2];MVAVar[2]=outputVarJESM[ 2];MVAVar[3]=outputVarLepP[ 2];MVAVar[4]=outputVarLepM[ 2];MVAVar[5]=outputVarMET[ 2];}
-    else if(thePlot ==19) {if(outputVar[2]    < 250&&outputVar[14]    <  750) MVAVar[0]=0.0; else if(outputVar[2]    >=250&&outputVar[14]    <  750) MVAVar[0]=1.0; else if(outputVar[2]    < 250&&outputVar[14]    >= 750) MVAVar[0]=2.0; else if(outputVar[2]    >=250&&outputVar[14]    >= 750) MVAVar[0]=3.0; else assert(0);
-                           if(outputVarJESP[2]< 250&&outputVarJESP[14]<  750) MVAVar[1]=0.0; else if(outputVarJESP[2]>=250&&outputVarJESP[14]<  750) MVAVar[1]=1.0; else if(outputVarJESP[2]< 250&&outputVarJESP[14]>= 750) MVAVar[1]=2.0; else if(outputVarJESP[2]>=250&&outputVarJESP[14]>= 750) MVAVar[1]=3.0; else assert(0);
-                           if(outputVarJESM[2]< 250&&outputVarJESM[14]<  750) MVAVar[2]=0.0; else if(outputVarJESM[2]>=250&&outputVarJESM[14]<  750) MVAVar[2]=1.0; else if(outputVarJESM[2]< 250&&outputVarJESM[14]>= 750) MVAVar[2]=2.0; else if(outputVarJESM[2]>=250&&outputVarJESM[14]>= 750) MVAVar[2]=3.0; else assert(0);
-                           if(outputVarLepP[2]< 250&&outputVarLepP[14]<  750) MVAVar[3]=0.0; else if(outputVarLepP[2]>=250&&outputVarLepP[14]<  750) MVAVar[3]=1.0; else if(outputVarLepP[2]< 250&&outputVarLepP[14]>= 750) MVAVar[3]=2.0; else if(outputVarLepP[2]>=250&&outputVarLepP[14]>= 750) MVAVar[3]=3.0; else assert(0);
-                           if(outputVarLepM[2]< 250&&outputVarLepM[14]<  750) MVAVar[4]=0.0; else if(outputVarLepM[2]>=250&&outputVarLepM[14]<  750) MVAVar[4]=1.0; else if(outputVarLepM[2]< 250&&outputVarLepM[14]>= 750) MVAVar[4]=2.0; else if(outputVarLepM[2]>=250&&outputVarLepM[14]>= 750) MVAVar[4]=3.0; else assert(0);
-                           if(outputVarMET[2] < 250&&outputVarMET[14] <  750) MVAVar[5]=0.0; else if(outputVarMET[2] >=250&&outputVarMET[14] <  750) MVAVar[5]=1.0; else if(outputVarMET[2] < 250&&outputVarMET[14] >= 750) MVAVar[5]=2.0; else if(outputVarMET[2] >=250&&outputVarMET[14] >= 750) MVAVar[5]=3.0; else assert(0);}
+    double MVAVar[8] = {outputVar[13],outputVarJESP[13],outputVarJESM[13],outputVarLepP[13],outputVarLepM[13],outputVarMET[13],(bgdEvent.lep1_+bgdEvent.lep2_+genjetU_jer1+genjetU_jer2).M(),(bgdEvent.lep1_+bgdEvent.lep2_+genjetD_jer1+genjetD_jer2).M()};
+    if     (thePlot == 0) {MVAVar[0]=outputVar[14];MVAVar[1]=outputVarJESP[14];MVAVar[2]=outputVarJESM[14];MVAVar[3]=outputVarLepP[14];MVAVar[4]=outputVarLepM[14];MVAVar[5]=outputVarMET[14];MVAVar[6]=(genjetU_jer1+genjetU_jer2).M();MVAVar[7]=(genjetD_jer1+genjetD_jer2).M();}
+    else if(thePlot == 2) {MVAVar[0]=outputVar[ 0];MVAVar[1]=outputVarJESP[ 0];MVAVar[2]=outputVarJESM[ 0];MVAVar[3]=outputVarLepP[ 0];MVAVar[4]=outputVarLepM[ 0];MVAVar[5]=outputVarMET[ 0];MVAVar[6]=outputVar[ 0];MVAVar[7]=outputVar[ 0];}
+    else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];MVAVar[1]=outputVarJESP[ 2];MVAVar[2]=outputVarJESM[ 2];MVAVar[3]=outputVarLepP[ 2];MVAVar[4]=outputVarLepM[ 2];MVAVar[5]=outputVarMET[ 2];MVAVar[6]=outputVar[ 2];MVAVar[7]=outputVar[ 2];}
 
-    for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
+    for(int nv=0; nv<8; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
     double addLepEff	 = 1.0; double addLepEffUp   = 1.0; double addLepEffDown = 1.0;
     addLepEff  = leptonEfficiency(bgdEvent.lep1_.Pt(), bgdEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid1_, 0)*
     		 leptonEfficiency(bgdEvent.lep2_.Pt(), bgdEvent.lep2_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid2_, 0);
@@ -627,15 +715,23 @@ void vbs_ana
         	      leptonEfficiency(bgdEvent.lep2_.Pt(), bgdEvent.lep2_.Eta(), fhDEffMu, fhDEffEl, bgdEvent.lid2_,-1);
     } else {addLepEff = 1.0;}
 
-    double NjetSyst[2] = {0., 0.};
-    if(bgdEvent.jet1_.Pt()*1.05 > ptJetMin) NjetSyst[0]++;
-    if(bgdEvent.jet2_.Pt()*1.05 > ptJetMin) NjetSyst[0]++;
-    if(bgdEvent.jet3_.Pt()*1.05 > ptJetMin) NjetSyst[0]++;
-    if(bgdEvent.jet4_.Pt()*1.05 > ptJetMin) NjetSyst[0]++;
-    if(bgdEvent.jet1_.Pt()*0.95 > ptJetMin) NjetSyst[1]++;
-    if(bgdEvent.jet2_.Pt()*0.95 > ptJetMin) NjetSyst[1]++;
-    if(bgdEvent.jet3_.Pt()*0.95 > ptJetMin) NjetSyst[1]++;
-    if(bgdEvent.jet4_.Pt()*0.95 > ptJetMin) NjetSyst[1]++;
+    double NjetSyst[4] = {0., 0., 0., 0.};
+    if(bgdEvent.jet1_.Pt()*1.04 > ptJetMin) NjetSyst[0]++;
+    if(bgdEvent.jet2_.Pt()*1.04 > ptJetMin) NjetSyst[0]++;
+    if(bgdEvent.jet3_.Pt()*1.04 > ptJetMin) NjetSyst[0]++;
+    if(bgdEvent.jet4_.Pt()*1.04 > ptJetMin) NjetSyst[0]++;
+    if(bgdEvent.jet1_.Pt()*0.96 > ptJetMin) NjetSyst[1]++;
+    if(bgdEvent.jet2_.Pt()*0.96 > ptJetMin) NjetSyst[1]++;
+    if(bgdEvent.jet3_.Pt()*0.96 > ptJetMin) NjetSyst[1]++;
+    if(bgdEvent.jet4_.Pt()*0.96 > ptJetMin) NjetSyst[1]++;
+    if(genjetU_jer1.Pt()        > ptJetMin) NjetSyst[2]++;
+    if(genjetU_jer2.Pt()        > ptJetMin) NjetSyst[2]++;
+    if(bgdEvent.jet3_.Pt()      > ptJetMin) NjetSyst[2]++;
+    if(bgdEvent.jet4_.Pt()      > ptJetMin) NjetSyst[2]++;
+    if(genjetD_jer1.Pt()        > ptJetMin) NjetSyst[3]++;
+    if(genjetD_jer2.Pt()        > ptJetMin) NjetSyst[3]++;
+    if(bgdEvent.jet3_.Pt()      > ptJetMin) NjetSyst[3]++;
+    if(bgdEvent.jet4_.Pt()      > ptJetMin) NjetSyst[3]++;
 
     bool passLSel = false;
     if     (lSel == 0 && bgdEvent.type_ == SmurfTree::mm) passLSel = true;
@@ -651,6 +747,9 @@ void vbs_ana
     if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && outputVarLepP[4] > metMin && outputVarLepP[0] > 20.0 && outputVarLepP[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepP[2] > 50.0 && (TMath::Abs(outputVarLepP[2]-91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee) && outputVarLepP[14] > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 2.5) passSystCuts[lType][LEPP] = true;
     if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && outputVarLepM[4] > metMin && outputVarLepM[0] > 20.0 && outputVarLepM[1] > 20.0 && passBtagVeto && pass3rLVeto && outputVarLepM[2] > 50.0 && (TMath::Abs(outputVarLepM[2]-91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee) && outputVarLepM[14] > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 2.5) passSystCuts[lType][LEPM] = true;
     if(passNsignSel && qDisAgree == 0 && bgdEvent.jet2_.Pt() > ptJetMin && outputVarMET[4]  > metMin && outputVarMET[0]  > 20.0 && outputVarMET[1]  > 20.0 && passBtagVeto && pass3rLVeto && outputVarMET[2]  > 50.0 && (TMath::Abs(outputVarMET[2] -91.1876) > 15 || bgdEvent.type_ != SmurfTree::ee) && outputVarMET[14]  > 500 && TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta()) > 2.5) passSystCuts[lType][MET] = true;
+
+    if(passNsignSel && qDisAgree == 0 && NjetSyst[2] >= 2 && passMET && preselCuts && passBtagVeto && pass3rLVeto && passMass && (genjetU_jer1+genjetU_jer2).M() > 500 && TMath::Abs(genjetU_jer1.Eta()-genjetU_jer2.Eta()) > 2.5) passSystCuts[lType][JERUP]   = true;
+    if(passNsignSel && qDisAgree == 0 && NjetSyst[3] >= 2 && passMET && preselCuts && passBtagVeto && pass3rLVeto && passMass && (genjetD_jer1+genjetD_jer2).M() > 500 && TMath::Abs(genjetD_jer1.Eta()-genjetD_jer2.Eta()) > 2.5) passSystCuts[lType][JERDOWN] = true;
 
     if(passNjets  == true && passMET == true &&  passLSel == true &&
        preselCuts == true && bgdEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
@@ -879,10 +978,9 @@ void vbs_ana
 	else if(thePlot ==16) myVar = bgdEvent.type_;
 	else if(thePlot ==17) myVar = bgdEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
-	else if(thePlot ==19) myVar = MVAVar[0];
-	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
-	else if(thePlot ==21) myVar = TMath::Min(massZMin,99.999);
-	else if(thePlot ==22) myVar = TMath::Min((double)bgdEvent.met_,199.999);
+	else if(thePlot ==19) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
+	else if(thePlot ==20) myVar = TMath::Min(massZMin,99.999);
+	else if(thePlot ==21) myVar = TMath::Min((double)bgdEvent.met_,199.999);
 	else assert(0);
 
       	if     (fDecay == 31){
@@ -920,7 +1018,7 @@ void vbs_ana
           }
         }
       }
-      for(unsigned int i=0; i<5; i++) {
+      for(unsigned int i=0; i<7; i++) {
         for(int j=0; j<2; j++){
           if(passSystCuts[j][i]) {
             bgdDecaySyst[i+j*nSelTypesSyst][(int)fDecay] += theWeight;
@@ -944,6 +1042,8 @@ void vbs_ana
         if(passSystCuts[1][LEPP]    == true) histo_VVV_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_VVV_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_VVV_METResUp  ->Fill(MVAVar[5], theWeight);;
+        if(passSystCuts[1][JERUP  ] == true) histo_VVV_JERUp	 ->Fill(MVAVar[6], theWeight);
+        if(passSystCuts[1][JERDOWN] == true) histo_VVV_JERDown	 ->Fill(MVAVar[7], theWeight);
       }
       else if(fDecay == 44){
         if(passCuts[1][WWSEL])  	     histo_Higgs           ->Fill(MVAVar[0], theWeight);
@@ -954,6 +1054,8 @@ void vbs_ana
         if(passSystCuts[1][LEPP]    == true) histo_Higgs_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_Higgs_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_Higgs_METResUp  ->Fill(MVAVar[5], theWeight);;
+        if(passSystCuts[1][JERUP  ] == true) histo_Higgs_JERUp	   ->Fill(MVAVar[6], theWeight);
+        if(passSystCuts[1][JERDOWN] == true) histo_Higgs_JERDown   ->Fill(MVAVar[7], theWeight);
       }
       else if(fDecay == 31){
         if(passCuts[1][WWSEL])  	     histo_WWewk           ->Fill(MVAVar[0], theWeight);
@@ -964,6 +1066,8 @@ void vbs_ana
         if(passSystCuts[1][LEPP]    == true) histo_WWewk_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_WWewk_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_WWewk_METResUp  ->Fill(MVAVar[5], theWeight);;
+        if(passSystCuts[1][JERUP  ] == true) histo_WWewk_JERUp	   ->Fill(MVAVar[6], theWeight);
+        if(passSystCuts[1][JERDOWN] == true) histo_WWewk_JERDown   ->Fill(MVAVar[7], theWeight);
 
         if(passCuts[1][WWSEL] && doAQGCsAna == true){
 	  //the qcd WW that we subtract from the signal is not reweighted
@@ -1009,6 +1113,8 @@ void vbs_ana
         if(passSystCuts[1][LEPP]    == true) histo_WZ_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_WZ_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_WZ_METResUp  ->Fill(MVAVar[5], theWeight);;
+        if(passSystCuts[1][JERUP  ] == true) histo_WZ_JERUp     ->Fill(MVAVar[6], theWeight);
+        if(passSystCuts[1][JERDOWN] == true) histo_WZ_JERDown   ->Fill(MVAVar[7], theWeight);
       }
       else if(fDecay == 29){
         if(passCuts[1][WWSEL])  	     histo_WWqcd           ->Fill(MVAVar[0], theWeight);
@@ -1019,6 +1125,8 @@ void vbs_ana
         if(passSystCuts[1][LEPP]    == true) histo_WWqcd_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_WWqcd_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_WWqcd_METResUp  ->Fill(MVAVar[5], theWeight);;
+        if(passSystCuts[1][JERUP  ] == true) histo_WWqcd_JERUp	   ->Fill(MVAVar[6], theWeight);
+        if(passSystCuts[1][JERDOWN] == true) histo_WWqcd_JERDown   ->Fill(MVAVar[7], theWeight);
       }
       else if(fDecay == 30 || fDecay == 28 ||
               fDecay ==  5 || fDecay == 13 || fDecay == 20 || 
@@ -1031,6 +1139,8 @@ void vbs_ana
         if(passSystCuts[1][LEPP]    == true) histo_WS_LepResUp  ->Fill(MVAVar[3], theWeight);
         if(passSystCuts[1][LEPM]    == true) histo_WS_LepResDown->Fill(MVAVar[4], theWeight);
         if(passSystCuts[1][MET]     == true) histo_WS_METResUp  ->Fill(MVAVar[5], theWeight);;
+        if(passSystCuts[1][JERUP  ] == true) histo_WS_JERUp     ->Fill(MVAVar[6], theWeight);
+        if(passSystCuts[1][JERDOWN] == true) histo_WS_JERDown   ->Fill(MVAVar[7], theWeight);
         if(passCuts[1][WWSEL])  	     histo_WS_WSUp      ->Fill(MVAVar[0], weightWS[1]);
       }
       else if(fDecay == 1 || fDecay == 23 || fDecay == 3){
@@ -1282,13 +1392,12 @@ void vbs_ana
                             systEvent.trackMet_, systEvent.trackMetPhi_, 
 			    systEvent.njets_, systEvent.jet1_, systEvent.jet2_,
 			    year, 3, outputVar);
-      double MVAVar[6] = {outputVar[13],0,0,0,0,0};
+      double MVAVar[1] = {outputVar[13]};
       if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
       else if(thePlot == 2) {MVAVar[0]=outputVar[ 0];}
       else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
-      else if(thePlot ==19) {if(outputVar[2]< 250&&outputVar[14]<  750) MVAVar[0]=0.0; else if(outputVar[2]>=250&&outputVar[14]<  750) MVAVar[0]=1.0; else if(outputVar[2]< 250&&outputVar[14]>= 750) MVAVar[0]=2.0; else if(outputVar[2]>=250&&outputVar[14]>= 750) MVAVar[0]=3.0; else assert(0);
-                            }
-      for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
+
+      for(int nv=0; nv<1; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
       if(passCuts[1][WWSEL]){
 	if     (fDecay == 27){
 	  histo_WZ_CMS_WZNLOUp->Fill(MVAVar[0], theWeight);
@@ -1390,13 +1499,12 @@ void vbs_ana
                             dataEvent.trackMet_, dataEvent.trackMetPhi_, 
 			    dataEvent.njets_, dataEvent.jet1_, dataEvent.jet2_, 
 			    year, 3, outputVar);
-      double MVAVar[6] = {outputVar[13],0,0,0,0,0};
+      double MVAVar[1] = {outputVar[13]};
       if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
       else if(thePlot == 2) {MVAVar[0]=outputVar[ 0];}
       else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
-      else if(thePlot ==19) {if(outputVar[2]< 250&&outputVar[14]<  750) MVAVar[0]=0.0; else if(outputVar[2]>=250&&outputVar[14]<  750) MVAVar[0]=1.0; else if(outputVar[2]< 250&&outputVar[14]>= 750) MVAVar[0]=2.0; else if(outputVar[2]>=250&&outputVar[14]>= 750) MVAVar[0]=3.0; else assert(0);
-                            }
-      for(int nv=0; nv<6; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
+
+      for(int nv=0; nv<1; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
 
       if(passCuts[0][WWSEL] && dataEvent.type_ != SmurfTree::mm){
         double weightWS[2] = {1.0,1.0};
@@ -1426,10 +1534,9 @@ void vbs_ana
 	else if(thePlot ==16) myVar = dataEvent.type_;
 	else if(thePlot ==17) myVar = dataEvent.dR_;
 	else if(thePlot ==18) myVar = zeppenfeld;
-	else if(thePlot ==19) myVar = MVAVar[0];
-	else if(thePlot ==20) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
-	else if(thePlot ==21) myVar = TMath::Min(massZMin,99.999);
-	else if(thePlot ==22) myVar = TMath::Min((double)dataEvent.met_,199.999);
+	else if(thePlot ==19) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
+	else if(thePlot ==20) myVar = TMath::Min(massZMin,99.999);
+	else if(thePlot ==21) myVar = TMath::Min((double)dataEvent.met_,199.999);
 	else assert(0);
       	histo6->Fill(myVar,1.0);
       } // end making plots
@@ -1914,6 +2021,19 @@ void vbs_ana
   histo_VVV_JESDown           ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_JESDown	     ->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_Higgs_JESUp           ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_JESUp	  ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_Higgs_JESDown         ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_JESDown   ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  printf("uncertainties JER\n");
+  histo_WWewk_JERUp           ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk  ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_JERUp	  ->GetBinContent(i)/histo_WWewk	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_WWewk_JERDown         ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWewk  ->GetBinContent(i)>0)printf("%5.1f ",histo_WWewk_JERDown   ->GetBinContent(i)/histo_WWewk	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_WWqcd_JERUp           ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWqcd     ->GetBinContent(i)>0)printf("%5.1f ",histo_WWqcd_JERUp     ->GetBinContent(i)/histo_WWqcd	   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_WWqcd_JERDown         ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WWqcd     ->GetBinContent(i)>0)printf("%5.1f ",histo_WWqcd_JERDown   ->GetBinContent(i)/histo_WWqcd	   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_WZ_JERUp              ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WZ	   ->GetBinContent(i)>0)printf("%5.1f ",histo_WZ_JERUp	     ->GetBinContent(i)/histo_WZ   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_WZ_JERDown            ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WZ	   ->GetBinContent(i)>0)printf("%5.1f ",histo_WZ_JERDown      ->GetBinContent(i)/histo_WZ   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_WS_JERUp              ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WS	   ->GetBinContent(i)>0)printf("%5.1f ",histo_WS_JERUp	     ->GetBinContent(i)/histo_WS   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_WS_JERDown            ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WS	   ->GetBinContent(i)>0)printf("%5.1f ",histo_WS_JERDown      ->GetBinContent(i)/histo_WS   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_VVV_JERUp             ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_JERUp    ->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_VVV_JERDown           ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_VVV  ->GetBinContent(i)>0)printf("%5.1f ",histo_VVV_JERDown	     ->GetBinContent(i)/histo_VVV  ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_JERUp           ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_JERUp	  ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
+  histo_Higgs_JERDown         ->Write(); for(int i=1; i<=histo_Higgs->GetNbinsX(); i++) {if(histo_Higgs  ->GetBinContent(i)>0)printf("%5.1f ",histo_Higgs_JERDown   ->GetBinContent(i)/histo_Higgs	->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   printf("uncertainties GEN\n");
   histo_Wjets_WUp	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_Wjets->GetBinContent(i)>0)printf("%5.1f ",histo_Wjets_WUp       ->GetBinContent(i)/histo_Wjets->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_Wjets_WDown	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_Wjets->GetBinContent(i)>0)printf("%5.1f ",histo_Wjets_WDown     ->GetBinContent(i)/histo_Wjets->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
@@ -2070,6 +2190,20 @@ void vbs_ana
     if     (histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_JESUp  ->GetBinContent(nb) > 0) systJes[5] =  histo_Higgs_JESUp  ->GetBinContent(nb)/histo_Higgs->GetBinContent(nb);
     else if(histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_JESDown->GetBinContent(nb) > 0) systJes[5] =  histo_Higgs->GetBinContent(nb)/histo_Higgs_JESDown->GetBinContent(nb);
 
+    double systJER[6] = {1.0,1.0,1.0,1.0,1.0,1.0};
+    if     (histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_JERUp  ->GetBinContent(nb) > 0) systJER[0] =  histo_WWewk_JERUp  ->GetBinContent(nb)/histo_WWewk->GetBinContent(nb);
+    else if(histo_WWewk->GetBinContent(nb) > 0 && histo_WWewk_JERDown->GetBinContent(nb) > 0) systJER[0] =  histo_WWewk->GetBinContent(nb)/histo_WWewk_JERDown->GetBinContent(nb);
+    if     (histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_JERUp  ->GetBinContent(nb) > 0) systJER[1] =  histo_WWqcd_JERUp  ->GetBinContent(nb)/histo_WWqcd->GetBinContent(nb);
+    else if(histo_WWqcd->GetBinContent(nb) > 0 && histo_WWqcd_JERDown->GetBinContent(nb) > 0) systJER[1] =  histo_WWqcd->GetBinContent(nb)/histo_WWqcd_JERDown->GetBinContent(nb);
+    if     (histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_JERUp     ->GetBinContent(nb) > 0) systJER[2] =  histo_WZ_JERUp     ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
+    else if(histo_WZ->GetBinContent(nb)    > 0 && histo_WZ_JERDown   ->GetBinContent(nb) > 0) systJER[2] =  histo_WZ   ->GetBinContent(nb)/histo_WZ_JERDown   ->GetBinContent(nb);
+    if     (histo_WS->GetBinContent(nb)    > 0 && histo_WS_JERUp     ->GetBinContent(nb) > 0) systJER[3] =  histo_WS_JERUp     ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
+    else if(histo_WS->GetBinContent(nb)    > 0 && histo_WS_JERDown   ->GetBinContent(nb) > 0) systJER[3] =  histo_WS   ->GetBinContent(nb)/histo_WS_JERDown   ->GetBinContent(nb);
+    if     (histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_JERUp    ->GetBinContent(nb) > 0) systJER[4] =  histo_VVV_JERUp    ->GetBinContent(nb)/histo_VVV  ->GetBinContent(nb);
+    else if(histo_VVV->GetBinContent(nb)   > 0 && histo_VVV_JERDown  ->GetBinContent(nb) > 0) systJER[4] =  histo_VVV  ->GetBinContent(nb)/histo_VVV_JERDown  ->GetBinContent(nb);
+    if     (histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_JERUp  ->GetBinContent(nb) > 0) systJER[5] =  histo_Higgs_JERUp  ->GetBinContent(nb)/histo_Higgs->GetBinContent(nb);
+    else if(histo_Higgs->GetBinContent(nb) > 0 && histo_Higgs_JERDown->GetBinContent(nb) > 0) systJER[5] =  histo_Higgs->GetBinContent(nb)/histo_Higgs_JERDown->GetBinContent(nb);
+
     char outputLimitsShape[200];
     sprintf(outputLimitsShape,"histo_limits_wwss%2s_nsign%1d_shape_%4s_Bin%d.txt",finalStateName,signSel,ECMsb.Data(),nb-1);
     ofstream newcardShape;
@@ -2090,6 +2224,7 @@ void vbs_ana
     newcardShape << Form("%s                                       lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",momName,systLep[0],systLep[1],systLep[2],systLep[3],systLep[4],systLep[5]);
     newcardShape << Form("CMS_scale_met                            lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",systMet[0],systMet[1],systMet[2],systMet[3],systMet[4],systMet[5]);
     newcardShape << Form("CMS_scale_j                              lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",systJes[0],systJes[1],systJes[2],systJes[3],systJes[4],systJes[5]);		      
+    newcardShape << Form("CMS_res_j                                lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",systJER[0],systJER[1],systJER[2],systJER[3],systJER[4],systJER[5]);		      
     newcardShape << Form("pdf_qqbar                                lnN %5.3f %5.3f %5.3f   -     -    -   %5.3f\n",pdf_qqbar[0],pdf_qqbar[1],pdf_qqbar[2],pdf_qqbar[3]);
     newcardShape << Form("QCDscale_WWewk		           lnN %5.3f   -     -	   -     -    -     -  \n",QCDscale_WWewk);	  
     newcardShape << Form("QCDscale_WWqcd		           lnN   -   %5.3f   -	   -     -    -     -  \n",QCDscale_WWqcd);	  
