@@ -237,7 +237,7 @@ class StandardPlot {
   	     	   double U =  (N==0) ?  ( ROOT::Math::gamma_quantile_c(alpha,N+1,1.) ) :
   	     	      ( ROOT::Math::gamma_quantile_c(alpha/2,N+1,1.) );
   	     	   g->SetPointEYlow(i,double(N)-L);
-		   if(N > 0)
+		   if(N >= 0)
   	     	     g->SetPointEYhigh(i, U-double(N));
 		   else
 		     g->SetPointEYhigh(i, 0.0);
