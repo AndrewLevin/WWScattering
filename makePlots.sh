@@ -20,3 +20,9 @@
 
 // N-1
 .x finalPlotVBS.C+(1,1,"|#Delta #eta_{jj}|","","/data/smurf/ceballos/distributions/wwss/wwss_np1_detajj.root","wwss_np1_detajj",0,19.4)
+
+// change h legend
+.x finalPlotVBS.C+(1,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mjj_hpp200.root","wwss_mjj_hpp200",0,19.4)
+.x finalPlotVBS.C+(1,1,"m_{ll} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mll_hpp200.root","wwss_mll_hpp200",0,19.4)
+.x finalPlotVBS.C+(2,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mjj_hpp800.root","wwss_mjj_hpp800",0,19.4)
+.x finalPlotVBS.C+(2,1,"m_{ll} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mll_hpp800.root","wwss_mll_hpp800",0,19.4)

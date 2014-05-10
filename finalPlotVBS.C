@@ -41,6 +41,19 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   TH1F *hData    = (TH1F*)file->Get("histo6");
   if(blindedData == true) hData->Scale(0);
 
+  printf("%f + %f + %f + %f + %f + %f = %f - %f - %f\n",
+          hWWEWK->GetSumOfWeights(),hVV->GetSumOfWeights(),hWWQCD->GetSumOfWeights(),
+  	  hWJets->GetSumOfWeights(),hWW->GetSumOfWeights(),hVVV->GetSumOfWeights(),
+	  hWWEWK->GetSumOfWeights()+hVV->GetSumOfWeights()+hWWQCD->GetSumOfWeights()+
+	  hWJets->GetSumOfWeights()+hWW->GetSumOfWeights()+hVVV->GetSumOfWeights(),
+	  hData->GetSumOfWeights(),hHiggs->GetSumOfWeights());
+
+  double SFHiggs = 1.0;
+  if(hHiggs->GetSumOfWeights() > 0) {
+    SFHiggs = (hWWEWK->GetSumOfWeights()+hVV->GetSumOfWeights()+hWWQCD->GetSumOfWeights()+
+               hWJets->GetSumOfWeights()+hWW->GetSumOfWeights()+hVVV  ->GetSumOfWeights())/hHiggs->GetSumOfWeights();
+  }
+
   double scale = 1;
   hWWEWK  ->Scale(scale);
   hVV	  ->Scale(scale);
@@ -48,15 +61,16 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   hWJets  ->Scale(scale);
   hWW	  ->Scale(scale);
   hVVV	  ->Scale(scale);
-  hHiggs  ->Scale(scale*10);
+  hHiggs  ->Scale(scale*SFHiggs);
 
-  if(nsel == 0 || nsel == 1){
+  if(nsel == 0 || nsel == 1 || nsel == 2){
     myPlot.setMCHist(iWWEWK,(TH1F*)hWWEWK->Clone("hWWEWK"));
     myPlot._mass = 0;
-    if(nsel == 1 || hHiggs->GetSumOfWeights() > 0) myPlot.setHWWOverlaid(true);
+    if(nsel >= 1 || hHiggs->GetSumOfWeights() > 0) myPlot.setHWWOverlaid(true);
     myPlot.setUnits(units);
     myPlot.setBreakdown(true);
-    myPlot.setMass(800);
+    if(nsel == 1) myPlot.setMass(200);
+    else          myPlot.setMass(800);
   } else assert(0);
 
   myPlot.setMCHist(iVV,     (TH1F*)hVV     ->Clone("hVV"));
@@ -66,13 +80,6 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   myPlot.setMCHist(iVVV,    (TH1F*)hVVV    ->Clone("hVVV"));
   myPlot.setMCHist(iHiggs,  (TH1F*)hHiggs  ->Clone("hHiggs"));
   myPlot.setDataHist((TH1F*)hData->Clone("data"));
-
-  printf("%f + %f + %f + %f + %f + %f = %f - %f - %f\n",
-          hWWEWK->GetSumOfWeights(),hVV->GetSumOfWeights(),hWWQCD->GetSumOfWeights(),
-  	  hWJets->GetSumOfWeights(),hWW->GetSumOfWeights(),hVVV->GetSumOfWeights(),
-	  hWWEWK->GetSumOfWeights()+hVV->GetSumOfWeights()+hWWQCD->GetSumOfWeights()+
-	  hWJets->GetSumOfWeights()+hWW->GetSumOfWeights()+hVVV->GetSumOfWeights(),
-	  hData->GetSumOfWeights(),hHiggs->GetSumOfWeights());
 
   TCanvas* c1 = new TCanvas("c1", "c1",5,50,500,500);
 
