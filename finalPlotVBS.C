@@ -3,7 +3,7 @@
 #include "TInterpreter.h"
 #include "TFile.h"
 #include "TCanvas.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TStyle.h"
 #include "TPad.h"
 #include "Math/QuantFuncMathCore.h"
@@ -23,22 +23,21 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   TFile* file = new TFile(plotName.Data(), "read");
 
   StandardPlot myPlot;
-  myPlot.setLumi(lumi);
   myPlot.setLabel(XTitle.Data());
-  if     (lumi ==    4.9)  myPlot.addLabel("#sqrt{s} = 7 TeV");
-  else if(lumi ==   19.4)  myPlot.addLabel("#sqrt{s} = 8 TeV");
-  else if(lumi ==   24.4)  myPlot.addLabel("#sqrt{s} = 7+8 TeV");
-  else                    myPlot.addLabel(""); 
+  if     (lumi ==    4.9) myPlot.setLumiLabel("4.9 fb^{-1} (7 TeV)");
+  else if(lumi ==   19.4) myPlot.setLumiLabel("19.4 fb^{-1} (8 TeV)");
+  else if(lumi ==   24.4) myPlot.setLumiLabel("4.9 fb^{-1} (7 TeV) + 19.4 fb^{-1} (8 TeV)");
+  else                    myPlot.setLumiLabel(""); 
   myPlot.setUnits(units.Data());
 
-  TH1F* hWWEWK   = (TH1F*)file->Get("histo0");
-  TH1F* hVV      = (TH1F*)file->Get("histo1");
-  TH1F* hWWQCD   = (TH1F*)file->Get("histo2");
-  TH1F* hWJets   = (TH1F*)file->Get("histo3");
-  TH1F* hWW      = (TH1F*)file->Get("histo4");
-  TH1F* hVVV     = (TH1F*)file->Get("histo5");
-  TH1F* hHiggs   = (TH1F*)file->Get("histo7");
-  TH1F *hData    = (TH1F*)file->Get("histo6");
+  TH1D* hWWEWK   = (TH1D*)file->Get("histo0");
+  TH1D* hVV      = (TH1D*)file->Get("histo1");
+  TH1D* hWWQCD   = (TH1D*)file->Get("histo2");
+  TH1D* hWJets   = (TH1D*)file->Get("histo3");
+  TH1D* hWW      = (TH1D*)file->Get("histo4");
+  TH1D* hVVV     = (TH1D*)file->Get("histo5");
+  TH1D* hHiggs   = (TH1D*)file->Get("histo7");
+  TH1D *hData    = (TH1D*)file->Get("histo6");
   if(blindedData == true) hData->Scale(0);
 
   printf("%f + %f + %f + %f + %f + %f = %f - %f - %f\n",
@@ -64,7 +63,7 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   hHiggs  ->Scale(scale*SFHiggs);
 
   if(nsel == 0 || nsel == 1 || nsel == 2){
-    myPlot.setMCHist(iWWEWK,(TH1F*)hWWEWK->Clone("hWWEWK"));
+    myPlot.setMCHist(iWWEWK,(TH1D*)hWWEWK->Clone("hWWEWK"));
     myPlot._mass = 0;
     if(nsel >= 1 || hHiggs->GetSumOfWeights() > 0) myPlot.setHWWOverlaid(true);
     myPlot.setUnits(units);
@@ -73,13 +72,13 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
     else          myPlot.setMass(800);
   } else assert(0);
 
-  myPlot.setMCHist(iVV,     (TH1F*)hVV     ->Clone("hVV"));
-  myPlot.setMCHist(iWWQCD,  (TH1F*)hWWQCD  ->Clone("hWWQCD"));
-  myPlot.setMCHist(iWJets,  (TH1F*)hWJets  ->Clone("hWJets")); 
-  myPlot.setMCHist(iWW,     (TH1F*)hWW	   ->Clone("hWW"));
-  myPlot.setMCHist(iVVV,    (TH1F*)hVVV    ->Clone("hVVV"));
-  myPlot.setMCHist(iHiggs,  (TH1F*)hHiggs  ->Clone("hHiggs"));
-  myPlot.setDataHist((TH1F*)hData->Clone("data"));
+  myPlot.setMCHist(iVV,     (TH1D*)hVV     ->Clone("hVV"));
+  myPlot.setMCHist(iWWQCD,  (TH1D*)hWWQCD  ->Clone("hWWQCD"));
+  myPlot.setMCHist(iWJets,  (TH1D*)hWJets  ->Clone("hWJets")); 
+  myPlot.setMCHist(iWW,     (TH1D*)hWW	   ->Clone("hWW"));
+  myPlot.setMCHist(iVVV,    (TH1D*)hVVV    ->Clone("hVVV"));
+  myPlot.setMCHist(iHiggs,  (TH1D*)hHiggs  ->Clone("hHiggs"));
+  myPlot.setDataHist((TH1D*)hData->Clone("data"));
 
   TCanvas* c1 = new TCanvas("c1", "c1",5,50,500,500);
 
@@ -102,8 +101,8 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   if(nsel == 0 || nsel == 10){
     TCanvas* c2 = new TCanvas("c2", "c2",700,50,500,500);
     c2->cd(1);
-    TH1F* hSignal = (TH1F*)file->Get("histo0");
-    TH1F* hSumBck = (TH1F*)file->Get("histo1");
+    TH1D* hSignal = (TH1D*)file->Get("histo0");
+    TH1D* hSumBck = (TH1D*)file->Get("histo1");
     hSumBck->Add(hWWQCD  );
     hSumBck->Add(hWJets  );
     hSumBck->Add(hWW     );

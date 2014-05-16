@@ -3,7 +3,7 @@
 #if !defined (__CINT__) || defined (__MAKECINT__)
 #include "THStack.h"
 #include "TGaxis.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TLatex.h"
 #include "TPad.h"
 #include "TCanvas.h"
@@ -20,14 +20,14 @@ enum samp { iVV,iWWQCD,iWJets,iWW,iVVV,iWWEWK,iHiggs,nSamples};
 float xPos[nSamples+1] = {0.19,0.19,0.19,0.19,0.41,0.41,0.41,0.41}; 
 float yOff[nSamples+1] = {0,1,2,3,0,1,2,3};
 
-const Float_t _tsize   = 0.033;
+const Float_t _tsize   = 0.040;
 const Float_t _xoffset = 0.20;
 const Float_t _yoffset = 0.05;
 
 //------------------------------------------------------------------------------
 // GetMaximumIncludingErrors
 //------------------------------------------------------------------------------
-Float_t GetMaximumIncludingErrors(TH1F* h)
+Float_t GetMaximumIncludingErrors(TH1D* h)
 {
     Float_t maxWithErrors = 0;
 
@@ -82,7 +82,7 @@ void THStackAxisFonts(THStack* h,
 //------------------------------------------------------------------------------
 void DrawLegend(Float_t x1,
         Float_t y1,
-        TH1F*   hist,
+        TH1D*   hist,
         TString label,
         TString option)
 {
@@ -107,11 +107,11 @@ class StandardPlot {
 
     public: 
         StandardPlot() { _hist.resize(nSamples,0); _data = 0; _breakdown = false; _mass = 0;_isHWWOverlaid = false;}
-        void setMCHist   (const samp &s, TH1F * h)  { _hist[s]       = h;  } 
-        void setDataHist  (TH1F * h)                { _data          = h;  } 
+        void setMCHist   (const samp &s, TH1D * h)  { _hist[s]       = h;  } 
+        void setDataHist  (TH1D * h)                { _data          = h;  } 
         void setHWWOverlaid(bool b)                 { _isHWWOverlaid = b;  }
 
-  TH1F* getDataHist() { return _data; }
+  TH1D* getDataHist() { return _data; }
 
         void setMass(const int &m) {_mass=m;}
 
@@ -249,18 +249,9 @@ class StandardPlot {
 	      }
             }
 	    
-            hstack->SetTitle("CMS preliminary");
+            //hstack->SetTitle("CMS preliminary");
             //hstack->SetTitle("CMS");
 
-   	    TPaveText *pt = new TPaveText(0.71,0.83,0.90,0.89,"blNDC");
-   	    pt->SetName("title");
-   	    pt->SetBorderSize(0);
-   	    pt->SetFillColor(10);
-   	    pt->SetTextFont(42);
-   	    pt->SetTextSize(_tsize);
-   	    pt->AddText("CMS preliminary");
-   	    pt->Draw();
-   
             Float_t theMax = hstack->GetMaximum();
             Float_t theMin = hstack->GetMinimum();
 
@@ -304,7 +295,7 @@ class StandardPlot {
             TString higgsLabel = " HWW";
             higgsLabel.Form("W^{#pm}W^{#pm}jj");
 
-            if(_data->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _data,          " data",    "lp"); j++; }
+            if(_data->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _data,          " Data",    "lp"); j++; }
             if     (_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0 && _isHWWOverlaid) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "f" ); j++; }
             else if(_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0)		     { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "l" ); j++; }
             if(_hist[iVV    ] &&_hist[iVV    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVV    ], " WZ",          "f" ); j++; }
@@ -315,37 +306,36 @@ class StandardPlot {
             if(_hist[iVVV   ] &&_hist[iVVV   ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVVV   ], " VVV"  ,       "f" ); j++; }
             if(_hist[iHiggs ] &&_hist[iHiggs ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iHiggs ], Form("H^{++}(%3d) #rightarrow W^{#pm}W^{#pm}",_mass)  ,       "f" ); j++; }
 
-            TLatex* luminosity = new TLatex(0.9, 0.8, TString::Format("L = %.1f fb^{-1}",_lumi));
-            luminosity->SetNDC();
-            luminosity->SetTextAlign(32);
-            luminosity->SetTextFont(42);
-            luminosity->SetTextSize(_tsize);
-            luminosity->Draw("same");
-            if(_extraLabel) _extraLabel->Draw("same");
+            TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS}");
+            CMSLabel->SetNDC ();
+            CMSLabel->SetTextAlign (10);
+            CMSLabel->SetTextFont (42);
+            CMSLabel->SetTextSize (_tsize);
+            CMSLabel->Draw ("same") ;
+
+           _lumiLabel->Draw ("same") ;
 
             return hstack->GetHistogram();
         }
-        void setLumi(const float &l) { _lumi = l; }
         void setLabel(const TString &s) { _xLabel = s; }
         void setUnits(const TString &s) { _units = s; }
         void setBreakdown(const bool &b = true) { _breakdown = b; }
-        void addLabel(const std::string &s) {
-            _extraLabel = new TLatex(0.9, 0.74, TString(s));
-            _extraLabel->SetNDC();
-            _extraLabel->SetTextAlign(32);
-            _extraLabel->SetTextFont(42);
-            _extraLabel->SetTextSize(_tsize);
+        void setLumiLabel (const std::string &s) {
+            _lumiLabel = new TLatex (0.95, 0.93, TString (s));
+            _lumiLabel->SetNDC ();
+            _lumiLabel->SetTextAlign (30);
+            _lumiLabel->SetTextFont (42);
+            _lumiLabel->SetTextSize (_tsize);
         }
 
     private: 
-        std::vector<TH1F*> _hist;
-        TH1F* _data;
+        std::vector<TH1D*> _hist;
+        TH1D* _data;
 
         //MWL
-        float    _lumi;
+        TLatex * _lumiLabel;     //PG label with the centre of mass energy and lumi info
         TString  _xLabel;
         TString  _units;
-        TLatex * _extraLabel;
         bool     _breakdown;
         int      _mass;
         bool    _isHWWOverlaid;
