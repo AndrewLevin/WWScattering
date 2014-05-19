@@ -62,7 +62,7 @@ bool doAQGCsAna = false; //makes the histograms of yield/SM yield used to set li
 bool doAQGCsAna2D = false; //makes the 2D histograms of yield/SM yield used to set limits on AQGC parameters
 int sm_lhe_weight = -1; //do not change this, it is set automatically
 bool use_anom_sample = false; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
-int which_lhe_weight_ww = 61; // 61 for wwss_qed_4_qcd_99_lt012.root and 6/17/28/.../61 for wwss_qed_4_qcd_99_ls_lm_lt.root
+int which_lhe_weight_ww = 61; // 61 for wwss_qed_4_qcd_99_lt012.root and 6/17/28/.../61 for wwss_qed_4_qcd_99_ls_lm_lt.root  71/72/73 for aQGC plots
 int which_lhe_weight_wz = 9;
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2], int opt);
@@ -257,7 +257,7 @@ void vbs_ana
   Float_t xbins[nBin+1] = {700, 1100, 1500, 2000, 3000};
   if     (thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
   else if(thePlot == 2) {xbins[0] =   0; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
-  else if(thePlot == 9) {xbins[0] =   0; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
+  else if(thePlot == 9) {xbins[0] =  50; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
