@@ -36,6 +36,7 @@
 //FM7 = 9
 std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_ls0ls1_grid.lhe";
 //std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/ls_lm_lt_unmerged_1.lhe";
+///std::string file_for_grid="/data/blue/anlevin/forGuillelmo20May2014/qed_4_qcd_99_ls_lm_lt_v6.lhe";
 int x_param_number = 1;
 int y_param_number = 2;
 std::vector<float > oneD_grid_points;
@@ -62,7 +63,7 @@ bool doAQGCsAna = false; //makes the histograms of yield/SM yield used to set li
 bool doAQGCsAna2D = false; //makes the 2D histograms of yield/SM yield used to set limits on AQGC parameters
 int sm_lhe_weight = -1; //do not change this, it is set automatically
 bool use_anom_sample = false; //for running a single analysis over a sample with weights, allows you to select which weight you use, using the variables below
-int which_lhe_weight_ww = 61; // 61 for wwss_qed_4_qcd_99_lt012.root and 6/17/28/.../61 for wwss_qed_4_qcd_99_ls_lm_lt.root  71/72/73 for aQGC plots
+int which_lhe_weight_ww = 61; // 61 for wwss_qed_4_qcd_99_ls_lm_lt and 6/17/28/.../61 for wwss_qed_4_qcd_99_ls_lm_lt.root  71/72/73 for aQGC plots
 int which_lhe_weight_wz = 9;
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2], int opt);
