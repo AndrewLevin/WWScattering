@@ -192,11 +192,19 @@ class StandardPlot {
             if(_data) _data->SetMarkerStyle(kFullCircle);
 	    hstack->Draw("hist");
 
-	    bool plotSystErrorBars = false;
-	    double systBck = 0.10;
+	    bool plotSystErrorBars = true;
 	    if(plotSystErrorBars == true) {
   	      TGraphAsymmErrors * gsyst = new TGraphAsymmErrors(hSum);
               for (int i = 0; i < gsyst->GetN(); ++i) {
+                double systBck = 0.107*0.107*_hist[iWWEWK]->GetBinContent(i+1)*_hist[iWWEWK]->GetBinContent(i+1)+
+		                              0.089*0.107*_hist[iWWQCD]->GetBinContent(i+1)*_hist[iWWQCD]->GetBinContent(i+1)+
+					      0.380*0.380*_hist[iVV]->GetBinContent(i+1)*_hist[iVV]->GetBinContent(i+1)+
+		                              0.114*0.114*_hist[iWW]->GetBinContent(i+1)*_hist[iWW]->GetBinContent(i+1)+
+					      0.503*0.503*_hist[iVVV]->GetBinContent(i+1)*_hist[iVVV]->GetBinContent(i+1)+
+                                             0.360*0.260*_hist[iWJets]->GetBinContent(i+1)*_hist[iWJets]->GetBinContent(i+1);
+                double total = _hist[iWWEWK]->GetBinContent(i+1)+_hist[iWWQCD]->GetBinContent(i+1)+_hist[iVV]->GetBinContent(i+1)+
+		                         _hist[iWW]->GetBinContent(i+1)+_hist[iVVV]->GetBinContent(i+1)+_hist[iWJets]->GetBinContent(i+1);
+                if(total > 0) systBck = sqrt(systBck)/total;
                 gsyst->SetPointEYlow (i, sqrt(hSum->GetBinError(i+1)*hSum->GetBinError(i+1)+hSum->GetBinContent(i+1)*hSum->GetBinContent(i+1)*systBck*systBck));
                 gsyst->SetPointEYhigh(i, sqrt(hSum->GetBinError(i+1)*hSum->GetBinError(i+1)+hSum->GetBinContent(i+1)*hSum->GetBinContent(i+1)*systBck*systBck));
 	      }
