@@ -317,6 +317,7 @@ void vbs_ana
   else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 10; xminPlot = -1.0; xmaxPlot = 1.0;}
   else if(thePlot >= 20 && thePlot <= 20) {nBinPlot =100; xminPlot =  0.0; xmaxPlot = 100.0;}
   else if(thePlot >= 21 && thePlot <= 21) {nBinPlot =40; xminPlot =  0.0; xmaxPlot = 200.0;}
+  else if(thePlot >= 22 && thePlot <= 22) {nBinPlot =50; xminPlot =  0.0; xmaxPlot = 5.0;}
   else assert(0);
 
   TH1D* histo0;
@@ -662,6 +663,12 @@ void vbs_ana
       genjet_jer2.SetE  (genjet_jer2.E( )*factJER[0]);
     }
 
+    double deltaRlJMin = 999.0;
+    if(DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.lep1_.Phi(),bgdEvent.lep1_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.lep1_.Phi(),bgdEvent.lep1_.Eta());
+    if(DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.lep2_.Phi(),bgdEvent.lep2_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.lep2_.Phi(),bgdEvent.lep2_.Eta());
+    if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.lep1_.Phi(),bgdEvent.lep1_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.lep1_.Phi(),bgdEvent.lep1_.Eta());
+    if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.lep2_.Phi(),bgdEvent.lep2_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.lep2_.Phi(),bgdEvent.lep2_.Eta());
+
     // 0      1      2       3     4   5      6        7           8  9            10            11     12  13    14
     // lep1pt,lep2pt,dilmass,dilpt,met,metPhi,trackMet,trackMetPhi,mt,dPhiDiLepMET,dPhiMETTrkMET,pTFrac,mtZ,mlljj,mjj;
     double outputVarLepP[15];
@@ -982,6 +989,7 @@ void vbs_ana
 	else if(thePlot ==19) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
 	else if(thePlot ==20) myVar = TMath::Min(massZMin,99.999);
 	else if(thePlot ==21) myVar = TMath::Min((double)bgdEvent.met_,199.999);
+	else if(thePlot ==22) myVar = TMath::Min(deltaRlJMin,4.999);
 	else assert(0);
 
       	if     (fDecay == 31){
@@ -1444,6 +1452,12 @@ void vbs_ana
     int lType = 1;
     if     (dataEvent.lq1_ * dataEvent.lq2_ < 0) lType = 0;
 
+    double deltaRlJMin = 999.0;
+    if(DeltaR(dataEvent.jet1_.Phi(),dataEvent.jet1_.Eta(),dataEvent.lep1_.Phi(),dataEvent.lep1_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(dataEvent.jet1_.Phi(),dataEvent.jet1_.Eta(),dataEvent.lep1_.Phi(),dataEvent.lep1_.Eta());
+    if(DeltaR(dataEvent.jet1_.Phi(),dataEvent.jet1_.Eta(),dataEvent.lep2_.Phi(),dataEvent.lep2_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(dataEvent.jet1_.Phi(),dataEvent.jet1_.Eta(),dataEvent.lep2_.Phi(),dataEvent.lep2_.Eta());
+    if(DeltaR(dataEvent.jet2_.Phi(),dataEvent.jet2_.Eta(),dataEvent.lep1_.Phi(),dataEvent.lep1_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(dataEvent.jet2_.Phi(),dataEvent.jet2_.Eta(),dataEvent.lep1_.Phi(),dataEvent.lep1_.Eta());
+    if(DeltaR(dataEvent.jet2_.Phi(),dataEvent.jet2_.Eta(),dataEvent.lep2_.Phi(),dataEvent.lep2_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(dataEvent.jet2_.Phi(),dataEvent.jet2_.Eta(),dataEvent.lep2_.Phi(),dataEvent.lep2_.Eta());
+
     double zeppenfeld = TMath::Min(TMath::Max(TMath::Abs(dataEvent.lep1_.Eta()-(dataEvent.jet1_.Eta()+dataEvent.jet2_.Eta())/2.),
                                               TMath::Abs(dataEvent.lep2_.Eta()-(dataEvent.jet1_.Eta()+dataEvent.jet2_.Eta())/2.)),3.999);
     //int centrality = 0;
@@ -1538,6 +1552,7 @@ void vbs_ana
 	else if(thePlot ==19) myVar = TMath::Max(TMath::Min((double)ewkMVA,0.999),-0.999);
 	else if(thePlot ==20) myVar = TMath::Min(massZMin,99.999);
 	else if(thePlot ==21) myVar = TMath::Min((double)dataEvent.met_,199.999);
+	else if(thePlot ==22) myVar = TMath::Min(deltaRlJMin,4.999);
 	else assert(0);
       	histo6->Fill(myVar,1.0);
       } // end making plots
