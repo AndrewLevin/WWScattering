@@ -588,25 +588,25 @@ void vbs_ana
     LorentzVector genjet_jer1;
     LorentzVector genjet_jer2;
     int jerbin[2] = {-1, -1};
-    if     (DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.genjet1_.Phi(),bgdEvent.genjet1_.Eta()) < 0.3) {
+    if     (DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.genjet1_.Phi(),bgdEvent.genjet1_.Eta()) < 0.5) {
       genjet_jer1 = bgdEvent.genjet1_;
     }
-    else if(DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.genjet2_.Phi(),bgdEvent.genjet2_.Eta()) < 0.3) {
+    else if(DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.genjet2_.Phi(),bgdEvent.genjet2_.Eta()) < 0.5) {
       genjet_jer1 = bgdEvent.genjet2_;
     }
-    else if(DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.genjet3_.Phi(),bgdEvent.genjet3_.Eta()) < 0.3) {
+    else if(DeltaR(bgdEvent.jet1_.Phi(),bgdEvent.jet1_.Eta(),bgdEvent.genjet3_.Phi(),bgdEvent.genjet3_.Eta()) < 0.5) {
       genjet_jer1 = bgdEvent.genjet3_;
     }
     else {
       genjet_jer1 = bgdEvent.jet1_;
     }
-    if     (DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.genjet1_.Phi(),bgdEvent.genjet1_.Eta()) < 0.3) {
+    if     (DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.genjet1_.Phi(),bgdEvent.genjet1_.Eta()) < 0.5) {
       genjet_jer2 = bgdEvent.genjet1_;
     }
-    else if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.genjet2_.Phi(),bgdEvent.genjet2_.Eta()) < 0.3) {
+    else if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.genjet2_.Phi(),bgdEvent.genjet2_.Eta()) < 0.5) {
       genjet_jer2 = bgdEvent.genjet2_;
     }
-    else if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.genjet3_.Phi(),bgdEvent.genjet3_.Eta()) < 0.3) {
+    else if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.genjet3_.Phi(),bgdEvent.genjet3_.Eta()) < 0.5) {
       genjet_jer2 = bgdEvent.genjet3_;
     }
     else {
