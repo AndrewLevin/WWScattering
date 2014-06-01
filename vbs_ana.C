@@ -143,7 +143,7 @@ void vbs_ana
     }
   }
 
-  double genLevelNorm[2] = {0.,0.};
+  double genLevelNorm[4] = {0.,0.,0.,0.};
 
   double frCorr = 0.78;
   double lumi = 1.0;
@@ -458,16 +458,23 @@ void vbs_ana
     bgdEvent.tree_->GetEntry(evt);
 
     // generator level selection
-    bool minGenCuts = ((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) == SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection) ||
-                      ((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) == SmurfTree::Lep2FullSelection);
-    if(minGenCuts == false) {
+    bool minGenCuts = !(((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) == SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection) ||
+                        ((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) == SmurfTree::Lep2FullSelection) ||
+			((bgdEvent.cuts_ & SmurfTree::Lep1FullSelection) == SmurfTree::Lep1FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep2FullSelection) == SmurfTree::Lep2FullSelection && (bgdEvent.cuts_ & SmurfTree::Lep3FullSelection) != SmurfTree::Lep3FullSelection && bgdEvent.lid3_ != 0));
+    bool genLevelSel = false;
+    if(minGenCuts == true) {
       genLevelNorm[0]++;
+      bool passJetsCuts[3]; 
+      passJetsCuts[0] = bgdEvent.genjet1_.Pt() > 20 && TMath::Abs(bgdEvent.genjet1_.Eta()) < 5.0 && bgdEvent.genjet2_.Pt() > 20 && TMath::Abs(bgdEvent.genjet2_.Eta()) < 5.0 && TMath::Abs(bgdEvent.genjet1_.Eta()-bgdEvent.genjet2_.Eta()) > 2.5 && (bgdEvent.genjet1_+bgdEvent.genjet2_).M() > 300.;
+      passJetsCuts[1] = bgdEvent.genjet1_.Pt() > 20 && TMath::Abs(bgdEvent.genjet1_.Eta()) < 5.0 && bgdEvent.genjet3_.Pt() > 20 && TMath::Abs(bgdEvent.genjet3_.Eta()) < 5.0 && TMath::Abs(bgdEvent.genjet1_.Eta()-bgdEvent.genjet3_.Eta()) > 2.5 && (bgdEvent.genjet1_+bgdEvent.genjet3_).M() > 300.;
+      passJetsCuts[2] = bgdEvent.genjet2_.Pt() > 20 && TMath::Abs(bgdEvent.genjet2_.Eta()) < 5.0 && bgdEvent.genjet3_.Pt() > 20 && TMath::Abs(bgdEvent.genjet3_.Eta()) < 5.0 && TMath::Abs(bgdEvent.genjet2_.Eta()-bgdEvent.genjet3_.Eta()) > 2.5 && (bgdEvent.genjet2_+bgdEvent.genjet3_).M() > 300.;
+
       if(bgdEvent.genlep1_.Pt() > 10 && TMath::Abs(bgdEvent.genlep1_.Eta()) < 2.5 && 
          bgdEvent.genlep2_.Pt() > 10 && TMath::Abs(bgdEvent.genlep2_.Eta()) < 2.5 &&
-	 bgdEvent.genjet1_.Pt() > 20 && TMath::Abs(bgdEvent.genjet1_.Eta()) < 5.0 &&
-         bgdEvent.genjet2_.Pt() > 20 && TMath::Abs(bgdEvent.genjet2_.Eta()) < 5.0 &&
-         TMath::Abs(bgdEvent.genjet1_.Eta()-bgdEvent.genjet2_.Eta()) > 2.5 && (bgdEvent.genjet1_+bgdEvent.genjet2_).M() > 300.) {
+         //bgdEvent.genlep3_.Pt() > 10 && TMath::Abs(bgdEvent.genlep3_.Eta()) < 2.5 &&
+	 (passJetsCuts[0] || passJetsCuts[1] || passJetsCuts[2])) {
         genLevelNorm[1]++;
+	genLevelSel = true;
       }
     }
 
@@ -965,6 +972,10 @@ void vbs_ana
         if(fDecay == 27) theWeight = theWeight * wzCorr;
       }
 
+      if(minGenCuts == true && passCuts[1][WWSEL] && genLevelSel == false) genLevelNorm[2]++;
+      if(minGenCuts == true && passCuts[1][WWSEL] && genLevelSel == true)  genLevelNorm[3]++;
+      //if(minGenCuts == true && (passCuts[0][WZSEL]||passCuts[1][WZSEL]) && genLevelSel == false) genLevelNorm[2]++;
+      //if(minGenCuts == true && (passCuts[0][WZSEL]||passCuts[1][WZSEL]) && genLevelSel == true)  genLevelNorm[3]++;
       if(passCuts[1][WWSEL]){ // begin making plots
 	double myVar = -1.0;
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((bgdEvent.jet1_+bgdEvent.jet2_).M(),1999.999),500.001);
@@ -1577,7 +1588,8 @@ void vbs_ana
   sprintf(output,Form("histo_nice%s.root",ECMsb.Data()));	 
   TFile* outFilePlotsNote = new TFile(output,"recreate");
 
-  printf("gen level efficiency: %f / %f = %f\n",genLevelNorm[1],genLevelNorm[0],genLevelNorm[1]/genLevelNorm[0]);
+  printf("gen_eff: %f / %f = %f | rec_eff: %f / %f = %f\n",genLevelNorm[1],genLevelNorm[0],genLevelNorm[1]/genLevelNorm[0],
+                                                           genLevelNorm[2],genLevelNorm[3],genLevelNorm[2]/genLevelNorm[3]);
 
   TFile *th1d_outfile;
   if(doAQGCsAna == true){
@@ -2241,6 +2253,7 @@ void vbs_ana
     newcardShape << Form("CMS_scale_met                            lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",systMet[0],systMet[1],systMet[2],systMet[3],systMet[4],systMet[5]);
     newcardShape << Form("CMS_scale_j                              lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",systJes[0],systJes[1],systJes[2],systJes[3],systJes[4],systJes[5]);		      
     newcardShape << Form("CMS_res_j                                lnN %5.3f %5.3f %5.3f %5.3f %5.3f  -   %5.3f\n",systJER[0],systJER[1],systJER[2],systJER[3],systJER[4],systJER[5]);		      
+    newcardShape << Form("CMS_eff_b                                lnN %5.3f %5.3f   -   %5.3f %5.3f  -   %5.3f\n",1.02,1.02,1.02,1.02,1.02);
     newcardShape << Form("pdf_qqbar                                lnN %5.3f %5.3f %5.3f   -     -    -   %5.3f\n",pdf_qqbar[0],pdf_qqbar[1],pdf_qqbar[2],pdf_qqbar[3]);
     newcardShape << Form("QCDscale_WWewk		           lnN %5.3f   -     -	   -     -    -     -  \n",QCDscale_WWewk);	  
     newcardShape << Form("QCDscale_WWdps		           lnN   -   %5.3f   -	   -     -    -     -  \n",QCDscale_WWdps);	  
