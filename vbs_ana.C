@@ -106,7 +106,7 @@ void vbs_ana
  
     //change to more convenient units  
     for(unsigned int i = 0; i < oneD_grid_points.size(); i++){
-      oneD_grid_points[i] = oneD_grid_points[i]*pow(10.,11);
+      oneD_grid_points[i] = oneD_grid_points[i]*pow(10.,12);
     }
     for(unsigned int i = 0; i < oneD_grid_points.size(); i++){
       std::cout << oneD_grid_points[i] << std::endl;
@@ -132,8 +132,8 @@ void vbs_ana
  
        //change to more convenient units  
     for(unsigned int i = 0; i < twoD_grid_points.size(); i++){
-      twoD_grid_points[i].first = twoD_grid_points[i].first*pow(10.,11);
-      twoD_grid_points[i].second = twoD_grid_points[i].second*pow(10.,11);
+      twoD_grid_points[i].first = twoD_grid_points[i].first*pow(10.,12);
+      twoD_grid_points[i].second = twoD_grid_points[i].second*pow(10.,12);
     }
     for(unsigned int i = 0; i < twoD_grid_points.size(); i++){
       std::cout << twoD_grid_points[i].first << ", " << twoD_grid_points[i].second << std::endl;
