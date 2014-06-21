@@ -197,11 +197,11 @@ class StandardPlot {
   	      TGraphAsymmErrors * gsyst = new TGraphAsymmErrors(hSum);
               for (int i = 0; i < gsyst->GetN(); ++i) {
                 double systBck = 0.107*0.107*_hist[iWWEWK]->GetBinContent(i+1)*_hist[iWWEWK]->GetBinContent(i+1)+
-		                 0.089*0.107*_hist[iWWQCD]->GetBinContent(i+1)*_hist[iWWQCD]->GetBinContent(i+1)+
+		                 0.089*0.089*_hist[iWWQCD]->GetBinContent(i+1)*_hist[iWWQCD]->GetBinContent(i+1)+
 				 0.380*0.380*_hist[iVV]->GetBinContent(i+1)*_hist[iVV]->GetBinContent(i+1)+
 		                 0.114*0.114*_hist[iWW]->GetBinContent(i+1)*_hist[iWW]->GetBinContent(i+1)+
 				 0.503*0.503*_hist[iVVV]->GetBinContent(i+1)*_hist[iVVV]->GetBinContent(i+1)+
-                                 0.360*0.260*_hist[iWJets]->GetBinContent(i+1)*_hist[iWJets]->GetBinContent(i+1);
+                                 0.360*0.360*_hist[iWJets]->GetBinContent(i+1)*_hist[iWJets]->GetBinContent(i+1);
                 double total = _hist[iWWEWK]->GetBinContent(i+1)+_hist[iWWQCD]->GetBinContent(i+1)+_hist[iVV]->GetBinContent(i+1)+
 		                         _hist[iWW]->GetBinContent(i+1)+_hist[iVVV]->GetBinContent(i+1)+_hist[iWJets]->GetBinContent(i+1);
                 if(total > 0) systBck = sqrt(systBck)/total;
