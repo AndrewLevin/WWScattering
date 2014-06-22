@@ -24,5 +24,5 @@ root -l -q -b finalPlotVBS.C+'(2,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/di
 root -l -q -b finalPlotVBS.C+'(2,1,"m_{ll} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mll_hpp800.root","wwss_mll_hpp800",0,19.4)'
 
 # change wrong-sign legend
-#root -l -q -b finalPlotVBS.C+'(1,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/toptag.root","toptag",0,19.4)'
+root -l -q -b finalPlotVBS.C+'(3,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/toptag.root","toptag",0,19.4)'
 
