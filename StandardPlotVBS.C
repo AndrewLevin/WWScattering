@@ -257,9 +257,6 @@ class StandardPlot {
 	      }
             }
 	    
-            //hstack->SetTitle("CMS preliminary");
-            //hstack->SetTitle("CMS");
-
             Float_t theMax = hstack->GetMaximum();
             Float_t theMin = hstack->GetMinimum();
 
@@ -319,6 +316,7 @@ class StandardPlot {
             if(_hist[iHiggs ] &&_hist[iHiggs ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iHiggs ], Form("H^{++}(%3d) #rightarrow W^{#pm}W^{#pm}",_mass)  ,       "f" ); j++; }
 
             TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS}");
+            //TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS (preliminary)}");
             CMSLabel->SetNDC ();
             CMSLabel->SetTextAlign (10);
             CMSLabel->SetTextFont (42);
