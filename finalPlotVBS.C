@@ -37,6 +37,7 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   TH1D* hWW      = (TH1D*)file->Get("histo4");
   TH1D* hVVV     = (TH1D*)file->Get("histo5");
   TH1D* hHiggs   = (TH1D*)file->Get("histo7");
+  if(!hHiggs) {hHiggs   = (TH1D*)file->Get("histo0"); hHiggs->Scale(0);}
   TH1D *hData    = (TH1D*)file->Get("histo6");
   if(blindedData == true) hData->Scale(0);
 
@@ -62,7 +63,7 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   hVVV	  ->Scale(scale);
   hHiggs  ->Scale(scale*SFHiggs);
 
-  if(nsel == 0 || nsel == 1 || nsel == 2){
+  if(nsel == 0 || nsel == 1 || nsel == 2 || nsel == 3){
     myPlot.setMCHist(iWWEWK,(TH1D*)hWWEWK->Clone("hWWEWK"));
     myPlot._mass = 0;
     if(nsel >= 1 || hHiggs->GetSumOfWeights() > 0) myPlot.setHWWOverlaid(true);
@@ -70,6 +71,9 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
     myPlot.setBreakdown(true);
     if(nsel == 1) myPlot.setMass(200);
     else          myPlot.setMass(800);
+    
+    if(nsel == 3) myPlot.setAlternativeOption(3);
+    
   } else assert(0);
 
   myPlot.setMCHist(iVV,     (TH1D*)hVV     ->Clone("hVV"));

@@ -257,9 +257,6 @@ class StandardPlot {
 	      }
             }
 	    
-            //hstack->SetTitle("CMS preliminary");
-            //hstack->SetTitle("CMS");
-
             Float_t theMax = hstack->GetMaximum();
             Float_t theMin = hstack->GetMinimum();
 
@@ -309,12 +306,17 @@ class StandardPlot {
             if(_hist[iVV    ] &&_hist[iVV    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVV    ], " WZ",          "f" ); j++; }
             if(_hist[iWWQCD ] &&_hist[iWWQCD ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWQCD ], " WW DPS",      "f" ); j++; }
             if(_hist[iWJets ] &&_hist[iWJets ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWJets ], " Non-prompt",  "f" ); j++; }
-            if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Wrong sign"  ,"f" ); j++; }
-            //if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Top-quark+WW"  ,"f" ); j++; }
-            if(_hist[iVVV   ] &&_hist[iVVV   ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVVV   ], " VVV"  ,       "f" ); j++; }
+            if(_alternativeOption != 3){
+	    if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Wrong sign"  ,"f" ); j++; }
+            }
+	    else{
+	    if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Top-quark+WW"  ,"f" ); j++; }
+            }
+	    if(_hist[iVVV   ] &&_hist[iVVV   ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVVV   ], " VVV"  ,       "f" ); j++; }
             if(_hist[iHiggs ] &&_hist[iHiggs ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iHiggs ], Form("H^{++}(%3d) #rightarrow W^{#pm}W^{#pm}",_mass)  ,       "f" ); j++; }
 
             TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS}");
+            //TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS (preliminary)}");
             CMSLabel->SetNDC ();
             CMSLabel->SetTextAlign (10);
             CMSLabel->SetTextFont (42);
@@ -328,6 +330,7 @@ class StandardPlot {
         void setLabel(const TString &s) { _xLabel = s; }
         void setUnits(const TString &s) { _units = s; }
         void setBreakdown(const bool &b = true) { _breakdown = b; }
+        void setAlternativeOption(const int sel) { _alternativeOption = sel; }
         void setLumiLabel (const std::string &s) {
             _lumiLabel = new TLatex (0.95, 0.93, TString (s));
             _lumiLabel->SetNDC ();
@@ -346,6 +349,7 @@ class StandardPlot {
         TString  _units;
         bool     _breakdown;
         int      _mass;
-        bool    _isHWWOverlaid;
+	int      _alternativeOption;
+        bool     _isHWWOverlaid;
 
 };
