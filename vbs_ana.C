@@ -34,9 +34,9 @@
 //FM1 = 4
 //FM6 = 8
 //FM7 = 9
-std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_ls0ls1_grid.lhe";
+//std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_ls0ls1_grid.lhe";
 //std::string file_for_grid="/afs/cern.ch/user/a/anlevin/public/forGuillelmo04Feb2014/ls_lm_lt_unmerged_1.lhe";
-///std::string file_for_grid="/data/blue/anlevin/forGuillelmo20May2014/qed_4_qcd_99_ls_lm_lt_v6.lhe";
+std::string file_for_grid="/afs/cern.ch/work/a/anlevin/data/lhe/qed_4_qcd_99_ls_lm_lt_v7.lhe";
 int x_param_number = 1;
 int y_param_number = 2;
 std::vector<float > oneD_grid_points;
@@ -83,6 +83,7 @@ void vbs_ana
  int period = 3
  )
 {
+
   //only one of these at a time makes sense
   assert(!(doAQGCsAna && use_anom_sample));
 
@@ -298,7 +299,7 @@ void vbs_ana
   else if(lSel == 6) {sprintf(finalStateName,"of");}
   else {printf("Wrong lSel: %d\n",lSel); assert(0);}
 
-  int nBinPlot      = 400;
+  int nBinPlot      = 4;
   double xminPlot   = 0.0;
   double xmaxPlot   = 400.0;
 
@@ -310,10 +311,10 @@ void vbs_ana
   else if(thePlot >= 11 && thePlot <= 11) {nBinPlot = 40; xminPlot = -0.5; xmaxPlot = 39.5;}
   else if(thePlot >= 12 && thePlot <= 12) {nBinPlot = 36; xminPlot = 0.0; xmaxPlot = 180.0;}
   else if(thePlot >= 13 && thePlot <= 14) {nBinPlot = 100; xminPlot = 0.0; xmaxPlot = 5.0;}
-  else if(thePlot >= 15 && thePlot <= 15) {nBinPlot = 7; xminPlot = 0.0; xmaxPlot =  8.75;} // detajjs
+  else if(thePlot >= 15 && thePlot <= 15) {nBinPlot = 4; xminPlot = 2.5; xmaxPlot =  8.75;} // detajjs
   else if(thePlot >= 16 && thePlot <= 16) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
-  else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
+  else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 4; xminPlot = 0.0; xmaxPlot = 4.0;}
   else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 10; xminPlot = -1.0; xmaxPlot = 1.0;}
   else if(thePlot >= 20 && thePlot <= 20) {nBinPlot =100; xminPlot =  0.0; xmaxPlot = 100.0;}
   else if(thePlot >= 21 && thePlot <= 21) {nBinPlot =40; xminPlot =  0.0; xmaxPlot = 200.0;}
@@ -451,6 +452,7 @@ void vbs_ana
   bgdEvent.tree_->SetBranchAddress("ewkMVA", &ewkMVA );
 
   int nBgd=bgdEvent.tree_->GetEntries();
+
   for (int evt=0; evt<nBgd; ++evt) {
 
     if (evt%100000 == 0 && verboseLevel > 0)
@@ -2096,13 +2098,30 @@ void vbs_ana
 
       TH1D *th1d  = new TH1D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),oneD_grid_points.size(),histo_min,histo_max);
 
+      float max_error = 0;
+
       for(unsigned int a = 0; a < oneD_grid_points.size(); a++){
+
+
+	//	std::cout << "histo_WWewk_anom[a]->GetBinError(nb) = " << histo_WWewk_anom[a]->GetBinError(nb) << std::endl;
+	//	std::cout << "histo_WWewk_anom[a]->GetBinError(nb)/histo_WWewk_anom[a]->GetBinContent(nb) = " << histo_WWewk_anom[a]->GetBinError(nb)/histo_WWewk_anom[a]->GetBinContent(nb) << std::endl;
+
+	if(histo_WWewk_anom[a]->GetBinError(nb)/histo_WWewk_anom[a]->GetBinContent(nb) > max_error)
+	  max_error = histo_WWewk_anom[a]->GetBinError(nb)/histo_WWewk_anom[a]->GetBinContent(nb);
+
+
 
         //histo_grid[nb][a] = histo_WWewk_anom[a]->GetBinContent(nb);
         assert(histo_WWewk_anom[0]->GetBinContent(nb) > 0);
         //assert(histo_grid[nb][0]>0);
         th1d->SetBinContent(th1d->GetXaxis()->FindFixBin(oneD_grid_points[a]), histo_WWewk_anom[a]->GetBinContent(nb)/histo_WWewk_anom[sm_lhe_weight]->GetBinContent(nb));
       }
+
+      //need to use the maximum statistical error of any of the grid points to be conservative
+      histo_WWewk_WWewkStatUp->SetBinContent(nb, histo_WWewk->GetBinContent(nb)+max_error*histo_WWewk->GetBinContent(nb));
+
+      std::cout << "max_error = " << max_error << std::endl;
+
       th1d_outfile->cd();
       th1d->Write();
     }
@@ -2113,9 +2132,23 @@ void vbs_ana
       //this assumes that the points in the grid are equally spaced and that it is a rectangular grid
 
       //find the minimum and the maximum of the grid
+      //also find the number of bins in the x direction
+      //assumes that the points are evenly spaced in a grid
+      vector<float> x_values;
       float grid_min_x = std::numeric_limits<float>::max();
       float grid_max_x = -std::numeric_limits<float>::max();
       for(unsigned int a = 0; a < twoD_grid_points.size(); a++){
+
+	bool new_x_value = true;
+
+	for(unsigned int x_values_index = 0; x_values_index < x_values.size(); x_values_index++){
+	  if( twoD_grid_points[a].second == x_values[x_values_index] )
+	    new_x_value = false;
+	}
+
+	if(new_x_value)
+	    x_values.push_back(twoD_grid_points[a].second);
+
 	if (grid_min_x > twoD_grid_points[a].first)
 	  grid_min_x = twoD_grid_points[a].first;
 	if (grid_max_x < twoD_grid_points[a].first)
@@ -2130,9 +2163,22 @@ void vbs_ana
       float histo_min_x = grid_min_x - (grid_max_x - grid_min_x)/(twoD_grid_points.size()-1)/2; 
 
       //find the minimum and the maximum of the grid
+      //also find the number of bins in the y directio
+      //assumes that the points are evenly space in a grid
+      vector<float> y_values;
       float grid_min_y = std::numeric_limits<float>::max();
       float grid_max_y = -std::numeric_limits<float>::max();
       for(unsigned int a = 0; a < twoD_grid_points.size(); a++){
+	bool new_y_value = true;
+
+	for(unsigned int y_values_index = 0; y_values_index < y_values.size(); y_values_index++){
+	  if( twoD_grid_points[a].second == y_values[y_values_index] )
+	    new_y_value = false;
+	}
+
+	if(new_y_value)
+	    y_values.push_back(twoD_grid_points[a].second);
+
 	if (grid_min_y > twoD_grid_points[a].second)
 	  grid_min_y = twoD_grid_points[a].second;
 	if (grid_max_y < twoD_grid_points[a].second)
@@ -2143,10 +2189,18 @@ void vbs_ana
       assert(grid_max_y < std::numeric_limits<float>::max());
       assert(grid_min_y > -std::numeric_limits<float>::max());
 
-      float histo_max_y = grid_max_y + (grid_max_y - grid_min_y)/(twoD_grid_points.size()-1)/2; 
-      float histo_min_y = grid_min_y - (grid_max_y - grid_min_y)/(twoD_grid_points.size()-1)/2; 
+      std::cout << "x_values.size() = " << x_values.size() << std::endl;
+      std::cout << "y_values.size() = " << y_values.size() << std::endl;
 
-      TH2D *th2d  = new TH2D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),twoD_grid_points.size(),histo_min_x,histo_max_x,twoD_grid_points.size(),histo_min_y,histo_max_y);
+      //make sure the points are in an evenly spaced grid
+      assert(x_values.size()*y_values.size() == twoD_grid_points.size());
+
+      float histo_max_y = grid_max_y + (grid_max_y - grid_min_y)/(x_values.size()-1)/2; 
+      float histo_min_y = grid_min_y - (grid_max_y - grid_min_y)/(y_values.size()-1)/2; 
+
+      TH2D *th2d = new TH2D(string("aQGC_scaling"+ss.str()).c_str(),string("aQGC_scaling"+ss.str()).c_str(),x_values.size(),histo_min_x,histo_max_x,y_values.size(),histo_min_y,histo_max_y);
+
+      float max_error = 0;
 
       for(unsigned int a = 0; a < twoD_grid_points.size(); a++){
 
@@ -2154,7 +2208,17 @@ void vbs_ana
         assert(histo_WWewk_anom_2D[0]->GetBinContent(nb) > 0);
         //assert(histo_grid[nb][0]>0);
         th2d->SetBinContent(th2d->GetXaxis()->FindFixBin(twoD_grid_points[a].first), th2d->GetYaxis()->FindFixBin(twoD_grid_points[a].second), histo_WWewk_anom_2D[a]->GetBinContent(nb)/histo_WWewk_anom_2D[sm_lhe_weight]->GetBinContent(nb));
+	if(histo_WWewk_anom_2D[a]->GetBinError(nb)/histo_WWewk_anom_2D[a]->GetBinContent(nb) > max_error){
+	  max_error = histo_WWewk_anom_2D[a]->GetBinError(nb)/histo_WWewk_anom_2D[a]->GetBinContent(nb);
+	  std::cout << "twoD_grid_points[a].first = " << twoD_grid_points[a].first << std::endl;
+	  std::cout << "twoD_grid_points[a].second = " << twoD_grid_points[a].second << std::endl;
+	}
       }
+
+      histo_WWewk_WWewkStatUp->SetBinContent(nb, histo_WWewk->GetBinContent(nb)+max_error*histo_WWewk->GetBinContent(nb));
+
+      std::cout << "max_error = " << max_error << std::endl;
+
       th2d_outfile->cd();
       th2d->Write();
     }
@@ -2463,8 +2527,8 @@ void parse_reweight_info(string lhe_filename){
   exit(1);
 }
 
-int begin_weight_2d=0;
-int end_weight_2d=120;
+int begin_weight_2d=1;
+int end_weight_2d=121;
 
 //this only handles the case where there are 0, 1, or 2 parameters different from 0 in a given event
 void parse_reweight_info_2d(string lhe_filename){
@@ -2529,7 +2593,7 @@ void parse_reweight_info_2d(string lhe_filename){
       for (int j = 1; j <= 20; j++)
 	if (j != x_param_number && j != y_param_number && param_values[j] != 0) all_other_zero = false;
 
-      if (all_other_zero && 0 >= begin_weight){
+      if (all_other_zero && 0 >= begin_weight_2d){
 	twoD_grid_points.push_back(pair<float,float>(param_values[x_param_number],param_values[y_param_number]) );
 	histo_grid.push_back(0);
 	lhe_weight_index.push_back(0);
@@ -2588,7 +2652,7 @@ void parse_reweight_info_2d(string lhe_filename){
 	  }
 	}
 	
-	if (all_others_zero && !found_duplicate && i <= end_weight && i >= begin_weight){
+	if (all_others_zero && !found_duplicate && i <= end_weight_2d && i >= begin_weight_2d){
 	  twoD_grid_points.push_back(pair<float,float>(param_values_copy[x_param_number],param_values_copy[y_param_number] ));
 	  histo_grid.push_back(i);
 	  lhe_weight_index.push_back(i);
