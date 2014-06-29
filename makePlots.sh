@@ -26,3 +26,6 @@ root -l -q -b finalPlotVBS.C+'(2,1,"m_{ll} (GeV)","GeV","/data/smurf/ceballos/di
 # change wrong-sign legend
 root -l -q -b finalPlotVBS.C+'(3,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/toptag.root","toptag",0,19.4)'
 
+root -l -q -b finalPlotVBS.C+'(3,8,"p_{T}^{l max} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/toptag_ptlmax.root","toptag_ptlmax",0,19.4)'
+root -l -q -b finalPlotVBS.C+'(3,8,"p_{T}^{l min} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/toptag_ptlmin.root","toptag_ptlmin",0,19.4)'
+
