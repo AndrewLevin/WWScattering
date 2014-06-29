@@ -299,7 +299,7 @@ void vbs_ana
   else if(lSel == 6) {sprintf(finalStateName,"of");}
   else {printf("Wrong lSel: %d\n",lSel); assert(0);}
 
-  int nBinPlot      = 4;
+  int nBinPlot      = 400;
   double xminPlot   = 0.0;
   double xmaxPlot   = 400.0;
 
@@ -311,10 +311,10 @@ void vbs_ana
   else if(thePlot >= 11 && thePlot <= 11) {nBinPlot = 40; xminPlot = -0.5; xmaxPlot = 39.5;}
   else if(thePlot >= 12 && thePlot <= 12) {nBinPlot = 36; xminPlot = 0.0; xmaxPlot = 180.0;}
   else if(thePlot >= 13 && thePlot <= 14) {nBinPlot = 100; xminPlot = 0.0; xmaxPlot = 5.0;}
-  else if(thePlot >= 15 && thePlot <= 15) {nBinPlot = 4; xminPlot = 2.5; xmaxPlot =  8.75;} // detajjs
+  else if(thePlot >= 15 && thePlot <= 15) {nBinPlot = 7; xminPlot = 0.0; xmaxPlot =  8.75;} // detajjs
   else if(thePlot >= 16 && thePlot <= 16) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
-  else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 4; xminPlot = 0.0; xmaxPlot = 4.0;}
+  else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
   else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 10; xminPlot = -1.0; xmaxPlot = 1.0;}
   else if(thePlot >= 20 && thePlot <= 20) {nBinPlot =100; xminPlot =  0.0; xmaxPlot = 100.0;}
   else if(thePlot >= 21 && thePlot <= 21) {nBinPlot =40; xminPlot =  0.0; xmaxPlot = 200.0;}
@@ -1546,7 +1546,7 @@ void vbs_ana
 	if     (thePlot == 0) myVar = TMath::Max(TMath::Min((dataEvent.jet1_+dataEvent.jet2_).M(),1999.999),500.001);
 	else if(thePlot == 1) myVar = TMath::Max(TMath::Min((dataEvent.lep1_+dataEvent.lep2_+dataEvent.jet1_+dataEvent.jet2_).M(),2999.999),700.001);
 	else if(thePlot == 2) myVar = TMath::Min(dataEvent.lep1_.Pt(),499.999);
-	else if(thePlot == 3) myVar = TMath::Min(dataEvent.lep2_.Pt(),399.999);;
+	else if(thePlot == 3) myVar = TMath::Min(dataEvent.lep2_.Pt(),399.999);
 	else if(thePlot == 4) myVar = dataEvent.jet1_.Pt();
 	else if(thePlot == 5) myVar = dataEvent.jet2_.Pt();
 	else if(thePlot == 6) myVar = dataEvent.jet3_.Pt();
