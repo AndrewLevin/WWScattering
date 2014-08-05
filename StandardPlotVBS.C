@@ -137,7 +137,7 @@ class StandardPlot {
         TH1* Draw(const int &rebin=1) {
 
             Color_t _sampleColor[nSamples];
-            _sampleColor[iWWEWK  ] = kRed+1;
+            _sampleColor[iWWEWK  ] = kBlue+1;
             _sampleColor[iVV 	 ] = kAzure-2;
             _sampleColor[iWWQCD  ] = kGreen+2;
             _sampleColor[iWJets  ] = kGray+1;
@@ -301,19 +301,26 @@ class StandardPlot {
             higgsLabel.Form("W^{#pm}W^{#pm}jj");
 
             if(_data->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _data,          " Data",    "lp"); j++; }
+
+            if(_hist[iHiggs ] &&_hist[iHiggs ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iHiggs ], Form("H^{++}(%3d) #rightarrow W^{#pm}W^{#pm}",_mass)  ,       "f" ); j++; }
+
             if     (_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0 && _isHWWOverlaid) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "f" ); j++; }
             else if(_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0)		     { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "l" ); j++; }
-            if(_hist[iVV    ] &&_hist[iVV    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVV    ], " WZ",          "f" ); j++; }
-            if(_hist[iWWQCD ] &&_hist[iWWQCD ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWQCD ], " WW DPS",      "f" ); j++; }
-            if(_hist[iWJets ] &&_hist[iWJets ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWJets ], " Non-prompt",  "f" ); j++; }
+
+	    if(_hist[iVVV   ] &&_hist[iVVV   ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVVV   ], " VVV"  ,       "f" ); j++; }
+
             if(_alternativeOption != 3){
 	    if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Wrong sign"  ,"f" ); j++; }
             }
 	    else{
 	    if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Top-quark+WW"  ,"f" ); j++; }
             }
-	    if(_hist[iVVV   ] &&_hist[iVVV   ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVVV   ], " VVV"  ,       "f" ); j++; }
-            if(_hist[iHiggs ] &&_hist[iHiggs ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iHiggs ], Form("H^{++}(%3d) #rightarrow W^{#pm}W^{#pm}",_mass)  ,       "f" ); j++; }
+
+            if(_hist[iWJets ] &&_hist[iWJets ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWJets ], " Non-prompt",  "f" ); j++; }
+
+            if(_hist[iWWQCD ] &&_hist[iWWQCD ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWQCD ], " WW DPS",      "f" ); j++; }
+
+            if(_hist[iVV    ] &&_hist[iVV    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVV    ], " WZ",          "f" ); j++; }
 
             TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS}");
             //TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS (preliminary)}");
