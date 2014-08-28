@@ -235,26 +235,9 @@ class StandardPlot {
 	    else if(_hist[iHiggs] && _hist[iHiggs]->GetSumOfWeights() > 0) _hist[iHiggs]->Draw("hist,same");
 
             if(_data && _data->GetSumOfWeights()) {
-	      bool plotCorrectErrorBars = true;
-	      if(plotCorrectErrorBars == true) {
-  		TGraphAsymmErrors * g = new TGraphAsymmErrors(_data);
-  		for (int i = 0; i < g->GetN(); ++i) {
-  	     	   double N = g->GetY()[i];
-  	     	   double alpha=(1-0.6827);
-  	     	   double L =  (N==0) ? 0  : (ROOT::Math::gamma_quantile(alpha/2,N,1.));
-  	     	   double U =  (N==0) ?  ( ROOT::Math::gamma_quantile_c(alpha,N+1,1.) ) :
-  	     	      ( ROOT::Math::gamma_quantile_c(alpha/2,N+1,1.) );
-  	     	   g->SetPointEYlow(i,double(N)-L);
-		   if(N >= 0)
-  	     	     g->SetPointEYhigh(i, U-double(N));
-		   else
-		     g->SetPointEYhigh(i, 0.0);
-  		}
-  		g->Draw("P");
-	      }
-	      else {
-	        _data->Draw("ep,same");
-	      }
+	      _data->SetBinErrorOption(TH1::kPoisson);
+	      _data->Sumw2(kFALSE);
+	      _data->Draw("E0,same");
             }
 	    
             Float_t theMax = hstack->GetMaximum();
