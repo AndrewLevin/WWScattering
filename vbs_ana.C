@@ -264,7 +264,7 @@ void vbs_ana
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
-  histo_Data->Sumw2(kFalse); //in order for correct error bars to be drawn for bins with zero entries
+  histo_Data->Sumw2(); //in order for correct error bars to be drawn for bins with zero entries
   TH1D *histo_WWewk     = (TH1D*) histoMVA->Clone("histo_WWewk");
   TH1D *histo_WWdps     = (TH1D*) histoMVA->Clone("histo_WWdps");
   TH1D *histo_WZ        = (TH1D*) histoMVA->Clone("histo_WZ");
