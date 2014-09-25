@@ -20,9 +20,9 @@
 #include "TCanvas.h"
 #include "TSystem.h"
 #include "TLorentzVector.h"
-//root -l -q -b vbs_ana.C+'(0,4,"ntuples_53x/backgroundEWK_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
-//root -l -q -b vbs_ana.C+'(0,14,"ntuples_53x/backgroundEWK_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
-//root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundEWK_skim8_sm.root","ntuples_53x/data_skim8.root","ntuples_53x/hww_syst_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,4,"ntuples_53x/backgroundEWK_skim8_sm.root","ntuples_53x/data_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,14,"ntuples_53x/backgroundEWK_skim8_sm.root","ntuples_53x/data_skim8.root",3)';
+//root -l -q -b vbs_ana.C+'(0,24,"ntuples_53x/backgroundEWK_skim8_sm.root","ntuples_53x/data_skim8.root",3)';
 
 // x_param_number values
 //FS0 = 1
@@ -80,7 +80,6 @@ void vbs_ana
  int lSel = 4,
  TString bgdInputFile    = "ntuples_53x/backgroundEWK_skim8_sm.root",
  TString dataInputFile   = "ntuples_53x/data_skim8.root",
- TString systInputFile   = "ntuples_53x/hww_syst_skim8.root",
  int period = 3
  )
 {
@@ -167,11 +166,6 @@ void vbs_ana
   SmurfTree dataEvent;
   dataEvent.LoadTree(dataInputFile,-1);
   dataEvent.InitTree(0);
-
-  if(systInputFile != ""){
-    systEvent.LoadTree(systInputFile,-1);
-    systEvent.InitTree(0);
-  }
 
   TString ECMsb  = "";
   TString effPath  = "";
@@ -424,9 +418,6 @@ void vbs_ana
   TH1D* histo_VVV_JERDown         = new TH1D( Form("histo_VVV_%sDown","CMS_res_j"), Form("histo_VVV_%sDown","CMS_res_j"), nBin, xbins); histo_VVV_JERDown->Sumw2();
   TH1D* histo_Higgs_JERUp         = new TH1D( Form("histo_Higgs_%sUp","CMS_res_j")  , Form("histo_Higgs_%sUp","CMS_res_j")  , nBin, xbins); histo_Higgs_JERUp  ->Sumw2();
   TH1D* histo_Higgs_JERDown       = new TH1D( Form("histo_Higgs_%sDown","CMS_res_j"), Form("histo_Higgs_%sDown","CMS_res_j"), nBin, xbins); histo_Higgs_JERDown->Sumw2();
-
-  TH1D* histo_WZ_CMS_WZNLOUp      = new TH1D( Form("histo_WZ_CMS_wwss_WZNLOUp"),   Form("histo_WZ_CMS_wwss_WZNLOUp"),	nBin, xbins); histo_WZ_CMS_WZNLOUp  ->Sumw2();
-  TH1D* histo_WZ_CMS_WZNLODown    = new TH1D( Form("histo_WZ_CMS_wwss_WZNLODown"), Form("histo_WZ_CMS_wwss_WZNLODown"), nBin, xbins); histo_WZ_CMS_WZNLODown->Sumw2();
 
   TH1D* histo_WS_WSUp             = new TH1D( Form("histo_WS_CMS_wwss_MVAWSUp"),   Form("histo_WS_CMS_wwss_MVAWSUp"),   nBin, xbins); histo_WS_WSUp  ->Sumw2();
   TH1D* histo_WS_WSDown           = new TH1D( Form("histo_WS_CMS_wwss_MVAWSDown"), Form("histo_WS_CMS_wwss_MVAWSDown"), nBin, xbins); histo_WS_WSDown->Sumw2();
@@ -1209,252 +1200,6 @@ void vbs_ana
       }
     } // if passCuts
   } // end background loop
-
-  if(systInputFile != ""){
-  int nSyst=systEvent.tree_->GetEntries();
-  for (int evt=0; evt<nSyst; ++evt) {
-
-    if (evt%100000 == 0 && verboseLevel > 0)
-      printf("--- reading event %5d of %5d\n",evt,nSyst);
-    systEvent.tree_->GetEntry(evt);
-
-    if(systEvent.lep1_.Pt() < 1.0) continue;
-
-    if(systEvent.dstype_ == SmurfTree::data &&
-      (systEvent.cuts_ & SmurfTree::Trigger) != SmurfTree::Trigger) continue;
-    if(systEvent.dstype_ == SmurfTree::data && systEvent.run_ <  minRun) continue;
-    if(systEvent.dstype_ == SmurfTree::data && systEvent.run_ >  maxRun) continue;
-
-    int fDecay = 0;
-    if     (systEvent.dstype_ == SmurfTree::data  	   ) fDecay =  1;
-    else if(systEvent.dstype_ == SmurfTree::wjets 	   ) fDecay =  3;
-    else if(systEvent.dstype_ == SmurfTree::ttbar 	   ) fDecay =  5;
-    else if(systEvent.dstype_ == SmurfTree::dyee  	   ) fDecay =  9;
-    else if(systEvent.dstype_ == SmurfTree::dymm  	   ) fDecay =  9;
-    else if(systEvent.dstype_ == SmurfTree::dytt  	   ) fDecay = 10;
-    else if(systEvent.dstype_ == SmurfTree::dyttDataDriven ) fDecay = 10;
-    else if(systEvent.dstype_ == SmurfTree::tw    	   ) fDecay = 13;
-    else if(systEvent.dstype_ == SmurfTree::wgamma	   ) fDecay = 19;
-    else if(systEvent.dstype_ == SmurfTree::wgstar         ) fDecay = 20;
-    else if(systEvent.dstype_ == SmurfTree::www            ) fDecay = 21;
-    else if(systEvent.dstype_ == SmurfTree::wz    	   ) fDecay = 27;
-    else if(systEvent.dstype_ == SmurfTree::zz    	   ) fDecay = 28;
-    else if(systEvent.dstype_ == SmurfTree::qqww  	   ) fDecay = 29;
-    else if(systEvent.dstype_ == SmurfTree::qqwwPWG  	   ) fDecay = 29;
-    else if(systEvent.dstype_ == SmurfTree::ggzz  	   ) fDecay = 29;
-    else if(systEvent.dstype_ == SmurfTree::ggww  	   ) fDecay = 30;
-    else if(systEvent.dstype_ == SmurfTree::other          ) fDecay = 40;
-    else if(systEvent.processId_==121 ||
-            systEvent.processId_==122)   fDecay = 41;
-    else if(systEvent.processId_==24)    fDecay = 42;
-    else if(systEvent.processId_==26)    fDecay = 43;
-    else if(systEvent.processId_==10001) fDecay = 44;
-    else if(systEvent.processId_==10010) fDecay = 44;
-    else                                          {fDecay = 0;std::cout << systEvent.dstype_ << std::endl;}
-
-    bool passCuts[3][nSelTypes] = {{false, false, false},
-                                   {false, false, false}};
-    bool isRealLepton = false;
-    if((TMath::Abs(systEvent.lep1McId_) == 11 || TMath::Abs(systEvent.lep1McId_) == 13) &&
-       (TMath::Abs(systEvent.lep2McId_) == 11 || TMath::Abs(systEvent.lep2McId_) == 13)) isRealLepton = true;
-
-    double theMET = systEvent.met_; double theMETPHI = systEvent.metPhi_; 
-    
-    int lType = 1;
-    if     (systEvent.lq1_ * systEvent.lq2_ < 0) lType = 0;
-
-    //int centrality = 0;
-    //if(((systEvent.jet1_.Eta()-systEvent.lep1_.Eta()+0.1 > 0 && systEvent.jet2_.Eta()-systEvent.lep1_.Eta() < 0) ||
-    //    (systEvent.jet2_.Eta()-systEvent.lep1_.Eta()+0.1 > 0 && systEvent.jet1_.Eta()-systEvent.lep1_.Eta() < 0)) &&
-    //   ((systEvent.jet1_.Eta()-systEvent.lep2_.Eta()+0.1 > 0 && systEvent.jet2_.Eta()-systEvent.lep2_.Eta() < 0) ||
-    //    (systEvent.jet2_.Eta()-systEvent.lep2_.Eta()+0.1 > 0 && systEvent.jet1_.Eta()-systEvent.lep2_.Eta() < 0))) centrality = 1; 
-    double metMin = 40.0; if(systEvent.type_ != SmurfTree::ee) metMin = 40.0;
-
-    int newId=int(systEvent.jet1McId_);
-    //int tauId=int((systEvent.jet1McId_%100-systEvent.jet1McId_%10)/10);
-    int qDisAgree=int((newId%1000-newId%100)/100);
-    int hasZCand=int(newId/1000);
-    int trackSel[4] = {int((systEvent.jet2McId_%100-systEvent.jet2McId_%10)/10),int((systEvent.jet2McId_%1000-systEvent.jet2McId_%100)/100),int((systEvent.jet2McId_%10000-systEvent.jet2McId_%1000)/1000),int(systEvent.jet2McId_/10000)};
-
-    bool passNjets    = systEvent.njets_ >= 2;
-    bool passMET      = systEvent.met_ > metMin;
-    bool preselCuts   = systEvent.lep1_.Pt() > 20. && systEvent.lep2_.Pt() > 20.;
-    bool passBtagVeto = (systEvent.cuts_ & patternTopVeto) == patternTopVeto;
-    bool pass3rLVeto  = (systEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && hasZCand == 0 && trackSel[0]+trackSel[1]+trackSel[2] == 0;
-    bool passMass     = systEvent.dilep_.M() > 50.0 && (TMath::Abs(systEvent.dilep_.M()-91.1876) > 15 || systEvent.type_ != SmurfTree::ee);
-    bool passVBFSel   = (systEvent.jet1_+systEvent.jet2_).M() > 500 && TMath::Abs(systEvent.jet1_.Eta()-systEvent.jet2_.Eta()) > 2.5;
-    // quick way to accept W+W+ (1) or W-W- (2)
-    bool passNsignSel = true;
-    if(signSel == 1 && systEvent.lq1_+systEvent.lq2_ == -2) passNsignSel = false;
-    if(signSel == 2 && systEvent.lq1_+systEvent.lq2_ ==  2) passNsignSel = false;
-
-    if(lType == 0) passMass = passMass && (TMath::Abs(systEvent.dilep_.M()-91.1876) > 15 || systEvent.type_ != SmurfTree::mm);
-
-    bool passLSel = false;
-    if     (lSel == 0 && systEvent.type_ == SmurfTree::mm) passLSel = true;
-    else if(lSel == 1 && systEvent.type_ == SmurfTree::me) passLSel = true;
-    else if(lSel == 2 && systEvent.type_ == SmurfTree::em) passLSel = true;
-    else if(lSel == 3 && systEvent.type_ == SmurfTree::ee) passLSel = true;
-    else if(lSel == 4)                                     passLSel = true;
-    else if(lSel == 5 && (systEvent.type_ == SmurfTree::mm || systEvent.type_ == SmurfTree::ee)) passLSel = true;
-    else if(lSel == 6 && (systEvent.type_ == SmurfTree::me || systEvent.type_ == SmurfTree::em)) passLSel = true;
-
-    if(passNjets  == true && passMET == true &&  passLSel == true &&
-       preselCuts == true && systEvent.dilep_.M() > 15.0 && qDisAgree == 0) {
-      if(passNsignSel &&  passBtagVeto && passVBFSel == true && passMass  == true &&  pass3rLVeto) passCuts[lType][WWSEL] = true;
-
-      if(isRealLepton == false &&
-         (systEvent.dstype_ == SmurfTree::ttbar  || systEvent.dstype_ == SmurfTree::tw   || systEvent.dstype_ == SmurfTree::dyee || systEvent.dstype_ == SmurfTree::dymm ||
-          systEvent.dstype_ == SmurfTree::qqww   || systEvent.dstype_ == SmurfTree::ggww || systEvent.dstype_ == SmurfTree::wz   || systEvent.dstype_ == SmurfTree::zz   ||
-          systEvent.dstype_ == SmurfTree::wgstar || systEvent.dstype_ == SmurfTree::dytt || systEvent.dstype_ == SmurfTree::www)) 
-        {for(unsigned int i=0; i<nSelTypes; i++) passCuts[lType][i] = false;}
-
-    }
-
-    if(passCuts[lType][WWSEL]){
-      double theWeight = 0.0;
-      double add       = 1.0;
-      int nFake = 0;
-      if(((systEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2)  && (systEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection) nFake++;
-      if(((systEvent.cuts_ & SmurfTree::Lep2LooseMuV2)  == SmurfTree::Lep2LooseMuV2)  && (systEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection) nFake++;
-      if(((systEvent.cuts_ & SmurfTree::Lep3LooseMuV2)  == SmurfTree::Lep3LooseMuV2)  && (systEvent.cuts_ & SmurfTree::Lep3FullSelection) != SmurfTree::Lep3FullSelection) nFake++;
-      if(((systEvent.cuts_ & SmurfTree::Lep1LooseEleV4) == SmurfTree::Lep1LooseEleV4) && (systEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection) nFake++;
-      if(((systEvent.cuts_ & SmurfTree::Lep2LooseEleV4) == SmurfTree::Lep2LooseEleV4) && (systEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection) nFake++;
-      if(((systEvent.cuts_ & SmurfTree::Lep3LooseEleV4) == SmurfTree::Lep3LooseEleV4) && (systEvent.cuts_ & SmurfTree::Lep3FullSelection) != SmurfTree::Lep3FullSelection) nFake++;
-      if(nFake < 0) assert(0);
- 
-      if(nFake > 1){
-	add = add*fakeRate(systEvent.lep1_.Pt(), systEvent.lep1_.Eta(), fhDFRMu, fhDFREl, (systEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2  && (systEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection, 
-											  (systEvent.cuts_ & SmurfTree::Lep1LooseEleV4) == SmurfTree::Lep1LooseEleV4 && (systEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection);
-        add = add*fakeRate(systEvent.lep2_.Pt(), systEvent.lep2_.Eta(), fhDFRMu, fhDFREl, (systEvent.cuts_ & SmurfTree::Lep2LooseMuV2)  == SmurfTree::Lep2LooseMuV2  && (systEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection,
-											  (systEvent.cuts_ & SmurfTree::Lep2LooseEleV4) == SmurfTree::Lep2LooseEleV4 && (systEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection);
-	fDecay = 22;
-
-	theWeight	       = -1.0*add;
-      }
-      else if(nFake == 1){
-        if(systEvent.dstype_ == SmurfTree::data){
-	  add = add*fakeRate(systEvent.lep1_.Pt(), systEvent.lep1_.Eta(), fhDFRMu, fhDFREl, (systEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2  && (systEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection, 
-	                                                                                    (systEvent.cuts_ & SmurfTree::Lep1LooseEleV4) == SmurfTree::Lep1LooseEleV4 && (systEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection);
-          add = add*fakeRate(systEvent.lep2_.Pt(), systEvent.lep2_.Eta(), fhDFRMu, fhDFREl, (systEvent.cuts_ & SmurfTree::Lep2LooseMuV2)  == SmurfTree::Lep2LooseMuV2  && (systEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection,
-	                                                                                    (systEvent.cuts_ & SmurfTree::Lep2LooseEleV4) == SmurfTree::Lep2LooseEleV4 && (systEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection);
-          if(fCheckProblem == true && TMath::Abs((systEvent.sfWeightFR_*systEvent.sfWeightPU_*systEvent.sfWeightEff_*systEvent.sfWeightTrig_*systEvent.sfWeightHPt_)-add)/add>0.0001)
-	    printf("PROBLEMA: %f - %f %f %f %f %f = %f\n",add,systEvent.sfWeightFR_,systEvent.sfWeightPU_,systEvent.sfWeightEff_,systEvent.sfWeightTrig_,systEvent.sfWeightHPt_,systEvent.sfWeightFR_*systEvent.sfWeightPU_*systEvent.sfWeightEff_*systEvent.sfWeightTrig_*systEvent.sfWeightHPt_);
-	  // new category, W+jetsM
-	  if((systEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2 ||
-	     (systEvent.cuts_ & SmurfTree::Lep2LooseMuV2)  == SmurfTree::Lep2LooseMuV2){
-	    fDecay = 23;
-	  }
-	  else if((systEvent.cuts_ & SmurfTree::Lep1LooseEleV4) == SmurfTree::Lep1LooseEleV4 ||
-	  	  (systEvent.cuts_ & SmurfTree::Lep2LooseEleV4) == SmurfTree::Lep2LooseEleV4){
-	  }
-	  else {
-	    assert(0);
-	  }
-	  theWeight              = add*1.0;
-	}
-	else if(isRealLepton == true || systEvent.dstype_ == SmurfTree::wgamma){
-          add = add*fakeRate(systEvent.lep1_.Pt(), systEvent.lep1_.Eta(), fhDFRMu, fhDFREl, (systEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2  && (systEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection, 
-	                                                                                  (systEvent.cuts_ & SmurfTree::Lep1LooseEleV4) == SmurfTree::Lep1LooseEleV4 && (systEvent.cuts_ & SmurfTree::Lep1FullSelection) != SmurfTree::Lep1FullSelection);
-          add = add*fakeRate(systEvent.lep2_.Pt(), systEvent.lep2_.Eta(), fhDFRMu, fhDFREl, (systEvent.cuts_ & SmurfTree::Lep2LooseMuV2)  == SmurfTree::Lep2LooseMuV2  && (systEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection,
-	                                                                                  (systEvent.cuts_ & SmurfTree::Lep2LooseEleV4) == SmurfTree::Lep2LooseEleV4 && (systEvent.cuts_ & SmurfTree::Lep2FullSelection) != SmurfTree::Lep2FullSelection);
-	  add = add*nPUScaleFactor2012(fhDPU ,systEvent.npu_);
-          add = add*leptonEfficiency(systEvent.lep1_.Pt(), systEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, systEvent.lid1_);
-	  add = add*leptonEfficiency(systEvent.lep2_.Pt(), systEvent.lep2_.Eta(), fhDEffMu, fhDEffEl, systEvent.lid2_);
-          if((systEvent.cuts_ & SmurfTree::ExtraLeptonVeto) != SmurfTree::ExtraLeptonVeto)
-          add = add*leptonEfficiency(systEvent.lep3_.Pt(), systEvent.lep3_.Eta(), fhDEffMu, fhDEffEl, systEvent.lid3_);
-
-          double trigEff = trigLookup.GetExpectedTriggerEfficiency(fabs(systEvent.lep1_.Eta()), systEvent.lep1_.Pt(), 
-								   fabs(systEvent.lep2_.Eta()), systEvent.lep2_.Pt(), 
-	        						   TMath::Abs( systEvent.lid1_), TMath::Abs(systEvent.lid2_));
-          add = add*trigEff;
-	  if(fCheckProblem == true && (systEvent.cuts_ & SmurfTree::ExtraLeptonVeto) == SmurfTree::ExtraLeptonVeto && TMath::Abs((systEvent.sfWeightFR_*systEvent.sfWeightPU_*systEvent.sfWeightEff_*systEvent.sfWeightTrig_*systEvent.sfWeightHPt_)+add)/add>0.0001)
-	    printf("PROBLEMBSyst: %f - %f %f %f %f %f = %f\n",add,systEvent.sfWeightFR_,systEvent.sfWeightPU_,systEvent.sfWeightEff_,systEvent.sfWeightTrig_,systEvent.sfWeightHPt_,systEvent.sfWeightFR_*systEvent.sfWeightPU_*systEvent.sfWeightEff_*systEvent.sfWeightTrig_*systEvent.sfWeightHPt_);
-	  fDecay                 = 1;
-
-	  if((systEvent.cuts_ & SmurfTree::Lep1LooseMuV2)  == SmurfTree::Lep1LooseMuV2 ||
-	     (systEvent.cuts_ & SmurfTree::Lep2LooseMuV2)  == SmurfTree::Lep2LooseMuV2){
-	    fDecay = 23;
-	  }
-	  else if((systEvent.cuts_ & SmurfTree::Lep1LooseEleV4) == SmurfTree::Lep1LooseEleV4 ||
-	  	  (systEvent.cuts_ & SmurfTree::Lep2LooseEleV4) == SmurfTree::Lep2LooseEleV4){
-	  }
-	  else {
-	    assert(0);
-	  }
-	  theWeight              = -1.0 * systEvent.scale1fb_*lumi*add;
-	}
-	else {
-	  theWeight = 0.0;
-	}
-      }
-      else if(systEvent.dstype_ == SmurfTree::dyttDataDriven) {
-        double sf_trg = trigLookup.GetExpectedTriggerEfficiency(fabs(systEvent.lep1_.Eta()), systEvent.lep1_.Pt() , 
-	        					        fabs(systEvent.lep2_.Eta()), systEvent.lep2_.Pt(), 
-							        TMath::Abs( systEvent.lid1_), TMath::Abs(systEvent.lid2_));
-        double sf_eff = 1.0;
-	sf_eff = leptonEfficiency(systEvent.lep1_.Pt(), systEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, systEvent.lid1_)*
-        	 leptonEfficiency(systEvent.lep2_.Pt(), systEvent.lep2_.Eta(), fhDEffMu, fhDEffEl, systEvent.lid2_);
-
-        theWeight = ZttScaleFactor(period,systEvent.scale1fb_,sf_trg,sf_eff)*lumi;
-	if(UseDyttDataDriven == false) theWeight = 0.0;
-      }
-      else if(systEvent.dstype_ != SmurfTree::data){
-
-	double add1 = nPUScaleFactor2012(fhDPU,systEvent.npu_);
-        double add2 = 1.0;
-	add2 = leptonEfficiency(systEvent.lep1_.Pt(), systEvent.lep1_.Eta(), fhDEffMu, fhDEffEl, systEvent.lid1_);
-	add2 = add2*leptonEfficiency(systEvent.lep2_.Pt(), systEvent.lep2_.Eta(), fhDEffMu, fhDEffEl, systEvent.lid2_);
-        if((systEvent.cuts_ & SmurfTree::ExtraLeptonVeto) != SmurfTree::ExtraLeptonVeto)
-        add2 = add2*leptonEfficiency(systEvent.lep3_.Pt(), systEvent.lep3_.Eta(), fhDEffMu, fhDEffEl, systEvent.lid3_);
-
-        double trigEff = trigLookup.GetExpectedTriggerEfficiency(fabs(systEvent.lep1_.Eta()), systEvent.lep1_.Pt() , 
-								 fabs(systEvent.lep2_.Eta()), systEvent.lep2_.Pt(), 
-	        						 TMath::Abs( systEvent.lid1_), TMath::Abs(systEvent.lid2_));
-        add = add1*add2*trigEff;
-
-        if(fCheckProblem == true && add != 0 && TMath::Abs((systEvent.sfWeightFR_*systEvent.sfWeightPU_*systEvent.sfWeightEff_*systEvent.sfWeightTrig_*systEvent.sfWeightHPt_)-add)/add>0.0001)
-	printf("PROBLEMCSy(%d): %f %f %f = %f - %f %f %f %f %f = %f\n",systEvent.event_,add1,add2,trigEff,add,systEvent.sfWeightFR_,systEvent.sfWeightPU_,systEvent.sfWeightEff_,systEvent.sfWeightTrig_,systEvent.sfWeightHPt_,systEvent.sfWeightFR_*systEvent.sfWeightPU_*systEvent.sfWeightEff_*systEvent.sfWeightTrig_*systEvent.sfWeightHPt_);
-
-	if(systEvent.dstype_ == SmurfTree::wgstar) add = add*WGstarScaleFactor(systEvent.type_,theMET);
-
-        // if true, then remove em events in dyll MC
-        if(UseDyttDataDriven == true &&
-          (systEvent.dstype_ == SmurfTree::dymm || systEvent.dstype_ == SmurfTree::dyee || systEvent.dstype_ == SmurfTree::dytt) &&
-          (systEvent.type_ == SmurfTree::em || systEvent.type_ == SmurfTree::me)) add = 0.0;
-
-        //----------------------------------------------------------------------------      
-        // Apply weighting factor to wgamma (gamma->electron ratio)
-        //----------------------------------------------------------------------------
-        if(systEvent.dstype_ == SmurfTree::wgamma) {
-          if(!(TMath::Abs(systEvent.lep1McId_) == 11 || TMath::Abs(systEvent.lep1McId_) == 13)) add = add * ratioPhotonElectron(fhDRatioPhotonElectron,TMath::Abs(systEvent.lep1_.Eta()));
-          if(!(TMath::Abs(systEvent.lep2McId_) == 11 || TMath::Abs(systEvent.lep2McId_) == 13)) add = add * ratioPhotonElectron(fhDRatioPhotonElectron,TMath::Abs(systEvent.lep2_.Eta()));      
-        }
-
-	theWeight              = systEvent.scale1fb_*lumi*add;
-      }
-
-      double outputVar[15];
-      makeSystematicEffects(systEvent.lid1_, systEvent.lid2_, systEvent.lep1_, systEvent.lep2_, systEvent.dilep_, 
-                            systEvent.mt_, theMET, theMETPHI, 
-                            systEvent.trackMet_, systEvent.trackMetPhi_, 
-			    systEvent.njets_, systEvent.jet1_, systEvent.jet2_,
-			    year, 3, outputVar);
-      double MVAVar[1] = {outputVar[13]};
-      if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
-      else if(thePlot == 2) {MVAVar[0]=outputVar[ 0];}
-      else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
-
-      for(int nv=0; nv<1; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
-      if(passCuts[1][WWSEL]){
-	if     (fDecay == 27){
-	  histo_WZ_CMS_WZNLOUp->Fill(MVAVar[0], theWeight);
-        }
-      }
-
-    } // if passCuts
-  } // end syst loop
-  } // if want to use it at all
   
   if(run_over_data){
   dataEvent.tree_->SetBranchAddress("ewkMVA", &ewkMVA );
@@ -1829,11 +1574,9 @@ void vbs_ana
   double mean,up,diff;
 
   if(showSignalOnly == false) {
-    printf("nuisance WZ | Wj: %f/%f | %f/%f\n",histo_WZ   ->GetSumOfWeights(),histo_WZ_CMS_WZNLOUp  ->GetSumOfWeights(),
-                                               histo_Wjets->GetSumOfWeights(),histo_Wjets_WUp->GetSumOfWeights());
+    printf("nuisance Wj: %f/%f\n",histo_Wjets->GetSumOfWeights(),histo_Wjets_WUp->GetSumOfWeights());
   }
   histo_Wjets_WUp->Scale(histo_Wjets->GetSumOfWeights()/histo_Wjets_WUp->GetSumOfWeights());
-  histo_WZ_CMS_WZNLOUp  ->Scale(histo_WZ   ->GetSumOfWeights()/histo_WZ_CMS_WZNLOUp  ->GetSumOfWeights());
 
   for(int i=1; i<=histo_WWewk->GetNbinsX(); i++){
     // METRes
@@ -1855,12 +1598,6 @@ void vbs_ana
     if     (mean-up >0) histo_WZ_METResDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
     else		histo_WZ_METResDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
   
-    mean = histo_WZ		       ->GetBinContent(i);
-    up   = histo_WZ_CMS_WZNLOUp->GetBinContent(i);
-    diff = TMath::Abs(mean-up);
-    if     (mean-up >0) histo_WZ_CMS_WZNLODown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
-    else		histo_WZ_CMS_WZNLODown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
-
     mean = histo_WS			   ->GetBinContent(i);
     up   = histo_WS_METResUp->GetBinContent(i);
     diff = TMath::Abs(mean-up);
@@ -1898,12 +1635,6 @@ void vbs_ana
     if     (mean-up >0) histo_WZ_LepResDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
     else		histo_WZ_LepResDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
   
-    mean = histo_WZ		       ->GetBinContent(i);
-    up   = histo_WZ_CMS_WZNLOUp->GetBinContent(i);
-    diff = TMath::Abs(mean-up);
-    if     (mean-up >0) histo_WZ_CMS_WZNLODown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
-    else		histo_WZ_CMS_WZNLODown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
-
     mean = histo_WS			   ->GetBinContent(i);
     up   = histo_WS_LepResUp->GetBinContent(i);
     diff = TMath::Abs(mean-up);
@@ -1941,12 +1672,6 @@ void vbs_ana
     if     (mean-up >0) histo_WZ_JESDown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
     else		histo_WZ_JESDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
   
-    mean = histo_WZ		       ->GetBinContent(i);
-    up   = histo_WZ_CMS_WZNLOUp->GetBinContent(i);
-    diff = TMath::Abs(mean-up);
-    if     (mean-up >0) histo_WZ_CMS_WZNLODown->SetBinContent(i,TMath::Max(mean+diff,0.000001));
-    else		histo_WZ_CMS_WZNLODown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
-
     mean = histo_WS			->GetBinContent(i);
     up   = histo_WS_JESUp->GetBinContent(i);
     diff = TMath::Abs(mean-up);
@@ -1979,7 +1704,6 @@ void vbs_ana
     else		histo_WS_WSDown->SetBinContent(i,TMath::Max(mean-diff,0.000001));
   }
   histo_Wjets_WDown->Scale(histo_Wjets->GetSumOfWeights()/histo_Wjets_WDown->GetSumOfWeights());
-  histo_WZ_CMS_WZNLODown  ->Scale(histo_WZ   ->GetSumOfWeights()/histo_WZ_CMS_WZNLODown  ->GetSumOfWeights());
 
   //----------------------------------------------------------------------------
   // Produce output cards for shape-based analyses
@@ -2095,8 +1819,6 @@ void vbs_ana
   printf("uncertainties GEN\n");
   histo_Wjets_WUp	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_Wjets->GetBinContent(i)>0)printf("%5.1f ",histo_Wjets_WUp       ->GetBinContent(i)/histo_Wjets->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_Wjets_WDown	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_Wjets->GetBinContent(i)>0)printf("%5.1f ",histo_Wjets_WDown     ->GetBinContent(i)/histo_Wjets->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
-  histo_WZ_CMS_WZNLOUp            ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WZ   ->GetBinContent(i)>0)printf("%5.1f ",histo_WZ_CMS_WZNLOUp	     ->GetBinContent(i)/histo_WZ   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
-  histo_WZ_CMS_WZNLODown          ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WZ   ->GetBinContent(i)>0)printf("%5.1f ",histo_WZ_CMS_WZNLODown       ->GetBinContent(i)/histo_WZ   ->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_WS_WSUp            ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WS   ->GetBinContent(i)>0)printf("%5.1f ",histo_WS_WSUp         ->GetBinContent(i)/histo_WS->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
   histo_WS_WSDown	  ->Write(); for(int i=1; i<=histo_WWewk->GetNbinsX(); i++) {if(histo_WS   ->GetBinContent(i)>0)printf("%5.1f ",histo_WS_WSDown       ->GetBinContent(i)/histo_WS->GetBinContent(i)*100);else printf("100.0 ");} printf("\n");
 
@@ -2252,8 +1974,6 @@ void vbs_ana
     }
 
     double systNLO[3] = {1.0,1.0,1.0}; // WZ, WS, Wjets
-    //if     (histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ_CMS_WZNLOUp    ->GetBinContent(nb)/histo_WZ   ->GetBinContent(nb);
-    //else if(histo_WZ   ->GetBinContent(nb) > 0 && histo_WZ_CMS_WZNLODown  ->GetBinContent(nb) > 0) systNLO[0] = histo_WZ   ->GetBinContent(nb)/histo_WZ_CMS_WZNLODown  ->GetBinContent(nb);
     systNLO[0] = 1.37;
     if     (histo_WS   ->GetBinContent(nb) > 0 && histo_WS_WSUp    ->GetBinContent(nb) > 0) systNLO[1] = histo_WS_WSUp    ->GetBinContent(nb)/histo_WS   ->GetBinContent(nb);
     else if(histo_WS   ->GetBinContent(nb) > 0 && histo_WS_WSDown  ->GetBinContent(nb) > 0) systNLO[1] = histo_WS   ->GetBinContent(nb)/histo_WS_WSDown  ->GetBinContent(nb);
