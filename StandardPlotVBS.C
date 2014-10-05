@@ -15,10 +15,10 @@
 #include "TPaveText.h"
 #endif
 
-enum samp { iVV,iWWQCD,iWJets,iWW,iVVV,iWWEWK,iHiggs,nSamples};
+enum samp { iVV,iWWQCD,iWJets,iWW,iVVV,iOther,iWWEWK,iHiggs,nSamples};
 
-float xPos[nSamples+1] = {0.19,0.19,0.19,0.19,0.41,0.41,0.41,0.41}; 
-float yOff[nSamples+1] = {0,1,2,3,0,1,2,3};
+float xPos[nSamples+1] = {0.19,0.19,0.19,0.19,0.41,0.41,0.41,0.41,0.41}; 
+float yOff[nSamples+1] = {0,1,2,3,0,1,2,3,4};
 
 const Float_t _tsize   = 0.040;
 const Float_t _xoffset = 0.20;
@@ -143,6 +143,7 @@ class StandardPlot {
             _sampleColor[iWJets  ] = kGray+1;
             _sampleColor[iWW 	 ] = kAzure-9;
             _sampleColor[iVVV 	 ] = kBlue-1;
+	    _sampleColor[iOther  ] = kAzure-9;
             _sampleColor[iHiggs  ] = kMagenta;
 
             THStack* hstack = new THStack();
@@ -196,14 +197,24 @@ class StandardPlot {
 	    if(plotSystErrorBars == true) {
   	      TGraphAsymmErrors * gsyst = new TGraphAsymmErrors(hSum);
               for (int i = 0; i < gsyst->GetN(); ++i) {
-                double systBck = 0.107*0.107*_hist[iWWEWK]->GetBinContent(i+1)*_hist[iWWEWK]->GetBinContent(i+1)+
-		                 0.089*0.089*_hist[iWWQCD]->GetBinContent(i+1)*_hist[iWWQCD]->GetBinContent(i+1)+
-				 0.380*0.380*_hist[iVV]->GetBinContent(i+1)*_hist[iVV]->GetBinContent(i+1)+
-		                 0.114*0.114*_hist[iWW]->GetBinContent(i+1)*_hist[iWW]->GetBinContent(i+1)+
-				 0.503*0.503*_hist[iVVV]->GetBinContent(i+1)*_hist[iVVV]->GetBinContent(i+1)+
-                                 0.360*0.360*_hist[iWJets]->GetBinContent(i+1)*_hist[iWJets]->GetBinContent(i+1);
-                double total = _hist[iWWEWK]->GetBinContent(i+1)+_hist[iWWQCD]->GetBinContent(i+1)+_hist[iVV]->GetBinContent(i+1)+
-		                         _hist[iWW]->GetBinContent(i+1)+_hist[iVVV]->GetBinContent(i+1)+_hist[iWJets]->GetBinContent(i+1);
+                double systBck = 0;
+		if(_hist[iWWEWK]) systBck = systBck + 0.107*0.107*_hist[iWWEWK]->GetBinContent(i+1)*_hist[iWWEWK]->GetBinContent(i+1);
+		if(_hist[iWWQCD]) systBck = systBck + 0.089*0.089*_hist[iWWQCD]->GetBinContent(i+1)*_hist[iWWQCD]->GetBinContent(i+1);
+		if(_hist[   iVV]) systBck = systBck + 0.380*0.380*_hist[   iVV]->GetBinContent(i+1)*_hist[   iVV]->GetBinContent(i+1);
+		if(_hist[   iWW]) systBck = systBck + 0.114*0.114*_hist[   iWW]->GetBinContent(i+1)*_hist[   iWW]->GetBinContent(i+1);
+		if(_hist[  iVVV]) systBck = systBck + 0.503*0.503*_hist[  iVVV]->GetBinContent(i+1)*_hist[  iVVV]->GetBinContent(i+1);
+		if(_hist[iOther]) systBck = systBck + 0.400*0.400*_hist[iOther]->GetBinContent(i+1)*_hist[iOther]->GetBinContent(i+1);
+		if(_hist[iWJets]) systBck = systBck + 0.360*0.360*_hist[iWJets]->GetBinContent(i+1)*_hist[iWJets]->GetBinContent(i+1);
+
+                double total = 0;
+		if(_hist[iWWEWK]) total = total + _hist[iWWEWK]->GetBinContent(i+1);
+		if(_hist[iWWQCD]) total = total + _hist[iWWQCD]->GetBinContent(i+1);
+		if(_hist[   iVV]) total = total + _hist[   iVV]->GetBinContent(i+1);
+		if(_hist[   iWW]) total = total + _hist[   iWW]->GetBinContent(i+1);
+		if(_hist[  iVVV]) total = total + _hist[  iVVV]->GetBinContent(i+1);
+		if(_hist[iOther]) total = total + _hist[iOther]->GetBinContent(i+1);
+		if(_hist[iWJets]) total = total + _hist[iWJets]->GetBinContent(i+1);
+
                 if(total > 0) systBck = sqrt(systBck)/total;
                 gsyst->SetPointEYlow (i, sqrt(hSum->GetBinError(i+1)*hSum->GetBinError(i+1)+hSum->GetBinContent(i+1)*hSum->GetBinContent(i+1)*systBck*systBck));
                 gsyst->SetPointEYhigh(i, sqrt(hSum->GetBinError(i+1)*hSum->GetBinError(i+1)+hSum->GetBinContent(i+1)*hSum->GetBinContent(i+1)*systBck*systBck));
@@ -308,6 +319,8 @@ class StandardPlot {
             else if(_hist[iWWEWK] && _hist[iWWEWK]->GetSumOfWeights() > 0)		     { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWWEWK], higgsLabel, "l" ); j++; }
 
 	    if(_hist[iVVV   ] &&_hist[iVVV   ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVVV   ], " VVV"  ,       "f" ); j++; }
+
+	    if(_hist[iOther   ] &&_hist[iOther   ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iOther   ], " Other Bkgs."  ,       "f" ); j++; }
 
             if(_alternativeOption != 3){
 	    if(_hist[iWW    ] &&_hist[iWW    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iWW    ], " Wrong sign"  ,"f" ); j++; }

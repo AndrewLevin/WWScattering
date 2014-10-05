@@ -63,10 +63,10 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   hVVV	  ->Scale(scale);
   hHiggs  ->Scale(scale*SFHiggs);
 
-  if(nsel == 0 || nsel == 1 || nsel == 2 || nsel == 3){
+  if(nsel == -1 || nsel == 0 || nsel == 1 || nsel == 2 || nsel == 3){
     myPlot.setMCHist(iWWEWK,(TH1D*)hWWEWK->Clone("hWWEWK"));
     myPlot._mass = 0;
-    if(nsel >= 1 || hHiggs->GetSumOfWeights() > 0) myPlot.setHWWOverlaid(true);
+    if(nsel >= 1 || nsel == -1 || hHiggs->GetSumOfWeights() > 0) myPlot.setHWWOverlaid(true);
     myPlot.setUnits(units);
     myPlot.setBreakdown(true);
     if(nsel == 1) myPlot.setMass(200);
@@ -76,11 +76,19 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
     
   } else assert(0);
 
+  TH1D* hOther = (TH1D*) hWWQCD->Clone("hOther");
+  hOther->Add(hVVV);
+  hOther->Add(hWW);
+
   myPlot.setMCHist(iVV,     (TH1D*)hVV     ->Clone("hVV"));
-  myPlot.setMCHist(iWWQCD,  (TH1D*)hWWQCD  ->Clone("hWWQCD"));
+  if(nsel == -1) {
+    myPlot.setMCHist(iOther,  (TH1D*)hOther  ->Clone("hOther"));
+  } else {
+    myPlot.setMCHist(iWWQCD,  (TH1D*)hWWQCD  ->Clone("hWWQCD"));
+    myPlot.setMCHist(iWW,     (TH1D*)hWW     ->Clone("hWW"));
+    myPlot.setMCHist(iVVV,    (TH1D*)hVVV    ->Clone("hVVV"));
+  }
   myPlot.setMCHist(iWJets,  (TH1D*)hWJets  ->Clone("hWJets")); 
-  myPlot.setMCHist(iWW,     (TH1D*)hWW	   ->Clone("hWW"));
-  myPlot.setMCHist(iVVV,    (TH1D*)hVVV    ->Clone("hVVV"));
   myPlot.setMCHist(iHiggs,  (TH1D*)hHiggs  ->Clone("hHiggs"));
   myPlot.setDataHist((TH1D*)hData->Clone("data"));
 

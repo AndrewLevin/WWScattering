@@ -1,8 +1,8 @@
 # poor man macro to remind how to produce the plots
 
-root -l -q -b finalPlotVBS.C+'(1,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mjj.root","wwss_mjj",0,19.4)'
-root -l -q -b finalPlotVBS.C+'(1,1,"m_{ll} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mll.root","wwss_mll",0,19.4)'
-root -l -q -b finalPlotVBS.C+'(1,1,"p_{T}^{l max} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_ptlmax.root","wwss_ptlmax",0,19.4)'
+root -l -q -b finalPlotVBS.C+'(-1,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mjj.root","wwss_mjj",0,19.4)'
+root -l -q -b finalPlotVBS.C+'(-1,1,"m_{ll} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_mll.root","wwss_mll",0,19.4)'
+root -l -q -b finalPlotVBS.C+'(-1,1,"p_{T}^{l max} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wwss_ptlmax.root","wwss_ptlmax",0,19.4)'
 
 # standard
 root -l -q -b finalPlotVBS.C+'(1,1,"m_{jj} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/wz.root","wz",0,19.4)'
