@@ -17,8 +17,8 @@
 
 enum samp { iVV,iWWQCD,iWJets,iWW,iVVV,iOther,iWWEWK,iHiggs,nSamples};
 
-float xPos[nSamples+1] = {0.19,0.19,0.19,0.19,0.41,0.41,0.41,0.41,0.41}; 
-float yOff[nSamples+1] = {0,1,2,3,0,1,2,3,4};
+float xPos[nSamples+1] = {0.19,0.19,0.19,0.19,0.19,0.41,0.41,0.41,0.41}; 
+float yOff[nSamples+1] = {0,1,2,3,4,0,1,2,3};
 
 const Float_t _tsize   = 0.040;
 const Float_t _xoffset = 0.20;
