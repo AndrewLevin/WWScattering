@@ -309,7 +309,7 @@ class StandardPlot {
             // total mess to get it nice, should be redone
             size_t j=0;
             TString higgsLabel = " HWW";
-            higgsLabel.Form("W^{#pm}W^{#pm}jj");
+            higgsLabel.Form(" W^{#pm}W^{#pm}jj");
 
             if(_data->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _data,          " Data",    "lp"); j++; }
 
