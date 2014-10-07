@@ -137,13 +137,13 @@ class StandardPlot {
         TH1* Draw(const int &rebin=1) {
 
             Color_t _sampleColor[nSamples];
-            _sampleColor[iWWEWK  ] = kBlue+1;
+            _sampleColor[iWWEWK  ] = kAzure-9;
             _sampleColor[iVV 	 ] = kAzure-2;
             _sampleColor[iWWQCD  ] = kGreen+2;
             _sampleColor[iWJets  ] = kGray+1;
-            _sampleColor[iWW 	 ] = kAzure-9;
+            _sampleColor[iWW 	 ] = kBlue+1;
             _sampleColor[iVVV 	 ] = kBlue-1;
-	    _sampleColor[iOther  ] = kAzure-9;
+	    _sampleColor[iOther  ] = kBlue+1;
             _sampleColor[iHiggs  ] = kMagenta;
 
             THStack* hstack = new THStack();
@@ -191,6 +191,7 @@ class StandardPlot {
             if(_data) _data->Rebin(rebin);
             if(_data) _data->SetLineColor  (kBlack);
             if(_data) _data->SetMarkerStyle(kFullCircle);
+            //if(_data) _data->Rebin(rebin)
 	    hstack->Draw("hist");
 
 	    bool plotSystErrorBars = true;
@@ -257,6 +258,10 @@ class StandardPlot {
  	          g->SetPointEYlow(i,double(N)-L);
  	          if(N >= 0) g->SetPointEYhigh(i, U-double(N));
  	          else       g->SetPointEYhigh(i, 0.0);
+		  
+		  g->SetPointEXlow (i, 0);
+		  g->SetPointEXhigh(i, 0);
+		  
  	        }
  	        g->Draw("P");
  	      }
