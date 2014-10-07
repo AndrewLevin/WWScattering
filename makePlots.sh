@@ -30,6 +30,6 @@ root -l -q -b finalPlotVBS.C+'(3,8,"p_{T}^{l max} (GeV)","GeV","/data/smurf/ceba
 root -l -q -b finalPlotVBS.C+'(3,8,"p_{T}^{l min} (GeV)","GeV","/data/smurf/ceballos/distributions/wwss/toptag_ptlmin.root","toptag_ptlmin",0,19.4)'
 
 # Limit plot
-root -l -b -q PlotLimitForVBS.C+'("ana_hpp_samesign.txt","ana_hpp_samesign","19.4 fb^{-1} (8 TeV)",160,800,0,0,"VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}",1,5,"pdf")';
-root -l -b -q PlotLimitForVBS.C+'("ana_hpp_samesign.txt","ana_hpp_samesign","19.4 fb^{-1} (8 TeV)",160,800,0,0,"VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}",1,5,"png")';
-root -l -b -q PlotLimitForVBS.C+'("ana_hpp_samesign.txt","ana_hpp_samesign","19.4 fb^{-1} (8 TeV)",160,800,0,0,"VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}",1,5,"eps")';
+root -l -b -q PlotLimitForVBS.C+'("inputs/ana_hpp_samesign.txt","ana_hpp_samesign","19.4 fb^{-1} (8 TeV)",160,800,0,0,"VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}",1,5,"pdf")';
+root -l -b -q PlotLimitForVBS.C+'("inputs/ana_hpp_samesign.txt","ana_hpp_samesign","19.4 fb^{-1} (8 TeV)",160,800,0,0,"VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}",1,5,"png")';
+root -l -b -q PlotLimitForVBS.C+'("inputs/ana_hpp_samesign.txt","ana_hpp_samesign","19.4 fb^{-1} (8 TeV)",160,800,0,0,"VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}",1,5,"eps")';
