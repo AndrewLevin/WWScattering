@@ -20,16 +20,6 @@ Bool_t verbose = false;
 
 void DrawTLatex(Double_t x, Double_t y, Double_t tsize, const char* text);
 
-
-//------------------------------------------------------------------------------
-//
-// ratio
-//    0 = don't take ratio
-//    1 = simple ratio
-//    2 = ratio in units of sigma
-//    3 = sigma
-//
-//------------------------------------------------------------------------------
 void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7teV_cut8TeV.txt",
 	       string  outputPrefix = "combined",
 	       string  luminosity   = "5.1 fb^{-1} (8 TeV) + 4.9 fb^{-1} (7 TeV)",
@@ -62,7 +52,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   //----------------------------------------------------------------------------
   vector<float> vMass;
   vector<float> vObsLimit; 
-  vector<float> vMeanExpLimit; 
+  vector<float> vTheoryLimit; 
   vector<float> vMedianExpLimit; 
   vector<float> vExpLim68Down; 
   vector<float> vExpLim68Up; 
@@ -71,7 +61,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
 
   float Mass;
   float ObsLimit; 
-  float MeanExpLimit; 
+  float TheoryLimit; 
   float MedianExpLimit; 
   float ExpLim68Down; 
   float ExpLim68Up; 
@@ -88,7 +78,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   while (indata
 	 >> Mass
 	 >> ObsLimit
-	 >> MeanExpLimit
+	 >> TheoryLimit
 	 >> MedianExpLimit
 	 >> ExpLim95Down
 	 >> ExpLim68Down
@@ -97,7 +87,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
 
     vMass          .push_back(Mass);
     vObsLimit      .push_back(ObsLimit); 
-    vMeanExpLimit  .push_back(MeanExpLimit); 
+    vTheoryLimit   .push_back(TheoryLimit); 
     vMedianExpLimit.push_back(MedianExpLimit); 
     vExpLim68Down  .push_back(ExpLim68Down); 
     vExpLim68Up    .push_back(ExpLim68Up); 
@@ -130,9 +120,9 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   float min = +9999;
   float max = -9999;
 
-
   // Expected Limit
   //----------------------------------------------------------------------------
+  float y_th[npoints];
   float x   [npoints];
   float ex  [npoints];
   float y   [npoints];
@@ -146,33 +136,19 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
     x [i] = vMass.at(i);
     ex[i] = 0; 
 
+    y_th[i] = vTheoryLimit.at(i);
     y   [i] = vMedianExpLimit.at(i);
     yu68[i] = vExpLim68Up.at(i) - y[i];
     yu95[i] = vExpLim95Up.at(i) - y[i];   
     yd68[i] = y[i] - vExpLim68Down.at(i);  
     yd95[i] = y[i] - vExpLim95Down.at(i);  
 
-    if (ratio == 1) {
-      y   [i] /= vMedianExpLimit.at(i);
-      yu68[i] /= vMedianExpLimit.at(i);
-      yu95[i] /= vMedianExpLimit.at(i);
-      yd68[i] /= vMedianExpLimit.at(i);
-      yd95[i] /= vMedianExpLimit.at(i);
-    }
-    else if (ratio == 2) {
-      y   [i] = 0;
-      yu68[i] = 1;
-      yu95[i] = 2;
-      yd68[i] = 1;
-      yd95[i] = 2;
-    }
-
     if (y[i] + yu95[i] > max) max = y[i] + yu95[i];
-    if (y[i] - yd95[i] < min) min = y[i] - yd95[i]; // 0.01;
+    if (y[i] - yd95[i] < min) min = y[i] - yd95[i];
   }
   if(setLogy == 0) min =0.01;
 
-
+  TGraph*            ExpTheory = new TGraph           (npoints, x, y_th);
   TGraph*            ExpLim    = new TGraph           (npoints, x, y);
   TGraphAsymmErrors* ExpBand95 = new TGraphAsymmErrors(npoints, x, y, ex, ex, yd95, yu95);
   TGraphAsymmErrors* ExpBand68 = new TGraphAsymmErrors(npoints, x, y, ex, ex, yd68, yu68);
@@ -183,14 +159,9 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   //----------------------------------------------------------------------------
   ExpBand95->SetTitle("");
 
-  //ExpBand95->GetXaxis()->SetTitle("Higgs boson mass (GeV)");
   ExpBand95->GetXaxis()->SetTitle("m_{H^{#pm#pm}} (GeV)");
     
   if (ratio == 0) ExpBand95->GetYaxis()->SetTitle("95% CL limit on #sigma/#sigma_{SM}");
-  if (ratio == 1) ExpBand95->GetYaxis()->SetTitle("ratio to expected");
-  if (ratio == 2) ExpBand95->GetYaxis()->SetTitle("(observed - expected) / 1#sigma");
-  if (ratio == 3) ExpBand95->GetYaxis()->SetTitle("#sigma X BR(H #rightarrow WW #rightarrow 2l2#nu) (pb)");
-  if (ratio == 4) ExpBand95->GetYaxis()->SetTitle("#sigma X BR(H #rightarrow invisible)/#sigma_{SM}");
   if (ratio == 5) ExpBand95->GetYaxis()->SetTitle("#sigma X #Beta(H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}) (fb)");
 
   ExpBand95->GetXaxis()->SetTitleOffset(1.05);
@@ -203,13 +174,17 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   ExpBand95->SetFillColor(90); 
   ExpBand95->SetLineColor(10);
 
+  ExpTheory->SetLineStyle(9);
+  ExpTheory->SetLineWidth(3);
+  ExpTheory->SetLineColor(9);
+
   ExpLim->SetLineStyle(2);
   ExpLim->SetLineWidth(2);
 
   ExpBand95->Draw("a3");
   ExpBand68->Draw("3");
   ExpLim   ->Draw("l");
-
+  ExpTheory->Draw("l");
 
   // Observed limit
   //----------------------------------------------------------------------------
@@ -222,19 +197,6 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
     for (UInt_t i=0; i<npoints; ++i) {
 
       yObs[i] = vObsLimit.at(i);
-
-      if (ratio == 1) {
-	yObs[i] /= vMedianExpLimit.at(i);
-      }
-      else if (ratio == 2) {
-        float onesigma =
-	  (fabs(log(vExpLim68Down.at(i)) - log(vMedianExpLimit.at(i))) +
-	   fabs(log(vExpLim68Up.at(i))   - log(vMedianExpLimit.at(i))) +
-	   fabs(log(vExpLim95Down.at(i)) - log(vMedianExpLimit.at(i))) +
-	   fabs(log(vExpLim95Up.at(i))   - log(vMedianExpLimit.at(i)))) / 6;
-	
-        yObs[i] = (log(vObsLimit.at(i)) - log(vMedianExpLimit.at(i))) / onesigma;
-      }
 
       if (yObs[i] > max) max = yObs[i];
       if (yObs[i] < min) min = yObs[i];
@@ -329,12 +291,11 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   leg->SetTextSize  (0.032);
 
   if(ObsLim != NULL)
-  leg->AddEntry(ObsLim,    " Observed",             "l");
-  leg->AddEntry(ExpLim,    " Median expected",      "l");
-  leg->AddEntry(ExpBand68, " Expected #pm 1#sigma", "f");
-  leg->AddEntry(ExpBand95, " Expected #pm 2#sigma", "f");
-  //leg->AddEntry(ExpBand68, " Expected (68%)", "f");
-  //leg->AddEntry(ExpBand95, " Expected (95%)", "f");
+  leg->AddEntry(ExpTheory, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}}","l");
+  leg->AddEntry(ObsLim,    " Observed",                                          "l");
+  leg->AddEntry(ExpLim,    " Median expected",                                   "l");
+  leg->AddEntry(ExpBand68, " Expected #pm 1#sigma",                              "f");
+  leg->AddEntry(ExpBand95, " Expected #pm 2#sigma",                              "f");
 
   leg->Draw("same");
 
@@ -343,7 +304,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   //----------------------------------------------------------------------------
   canvas->Update();
 
-  if (!ratio || ratio == 4) {
+  if (!ratio) {
 
     TLine *line = NULL;
 
