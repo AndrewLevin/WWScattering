@@ -461,7 +461,7 @@ void vbs_ana
       genLevelNorm[0]++;
       if(bgdEvent.genlep1_.Pt() > 0 
       && bgdEvent.genlep2_.Pt() > 0
-      //&& bgdEvent.genlep_3.Pt() > 0
+      //&& bgdEvent.genlep3_.Pt() > 0
         ) {
         genLevelNorm[1]++;
         bool passJetsCuts[3]; 
