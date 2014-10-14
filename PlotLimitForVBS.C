@@ -52,7 +52,8 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   //----------------------------------------------------------------------------
   vector<float> vMass;
   vector<float> vObsLimit; 
-  vector<float> vTheoryLimit; 
+  vector<float> vTheoryLimit0; 
+  vector<float> vTheoryLimit1; 
   vector<float> vMedianExpLimit; 
   vector<float> vExpLim68Down; 
   vector<float> vExpLim68Up; 
@@ -61,7 +62,8 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
 
   float Mass;
   float ObsLimit; 
-  float TheoryLimit; 
+  float TheoryLimit0; 
+  float TheoryLimit1; 
   float MedianExpLimit; 
   float ExpLim68Down; 
   float ExpLim68Up; 
@@ -78,7 +80,8 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   while (indata
 	 >> Mass
 	 >> ObsLimit
-	 >> TheoryLimit
+	 >> TheoryLimit0
+	 >> TheoryLimit1
 	 >> MedianExpLimit
 	 >> ExpLim95Down
 	 >> ExpLim68Down
@@ -87,7 +90,8 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
 
     vMass          .push_back(Mass);
     vObsLimit      .push_back(ObsLimit); 
-    vTheoryLimit   .push_back(TheoryLimit); 
+    vTheoryLimit0  .push_back(TheoryLimit0); 
+    vTheoryLimit1  .push_back(TheoryLimit1); 
     vMedianExpLimit.push_back(MedianExpLimit); 
     vExpLim68Down  .push_back(ExpLim68Down); 
     vExpLim68Up    .push_back(ExpLim68Up); 
@@ -122,36 +126,39 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
 
   // Expected Limit
   //----------------------------------------------------------------------------
-  float y_th[npoints];
-  float x   [npoints];
-  float ex  [npoints];
-  float y   [npoints];
-  float yu68[npoints];
-  float yd68[npoints];
-  float yu95[npoints];
-  float yd95[npoints]; 
+  float y_th0[npoints];
+  float y_th1[npoints];
+  float x    [npoints];
+  float ex   [npoints];
+  float y    [npoints];
+  float yu68 [npoints];
+  float yd68 [npoints];
+  float yu95 [npoints];
+  float yd95 [npoints]; 
   
   for (UInt_t i=0; i<npoints; ++i) {
 
     x [i] = vMass.at(i);
     ex[i] = 0; 
 
-    y_th[i] = vTheoryLimit.at(i);
-    y   [i] = vMedianExpLimit.at(i);
-    yu68[i] = vExpLim68Up.at(i) - y[i];
-    yu95[i] = vExpLim95Up.at(i) - y[i];   
-    yd68[i] = y[i] - vExpLim68Down.at(i);  
-    yd95[i] = y[i] - vExpLim95Down.at(i);  
+    y_th0[i] = vTheoryLimit0.at(i);
+    y_th1[i] = vTheoryLimit1.at(i);
+    y   [i]  = vMedianExpLimit.at(i);
+    yu68[i]  = vExpLim68Up.at(i) - y[i];
+    yu95[i]  = vExpLim95Up.at(i) - y[i];   
+    yd68[i]  = y[i] - vExpLim68Down.at(i);  
+    yd95[i]  = y[i] - vExpLim95Down.at(i);  
 
     if (y[i] + yu95[i] > max) max = y[i] + yu95[i];
     if (y[i] - yd95[i] < min) min = y[i] - yd95[i];
   }
   if(setLogy == 0) min =0.01;
 
-  TGraph*            ExpTheory = new TGraph           (npoints, x, y_th);
-  TGraph*            ExpLim    = new TGraph           (npoints, x, y);
-  TGraphAsymmErrors* ExpBand95 = new TGraphAsymmErrors(npoints, x, y, ex, ex, yd95, yu95);
-  TGraphAsymmErrors* ExpBand68 = new TGraphAsymmErrors(npoints, x, y, ex, ex, yd68, yu68);
+  TGraph*            ExpTheory0 = new TGraph           (npoints, x, y_th0);
+  TGraph*            ExpTheory1 = new TGraph           (npoints, x, y_th1);
+  TGraph*            ExpLim     = new TGraph           (npoints, x, y);
+  TGraphAsymmErrors* ExpBand95  = new TGraphAsymmErrors(npoints, x, y, ex, ex, yd95, yu95);
+  TGraphAsymmErrors* ExpBand68  = new TGraphAsymmErrors(npoints, x, y, ex, ex, yd68, yu68);
 
   ExpBand95->GetXaxis()->SetRangeUser(mhmin, mhmax);
 
@@ -174,17 +181,22 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   ExpBand95->SetFillColor(90); 
   ExpBand95->SetLineColor(10);
 
-  ExpTheory->SetLineStyle(9);
-  ExpTheory->SetLineWidth(3);
-  ExpTheory->SetLineColor(9);
+  ExpTheory0->SetLineStyle(9);
+  ExpTheory0->SetLineWidth(3);
+  ExpTheory0->SetLineColor(9);
+
+  ExpTheory1->SetLineStyle(8);
+  ExpTheory1->SetLineWidth(3);
+  ExpTheory1->SetLineColor(2);
 
   ExpLim->SetLineStyle(2);
   ExpLim->SetLineWidth(2);
 
-  ExpBand95->Draw("a3");
-  ExpBand68->Draw("3");
-  ExpLim   ->Draw("l");
-  ExpTheory->Draw("l");
+  ExpBand95 ->Draw("a3");
+  ExpBand68 ->Draw("3");
+  ExpLim    ->Draw("l");
+  ExpTheory0->Draw("l");
+  ExpTheory1->Draw("l");
 
   // Observed limit
   //----------------------------------------------------------------------------
@@ -279,10 +291,10 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   //DrawTLatex(0.94, 0.740, 0.032, TString("L = "+ luminosity).Data());
   DrawTLatex(0.21, 0.94, 0.04, "#bf{CMS}");
   //DrawTLatex(0.43, 0.94, 0.04, "#bf{CMS (preliminary)}");
-  DrawTLatex(0.54, 0.85, 0.04, title.c_str());
+  DrawTLatex(0.45, 0.85, 0.04, title.c_str());
   DrawTLatex(0.95, 0.94, 0.04, TString(luminosity).Data());
 
-  TLegend* leg = new TLegend(0.65, 0.66, 0.85, 0.88, "");
+  TLegend* leg = new TLegend(0.47, 0.66, 0.85, 0.88, "");
 
   leg->SetBorderSize(    0);
   leg->SetFillColor (    0);
@@ -291,11 +303,12 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   leg->SetTextSize  (0.032);
 
   if(ObsLim != NULL)
-  leg->AddEntry(ExpTheory, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}}","l");
-  leg->AddEntry(ObsLim,    " Observed",                                          "l");
-  leg->AddEntry(ExpLim,    " Median expected",                                   "l");
-  leg->AddEntry(ExpBand68, " Expected #pm 1#sigma",                              "f");
-  leg->AddEntry(ExpBand95, " Expected #pm 2#sigma",                              "f");
+  leg->AddEntry(ExpTheory1, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}} vev = 25 GeV","l");
+  leg->AddEntry(ExpTheory0, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}} vev = 16 GeV","l");
+  leg->AddEntry(ObsLim,     " Observed",                                          "l");
+  leg->AddEntry(ExpLim,     " Median expected",                                   "l");
+  leg->AddEntry(ExpBand68,  " Expected #pm 1#sigma",                              "f");
+  leg->AddEntry(ExpBand95,  " Expected #pm 2#sigma",                              "f");
 
   leg->Draw("same");
 
