@@ -54,6 +54,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   vector<float> vObsLimit; 
   vector<float> vTheoryLimit0; 
   vector<float> vTheoryLimit1; 
+  vector<float> vTheoryLimit2; 
   vector<float> vMedianExpLimit; 
   vector<float> vExpLim68Down; 
   vector<float> vExpLim68Up; 
@@ -64,6 +65,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   float ObsLimit; 
   float TheoryLimit0; 
   float TheoryLimit1; 
+  float TheoryLimit2; 
   float MedianExpLimit; 
   float ExpLim68Down; 
   float ExpLim68Up; 
@@ -82,6 +84,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
 	 >> ObsLimit
 	 >> TheoryLimit0
 	 >> TheoryLimit1
+	 >> TheoryLimit2
 	 >> MedianExpLimit
 	 >> ExpLim95Down
 	 >> ExpLim68Down
@@ -92,6 +95,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
     vObsLimit      .push_back(ObsLimit); 
     vTheoryLimit0  .push_back(TheoryLimit0); 
     vTheoryLimit1  .push_back(TheoryLimit1); 
+    vTheoryLimit2  .push_back(TheoryLimit2); 
     vMedianExpLimit.push_back(MedianExpLimit); 
     vExpLim68Down  .push_back(ExpLim68Down); 
     vExpLim68Up    .push_back(ExpLim68Up); 
@@ -128,6 +132,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   //----------------------------------------------------------------------------
   float y_th0[npoints];
   float y_th1[npoints];
+  float y_th2[npoints];
   float x    [npoints];
   float ex   [npoints];
   float y    [npoints];
@@ -143,6 +148,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
 
     y_th0[i] = vTheoryLimit0.at(i);
     y_th1[i] = vTheoryLimit1.at(i);
+    y_th2[i] = vTheoryLimit2.at(i);
     y   [i]  = vMedianExpLimit.at(i);
     yu68[i]  = vExpLim68Up.at(i) - y[i];
     yu95[i]  = vExpLim95Up.at(i) - y[i];   
@@ -156,6 +162,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
 
   TGraph*            ExpTheory0 = new TGraph           (npoints, x, y_th0);
   TGraph*            ExpTheory1 = new TGraph           (npoints, x, y_th1);
+  TGraph*            ExpTheory2 = new TGraph           (npoints, x, y_th2);
   TGraph*            ExpLim     = new TGraph           (npoints, x, y);
   TGraphAsymmErrors* ExpBand95  = new TGraphAsymmErrors(npoints, x, y, ex, ex, yd95, yu95);
   TGraphAsymmErrors* ExpBand68  = new TGraphAsymmErrors(npoints, x, y, ex, ex, yd68, yu68);
@@ -189,6 +196,10 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   ExpTheory1->SetLineWidth(3);
   ExpTheory1->SetLineColor(2);
 
+  ExpTheory2->SetLineStyle(6);
+  ExpTheory2->SetLineWidth(3);
+  ExpTheory2->SetLineColor(6);
+
   ExpLim->SetLineStyle(2);
   ExpLim->SetLineWidth(2);
 
@@ -197,6 +208,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   ExpLim    ->Draw("l");
   ExpTheory0->Draw("l");
   ExpTheory1->Draw("l");
+  ExpTheory2->Draw("l");
 
   // Observed limit
   //----------------------------------------------------------------------------
@@ -294,7 +306,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   DrawTLatex(0.45, 0.85, 0.04, title.c_str());
   DrawTLatex(0.95, 0.94, 0.04, TString(luminosity).Data());
 
-  TLegend* leg = new TLegend(0.47, 0.66, 0.85, 0.88, "");
+  TLegend* leg = new TLegend(0.47, 0.56, 0.85, 0.88, "");
 
   leg->SetBorderSize(    0);
   leg->SetFillColor (    0);
@@ -303,6 +315,7 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   leg->SetTextSize  (0.032);
 
   if(ObsLim != NULL)
+  leg->AddEntry(ExpTheory2, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}} vev = 35 GeV","l");
   leg->AddEntry(ExpTheory1, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}} vev = 25 GeV","l");
   leg->AddEntry(ExpTheory0, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}} vev = 16 GeV","l");
   leg->AddEntry(ObsLim,     " Observed",                                          "l");
