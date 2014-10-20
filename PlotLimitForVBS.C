@@ -315,13 +315,13 @@ void PlotLimitForVBS(string  limitFiles   = "inputs/ana_ICHEP_limits_nj_shape7te
   leg->SetTextSize  (0.032);
 
   if(ObsLim != NULL)
-  leg->AddEntry(ExpTheory2, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}} vev = 35 GeV","l");
-  leg->AddEntry(ExpTheory1, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}} vev = 25 GeV","l");
-  leg->AddEntry(ExpTheory0, " #sigma_{VBF H^{#pm#pm} #rightarrow W^{#pm}W^{#pm}} vev = 16 GeV","l");
   leg->AddEntry(ObsLim,     " Observed",                                          "l");
   leg->AddEntry(ExpLim,     " Median expected",                                   "l");
   leg->AddEntry(ExpBand68,  " Expected #pm 1#sigma",                              "f");
   leg->AddEntry(ExpBand95,  " Expected #pm 2#sigma",                              "f");
+  leg->AddEntry(ExpTheory2, " vev = 35 GeV","l");
+  leg->AddEntry(ExpTheory1, " vev = 25 GeV","l");
+  leg->AddEntry(ExpTheory0, " vev = 16 GeV","l");
 
   leg->Draw("same");
 
