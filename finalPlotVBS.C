@@ -69,11 +69,12 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
     if(nsel >= 1 || nsel == -1 || hHiggs->GetSumOfWeights() > 0) myPlot.setHWWOverlaid(true);
     myPlot.setUnits(units);
     myPlot.setBreakdown(true);
-    if(nsel == 1) myPlot.setMass(200);
-    else          myPlot.setMass(800);
+    if     (nsel == 1) {myPlot.setMass(200); myPlot.setXoffsetStart(-0.10);}
+    else if(nsel == 2) {myPlot.setMass(800); myPlot.setXoffsetStart(-0.30);}
+    else                myPlot.setMass(800);
     
     if(nsel == 3) myPlot.setAlternativeOption(3);
-    
+
   } else assert(0);
 
   TH1D* hOther = (TH1D*) hWWQCD->Clone("hOther");
@@ -81,7 +82,7 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   hOther->Add(hWW);
 
   myPlot.setMCHist(iVV,     (TH1D*)hVV     ->Clone("hVV"));
-  if(nsel == -1) {
+  if(nsel == -1 || nsel == 1 || nsel == 2) {
     myPlot.setMCHist(iOther,  (TH1D*)hOther  ->Clone("hOther"));
   } else {
     myPlot.setMCHist(iWWQCD,  (TH1D*)hWWQCD  ->Clone("hWWQCD"));

@@ -15,14 +15,16 @@
 #include "TPaveText.h"
 #endif
 
-enum samp { iVV,iWWQCD,iWJets,iWW,iVVV,iOther,iWWEWK,iHiggs,nSamples};
+enum samp { iHiggs,iVV,iWWQCD,iWJets,iWW,iVVV,iOther,iWWEWK,nSamples};
 
-float xPos[nSamples+1] = {0.65,0.65,0.65,0.65,0.65,0.40,0.40,0.40,0.40}; 
-float yOff[nSamples+1] = {0,1,2,3,4,0,1,2,3};
+float xPos[nSamples+1] = {0.65,0.65,0.65,0.65,0.65,0.65,0.40,0.40,0.40}; 
+float yOff[nSamples+1] = {0,1,2,3,4,5,0,1,2};
 
 const Float_t _tsize   = 0.040;
 const Float_t _xoffset = 0.20;
 const Float_t _yoffset = 0.05;
+Float_t _xoffsetStart = 0.0;
+Float_t _yoffsetStart = 0.0;
 
 //------------------------------------------------------------------------------
 // GetMaximumIncludingErrors
@@ -86,10 +88,10 @@ void DrawLegend(Float_t x1,
         TString label,
         TString option)
 {
-    TLegend* legend = new TLegend(x1,
-            y1,
-            x1 + _xoffset,
-            y1 + _yoffset);
+    TLegend* legend = new TLegend(x1+_xoffsetStart,
+            y1+_yoffsetStart,
+            x1+_xoffsetStart + _xoffset,
+            y1+_yoffsetStart + _yoffset);
 
     legend->SetBorderSize(     0);
     legend->SetFillColor (     0);
@@ -111,9 +113,11 @@ class StandardPlot {
         void setDataHist  (TH1D * h)                { _data          = h;  } 
         void setHWWOverlaid(bool b)                 { _isHWWOverlaid = b;  }
 
-  TH1D* getDataHist() { return _data; }
+        TH1D* getDataHist() { return _data; }
 
         void setMass(const int &m) {_mass=m;}
+        void setXoffsetStart(const double &x) {_xoffsetStart=x;}
+        void setYoffsetStart(const double &y) {_yoffsetStart=y;}
 
         TH1* DrawAndRebinTo(const int &rebinTo) {
 
@@ -340,7 +344,8 @@ class StandardPlot {
 
             if(_hist[iVV    ] &&_hist[iVV    ]->GetSumOfWeights() > 0) { DrawLegend(xPos[j], 0.84 - yOff[j]*_yoffset, _hist[iVV    ], " WZ",          "f" ); j++; }
 
-            TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS}");
+            //TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS}");
+            TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS} (Unpublished)");
             //TLatex * CMSLabel = new TLatex (0.18, 0.93, "#bf{CMS (preliminary)}");
             CMSLabel->SetNDC ();
             CMSLabel->SetTextAlign (10);
