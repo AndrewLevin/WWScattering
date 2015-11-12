@@ -63,6 +63,8 @@ void finalPlotVBS(int nsel = 0, int ReBin = 1, TString XTitle = "N_{jets}", TStr
   hVVV	  ->Scale(scale);
   hHiggs  ->Scale(scale*SFHiggs);
 
+  if(nsel > 10) {nsel = nsel - 10; myPlot.setTypeSyst(1);}
+
   if(nsel == -1 || nsel == 0 || nsel == 1 || nsel == 2 || nsel == 3){
     myPlot.setMCHist(iWWEWK,(TH1D*)hWWEWK->Clone("hWWEWK"));
     myPlot._mass = 0;

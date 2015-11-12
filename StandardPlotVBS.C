@@ -108,7 +108,7 @@ void DrawLegend(Float_t x1,
 class StandardPlot {
 
     public: 
-        StandardPlot() { _hist.resize(nSamples,0); _data = 0; _breakdown = false; _mass = 0;_isHWWOverlaid = false;}
+        StandardPlot() { _hist.resize(nSamples,0); _data = 0; _breakdown = false; _mass = 0;_isHWWOverlaid = false;_typeSyst = 0;}
         void setMCHist   (const samp &s, TH1D * h)  { _hist[s]       = h;  } 
         void setDataHist  (TH1D * h)                { _data          = h;  } 
         void setHWWOverlaid(bool b)                 { _isHWWOverlaid = b;  }
@@ -118,6 +118,7 @@ class StandardPlot {
         void setMass(const int &m) {_mass=m;}
         void setXoffsetStart(const double &x) {_xoffsetStart=x;}
         void setYoffsetStart(const double &y) {_yoffsetStart=y;}
+        void setTypeSyst(const int t) {_typeSyst=t;}
 
         TH1* DrawAndRebinTo(const int &rebinTo) {
 
@@ -203,13 +204,23 @@ class StandardPlot {
   	      TGraphAsymmErrors * gsyst = new TGraphAsymmErrors(hSum);
               for (int i = 0; i < gsyst->GetN(); ++i) {
                 double systBck = 0;
-		if(_hist[iWWEWK]) systBck = systBck + 0.107*0.107*_hist[iWWEWK]->GetBinContent(i+1)*_hist[iWWEWK]->GetBinContent(i+1);
-		if(_hist[iWWQCD]) systBck = systBck + 0.089*0.089*_hist[iWWQCD]->GetBinContent(i+1)*_hist[iWWQCD]->GetBinContent(i+1);
-		if(_hist[   iVV]) systBck = systBck + 0.380*0.380*_hist[   iVV]->GetBinContent(i+1)*_hist[   iVV]->GetBinContent(i+1);
-		if(_hist[   iWW]) systBck = systBck + 0.114*0.114*_hist[   iWW]->GetBinContent(i+1)*_hist[   iWW]->GetBinContent(i+1);
-		if(_hist[  iVVV]) systBck = systBck + 0.503*0.503*_hist[  iVVV]->GetBinContent(i+1)*_hist[  iVVV]->GetBinContent(i+1);
-		if(_hist[iOther]) systBck = systBck + 0.400*0.400*_hist[iOther]->GetBinContent(i+1)*_hist[iOther]->GetBinContent(i+1);
-		if(_hist[iWJets]) systBck = systBck + 0.360*0.360*_hist[iWJets]->GetBinContent(i+1)*_hist[iWJets]->GetBinContent(i+1);
+		if(_typeSyst == 0){
+		  if(_hist[iWWEWK]) systBck = systBck + 0.107*0.107*_hist[iWWEWK]->GetBinContent(i+1)*_hist[iWWEWK]->GetBinContent(i+1);
+		  if(_hist[iWWQCD]) systBck = systBck + 0.089*0.089*_hist[iWWQCD]->GetBinContent(i+1)*_hist[iWWQCD]->GetBinContent(i+1);
+		  if(_hist[   iVV]) systBck = systBck + 0.380*0.380*_hist[   iVV]->GetBinContent(i+1)*_hist[   iVV]->GetBinContent(i+1);
+		  if(_hist[   iWW]) systBck = systBck + 0.114*0.114*_hist[   iWW]->GetBinContent(i+1)*_hist[   iWW]->GetBinContent(i+1);
+		  if(_hist[  iVVV]) systBck = systBck + 0.503*0.503*_hist[  iVVV]->GetBinContent(i+1)*_hist[  iVVV]->GetBinContent(i+1);
+		  if(_hist[iOther]) systBck = systBck + 0.400*0.400*_hist[iOther]->GetBinContent(i+1)*_hist[iOther]->GetBinContent(i+1);
+		  if(_hist[iWJets]) systBck = systBck + 0.360*0.360*_hist[iWJets]->GetBinContent(i+1)*_hist[iWJets]->GetBinContent(i+1);
+                } else {
+		  if(_hist[iWWEWK]) systBck = systBck + 0.999*0.999*_hist[iWWEWK]->GetBinContent(i+1)*_hist[iWWEWK]->GetBinContent(i+1);
+		  if(_hist[iWWQCD]) systBck = systBck + 0.999*0.999*_hist[iWWQCD]->GetBinContent(i+1)*_hist[iWWQCD]->GetBinContent(i+1);
+		  if(_hist[   iVV]) systBck = systBck + 0.160*0.160*_hist[   iVV]->GetBinContent(i+1)*_hist[   iVV]->GetBinContent(i+1);
+		  if(_hist[   iWW]) systBck = systBck + 0.999*0.999*_hist[   iWW]->GetBinContent(i+1)*_hist[   iWW]->GetBinContent(i+1);
+		  if(_hist[  iVVV]) systBck = systBck + 0.550*0.550*_hist[  iVVV]->GetBinContent(i+1)*_hist[  iVVV]->GetBinContent(i+1);
+		  if(_hist[iOther]) systBck = systBck + 0.190*0.190*_hist[iOther]->GetBinContent(i+1)*_hist[iOther]->GetBinContent(i+1);
+		  if(_hist[iWJets]) systBck = systBck + 0.360*0.360*_hist[iWJets]->GetBinContent(i+1)*_hist[iWJets]->GetBinContent(i+1);
+		}
 
                 double total = 0;
 		if(_hist[iWWEWK]) total = total + _hist[iWWEWK]->GetBinContent(i+1);
@@ -381,5 +392,6 @@ class StandardPlot {
         int      _mass;
 	int      _alternativeOption;
         bool     _isHWWOverlaid;
+	int      _typeSyst;
 
 };
