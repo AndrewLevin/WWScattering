@@ -1210,6 +1210,11 @@ void wz_ana
       else if(j == 21)			       {bgdCombined[i][2] += bgdDecay[i][j]; bgdCombinedE[i][2] += weiDecay[i][j];}
       else if(j == 1 || j == 23 || j == 45)    {bgdCombined[i][3] += bgdDecay[i][j]; bgdCombinedE[i][3] += weiDecay[i][j];}
     }
+    if(i==WZSEL+nSelTypes){
+      printf("WjetsNorm: %f --> %f\n",bgdCombined[WZSEL+nSelTypes][3],histo_Wjets->GetSumOfWeights());
+      nTot[i] = nTot[i] - bgdCombined[WZSEL+nSelTypes][3] + histo_Wjets->GetSumOfWeights();
+      bgdCombined[WZSEL+nSelTypes][3] = histo_Wjets->GetSumOfWeights();
+    }
     if(showSignalOnly == false || i%nSelTypes == WZSEL) printf("nTot(%2d) = %11.3f +/- %8.3f\n",i,nTot[i],sqrt(nETot[i]));
     if(nTot[i] > 0.0 && TMath::Abs(bgdCombined[i][0]+bgdCombined[i][1]+bgdCombined[i][2]+bgdCombined[i][3]-nTot[i])/nTot[i] > 0.00001) 
                     {printf("%f\n",bgdCombined[i][0]+bgdCombined[i][1]+bgdCombined[i][2]+bgdCombined[i][3]);assert(0);}
