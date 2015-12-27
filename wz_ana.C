@@ -40,7 +40,7 @@ bool run_over_data = true;
 
 void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2], int opt);
 
-// thePlot == 0 (mjj), 2 (ptlmax), 9 (mll), 19(mt), anything else (mlljj)
+// thePlot == 0 (mjj), 2 (ptlmax), 9 (mll), 12 (m3l), 19(mt), anything else (mlljj)
 
 void wz_ana
 (
@@ -156,7 +156,8 @@ void wz_ana
   if     (thePlot == 0) {xbins[0] = 500; xbins[1] = 700; xbins[2] = 1100; xbins[3] = 1600; xbins[4] = 2000;}
   else if(thePlot == 2) {xbins[0] =   0; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
   else if(thePlot == 9) {xbins[0] =  50; xbins[1] = 100; xbins[2] =  200; xbins[3] =  300; xbins[4] =  500;}
-  else if(thePlot ==19) {xbins[0] = 0.0; xbins[1] = 150; xbins[2] =  250; xbins[3] =  350; xbins[4] = 1000;}
+  else if(thePlot ==12) {xbins[0] = 0.0; xbins[1] = 150; xbins[2] =  250; xbins[3] =  350; xbins[4] = 1000;}
+  else if(thePlot ==19) {xbins[0] = 0.0; xbins[1] = 350; xbins[2] =  550; xbins[3] =  750; xbins[4] = 1000;}
   TH1D* histoMVA = new TH1D("histoMVA", "histoMVA", nBin, xbins);
   histoMVA->Sumw2();
   TH1D *histo_Data      = (TH1D*) histoMVA->Clone("histo_Data");
@@ -186,21 +187,21 @@ void wz_ana
   else if(thePlot >=  9 && thePlot <=  9) {nBinPlot = 50;  xminPlot =  0.0; xmaxPlot =  500.0;} // mll
   else if(thePlot >= 10 && thePlot <= 10) {nBinPlot = 10;  xminPlot =  -0.5; xmaxPlot =  9.5;}
   else if(thePlot >= 11 && thePlot <= 11) {nBinPlot = 40; xminPlot = -0.5; xmaxPlot = 39.5;}
-  else if(thePlot >= 12 && thePlot <= 12) {nBinPlot = 36; xminPlot = 0.0; xmaxPlot = 180.0;}
+  else if(thePlot >= 12 && thePlot <= 12) {nBinPlot = 50; xminPlot = 0.0; xmaxPlot = 1000.0;} // m3l
   else if(thePlot >= 13 && thePlot <= 14) {nBinPlot = 100; xminPlot = 0.0; xmaxPlot = 5.0;}
   else if(thePlot >= 15 && thePlot <= 15) {nBinPlot = 7; xminPlot = 0.0; xmaxPlot =  8.75;} // detajjs
   else if(thePlot >= 16 && thePlot <= 16) {nBinPlot = 4; xminPlot = -0.5; xmaxPlot = 3.5;}
   else if(thePlot >= 17 && thePlot <= 17) {nBinPlot = 44; xminPlot = 0.0; xmaxPlot = 4.4;}
   else if(thePlot >= 18 && thePlot <= 18) {nBinPlot = 40; xminPlot = 0.0; xmaxPlot = 4.0;}
-  else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 50; xminPlot =  0.0; xmaxPlot = 1000.0;}
+  else if(thePlot >= 19 && thePlot <= 19) {nBinPlot = 50; xminPlot =  0.0; xmaxPlot = 1000.0;} // mt
   else if(thePlot >= 20 && thePlot <= 20) {nBinPlot =100; xminPlot =  0.0; xmaxPlot = 100.0;}
   else if(thePlot >= 21 && thePlot <= 21) {nBinPlot =40; xminPlot =  0.0; xmaxPlot = 200.0;}
   else if(thePlot >= 22 && thePlot <= 22) {nBinPlot =50; xminPlot =  0.0; xmaxPlot = 5.0;}
   else assert(0);
 
   TH1D* histo0;
-  if(thePlot != 0 && thePlot != 1 && thePlot != 2 && thePlot != 9 && thePlot != 19) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
-  else                                                                              histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
+  if(thePlot != 0 && thePlot != 1 && thePlot != 2 && thePlot != 9 && thePlot != 12 && thePlot != 19) histo0 = new TH1D("histo0", "histo0", nBinPlot, xminPlot, xmaxPlot);
+  else                                                                                               histo0 = new TH1D("histo0", "histo0", nBin, xbins);  
   histo0->Sumw2();
   TH1D* histo1 = (TH1D*) histo0->Clone("histo1");
   TH1D* histo2 = (TH1D*) histo0->Clone("histo2");
@@ -536,8 +537,8 @@ void wz_ana
     if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.lep1_.Phi(),bgdEvent.lep1_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.lep1_.Phi(),bgdEvent.lep1_.Eta());
     if(DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.lep2_.Phi(),bgdEvent.lep2_.Eta()) < deltaRlJMin) deltaRlJMin = DeltaR(bgdEvent.jet2_.Phi(),bgdEvent.jet2_.Eta(),bgdEvent.lep2_.Phi(),bgdEvent.lep2_.Eta());
 
-    // 0      1      2       3     4   5      6        7           8  9            10            11     12  13    14  15
-    // lep1pt,lep2pt,dilmass,dilpt,met,metPhi,trackMet,trackMetPhi,mt,dPhiDiLepMET,dPhiMETTrkMET,pTFrac,mtH,mlljj,mjj,lep3pt;
+    // 0      1      2       3     4   5      6        7           8  9            10            11  12  13    14  15
+    // lep1pt,lep2pt,dilmass,dilpt,met,metPhi,trackMet,trackMetPhi,mt,dPhiDiLepMET,dPhiMETTrkMET,m3l,mtH,mlljj,mjj,lep3pt;
     double outputVarLepP[16];
     makeSystematicEffects3l(bgdEvent.lid1_, bgdEvent.lid2_, bgdEvent.lid3_, bgdEvent.lep1_, bgdEvent.lep2_, bgdEvent.lep3_, bgdEvent.dilep_, 
                          bgdEvent.mt_, theMET, theMETPHI, 
@@ -578,6 +579,7 @@ void wz_ana
     if     (thePlot == 0) {MVAVar[0]=outputVar[14];MVAVar[1]=outputVarJESP[14];MVAVar[2]=outputVarJESM[14];MVAVar[3]=outputVarLepP[14];MVAVar[4]=outputVarLepM[14];MVAVar[5]=outputVarMET[14];MVAVar[6]=(genjetU_jer1+genjetU_jer2).M();MVAVar[7]=(genjetD_jer1+genjetD_jer2).M();}
     else if(thePlot == 2) {MVAVar[0]=outputVar[ 0];MVAVar[1]=outputVarJESP[ 0];MVAVar[2]=outputVarJESM[ 0];MVAVar[3]=outputVarLepP[ 0];MVAVar[4]=outputVarLepM[ 0];MVAVar[5]=outputVarMET[ 0];MVAVar[6]=outputVar[ 0];MVAVar[7]=outputVar[ 0];}
     else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];MVAVar[1]=outputVarJESP[ 2];MVAVar[2]=outputVarJESM[ 2];MVAVar[3]=outputVarLepP[ 2];MVAVar[4]=outputVarLepM[ 2];MVAVar[5]=outputVarMET[ 2];MVAVar[6]=outputVar[ 2];MVAVar[7]=outputVar[ 2];}
+    else if(thePlot ==12) {MVAVar[0]=outputVar[11];MVAVar[1]=outputVarJESP[11];MVAVar[2]=outputVarJESM[11];MVAVar[3]=outputVarLepP[11];MVAVar[4]=outputVarLepM[11];MVAVar[5]=outputVarMET[11];MVAVar[6]=outputVar[11];MVAVar[7]=outputVar[11];}
     else if(thePlot ==19) {MVAVar[0]=outputVar[12];MVAVar[1]=outputVarJESP[12];MVAVar[2]=outputVarJESM[12];MVAVar[3]=outputVarLepP[12];MVAVar[4]=outputVarLepM[12];MVAVar[5]=outputVarMET[12];MVAVar[6]=outputVar[12];MVAVar[7]=outputVar[12];}
     for(int nv=0; nv<8; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
     double addLepEff	 = 1.0; double addLepEffUp   = 1.0; double addLepEffDown = 1.0;
@@ -832,7 +834,13 @@ void wz_ana
 
       double MT3lTotx = bgdEvent.met_*cos(bgdEvent.metPhi_)-bgdEvent.lep1_.Px()-bgdEvent.lep2_.Px()-bgdEvent.lep3_.Px();
       double MT3lToty = bgdEvent.met_*sin(bgdEvent.metPhi_)-bgdEvent.lep1_.Py()-bgdEvent.lep2_.Py()-bgdEvent.lep3_.Py();
-      double MT3lTot = sqrt(MT3lTotx*MT3lTotx+MT3lToty*MT3lToty);
+      double MT3lTote = bgdEvent.met_                      +bgdEvent.lep1_.E() +bgdEvent.lep2_.E() +bgdEvent.lep3_.E();
+      double MT3lTot = sqrt(TMath::Max(MT3lTote*MT3lTote-MT3lTotx*MT3lTotx-MT3lToty*MT3lToty,0.0));
+      double M3lTotx = bgdEvent.lep1_.Px()+bgdEvent.lep2_.Px()+bgdEvent.lep3_.Px();
+      double M3lToty = bgdEvent.lep1_.Py()+bgdEvent.lep2_.Py()+bgdEvent.lep3_.Py();
+      double M3lTotz = bgdEvent.lep1_.Pz()+bgdEvent.lep2_.Pz()+bgdEvent.lep3_.Pz();
+      double M3lTote = bgdEvent.lep1_.E() +bgdEvent.lep2_.E() +bgdEvent.lep3_.E();
+      double M3lTot = sqrt(TMath::Max(M3lTote*M3lTote -M3lTotx*M3lTotx -M3lToty*M3lToty -M3lTotz*M3lTotz,0.0));
 
       if(passCuts[1][WZSEL]){ // begin making plots
 	double myVar = -1.0;
@@ -848,7 +856,7 @@ void wz_ana
 	else if(thePlot == 9) myVar = TMath::Min(bgdEvent.dilep_.M(),499.999);
 	else if(thePlot ==10) myVar = bgdEvent.njets_;
 	else if(thePlot ==11) myVar = bgdEvent.nvtx_;
-	else if(thePlot ==12) myVar = bgdEvent.dPhi_*180.0/TMath::Pi();
+	else if(thePlot ==12) myVar = TMath::Min(M3lTot,999.999);
 	else if(thePlot ==13) myVar = TMath::Min(fabs(bgdEvent.jet1_.Eta()),fabs(bgdEvent.jet2_.Eta()));
 	else if(thePlot ==14) myVar = TMath::Max(fabs(bgdEvent.jet1_.Eta()),fabs(bgdEvent.jet2_.Eta()));
 	else if(thePlot ==15) myVar = TMath::Abs(bgdEvent.jet1_.Eta()-bgdEvent.jet2_.Eta());
@@ -1076,13 +1084,20 @@ void wz_ana
       if     (thePlot == 0) {MVAVar[0]=outputVar[14];}
       else if(thePlot == 2) {MVAVar[0]=outputVar[ 0];}
       else if(thePlot == 9) {MVAVar[0]=outputVar[ 2];}
+      else if(thePlot ==12) {MVAVar[0]=outputVar[11];}
       else if(thePlot ==19) {MVAVar[0]=outputVar[12];}
 
       for(int nv=0; nv<1; nv++) MVAVar[nv] = TMath::Min(TMath::Max(MVAVar[nv],xbins[0]+0.001),xbins[nBin]-0.001);
 
       double MT3lTotx = dataEvent.met_*cos(dataEvent.metPhi_)-dataEvent.lep1_.Px()-dataEvent.lep2_.Px()-dataEvent.lep3_.Px();
       double MT3lToty = dataEvent.met_*sin(dataEvent.metPhi_)-dataEvent.lep1_.Py()-dataEvent.lep2_.Py()-dataEvent.lep3_.Py();
-      double MT3lTot = sqrt(MT3lTotx*MT3lTotx+MT3lToty*MT3lToty);
+      double MT3lTote = dataEvent.met_                       +dataEvent.lep1_.E() +dataEvent.lep2_.E() +dataEvent.lep3_.E();
+      double MT3lTot = sqrt(TMath::Max(MT3lTote*MT3lTote-MT3lTotx*MT3lTotx-MT3lToty*MT3lToty,0.0));
+      double M3lTotx = dataEvent.lep1_.Px()+dataEvent.lep2_.Px()+dataEvent.lep3_.Px();
+      double M3lToty = dataEvent.lep1_.Py()+dataEvent.lep2_.Py()+dataEvent.lep3_.Py();
+      double M3lTotz = dataEvent.lep1_.Pz()+dataEvent.lep2_.Pz()+dataEvent.lep3_.Pz();
+      double M3lTote = dataEvent.lep1_.E() +dataEvent.lep2_.E() +dataEvent.lep3_.E();
+      double M3lTot = sqrt(TMath::Max(M3lTote*M3lTote -M3lTotx*M3lTotx -M3lToty*M3lToty -M3lTotz*M3lTotz,0.0));
 
       if(passCuts[1][WZSEL]){ // begin making plots
 	double myVar = -1.0;
@@ -1098,7 +1113,7 @@ void wz_ana
 	else if(thePlot == 9) myVar = TMath::Min(dataEvent.dilep_.M(),499.999);
 	else if(thePlot ==10) myVar = dataEvent.njets_;
 	else if(thePlot ==11) myVar = dataEvent.nvtx_;
-	else if(thePlot ==12) myVar = dataEvent.dPhi_*180.0/TMath::Pi();
+	else if(thePlot ==12) myVar = TMath::Min(M3lTot,999.999);
 	else if(thePlot ==13) myVar = TMath::Min(fabs(dataEvent.jet1_.Eta()),fabs(dataEvent.jet2_.Eta()));
 	else if(thePlot ==14) myVar = TMath::Max(fabs(dataEvent.jet1_.Eta()),fabs(dataEvent.jet2_.Eta()));
 	else if(thePlot ==15) myVar = TMath::Abs(dataEvent.jet1_.Eta()-dataEvent.jet2_.Eta());
