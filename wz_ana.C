@@ -44,9 +44,9 @@ void scaleFactor_WS(LorentzVector l,int q, int ld, int mcld, double val[2], int 
 
 void wz_ana
 (
- int thePlot = 0,
+ int thePlot = 19,
  int lSel = 4,
- TString bgdInputFile    = "ntuples_53x/backgroundEWK_skim14_sm.root",
+ TString bgdInputFile    = "ntuples_53x/backgroundEWK_skim14_sm_wz500.root",
  TString dataInputFile   = "ntuples_53x/data_skim14.root",
  int period = 3
  )
@@ -372,10 +372,10 @@ void wz_ana
     else if(bgdEvent.dstype_ == SmurfTree::wwewk  	   ) fDecay = 31;
     else if(bgdEvent.dstype_ == SmurfTree::wzewk  	   ) fDecay = 27;
     else if(bgdEvent.dstype_ == SmurfTree::other           ) fDecay = 40;
-    else if(bgdEvent.processId_==121 ||
-            bgdEvent.processId_==122)   fDecay = 41;
-    else if(bgdEvent.processId_==24)    fDecay = 42;
-    else if(bgdEvent.processId_==26)    fDecay = 43;
+    //else if(bgdEvent.processId_==121 ||
+    //        bgdEvent.processId_==122)   fDecay = 41;
+    //else if(bgdEvent.processId_==24)    fDecay = 42;
+    //else if(bgdEvent.processId_==26)    fDecay = 43;
     else if(bgdEvent.processId_==10001) fDecay = 44;
     else if(bgdEvent.processId_==10010) fDecay = 44;
     else                                          {fDecay = 0;std::cout << bgdEvent.dstype_ << std::endl;}
@@ -806,6 +806,7 @@ void wz_ana
 
 	theWeight              = bgdEvent.scale1fb_*lumi*add;
       }
+      if(fDecay == 44) theWeight = theWeight / 1000.;
 
       // uncertainty related to wrong-sign leptons
       double weightWS[2] = {theWeight,theWeight};
